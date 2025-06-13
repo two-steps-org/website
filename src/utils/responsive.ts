@@ -34,7 +34,7 @@ export function useBreakpoint() {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -92,7 +92,7 @@ export function useViewportSize() {
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -135,7 +135,7 @@ export function useSafeArea() {
     }
 
     updateSafeArea();
-    window.addEventListener('resize', updateSafeArea);
+    window.addEventListener('resize', updateSafeArea, { passive: true });
     return () => window.removeEventListener('resize', updateSafeArea);
   }, []);
 

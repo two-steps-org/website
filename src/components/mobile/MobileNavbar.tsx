@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import Logo from '../Logo';
+import { useOptimizedScroll } from '../../utils/performance';
 
 const MenuButton = ({ children, onClick, isActive }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -81,37 +82,42 @@ const MobileNavbar = () => {
   }, [isMenuOpen]);
 
   // Section tracking
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!isMenuOpen) {
-        const sections = menuItems.map(item => item.href).filter(href => !href.startsWith('/'));
-        const scrollPosition = window.scrollY + window.innerHeight / 3;
+  const handleScroll = useCallback(() => {
+    if (location.pathname !== '/' || isMenuOpen) return;
 
-        for (const section of sections) {
-          const element = document.getElementById(section);
-          if (element) {
-            const { top, bottom } = element.getBoundingClientRect();
-            const elementTop = top + window.scrollY;
-            const elementBottom = bottom + window.scrollY;
+    const sections = menuItems
+      .map((item) => item.href)
+      .filter((href) => !href.startsWith('/'));
 
-            if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
-              setActiveSection(section);
-              break;
-            }
-          }
+    const scrollPosition = window.scrollY + window.innerHeight / 3;
+
+    for (const section of sections) {
+      const element = document.getElementById(section);
+      if (element) {
+        const { top, bottom } = element.getBoundingClientRect();
+        const elementTop = top + window.scrollY;
+        const elementBottom = bottom + window.scrollY;
+
+        if (
+          scrollPosition >= elementTop &&
+          scrollPosition <= elementBottom
+        ) {
+          setActiveSection(section);
+          break;
         }
       }
-    };
+    }
+  }, [isMenuOpen, location.pathname]);
 
+  useOptimizedScroll(() => handleScroll());
+
+  useEffect(() => {
     if (location.pathname === '/') {
-      window.addEventListener('scroll', handleScroll);
       handleScroll();
     } else {
       setActiveSection(location.pathname.replace('/', ''));
     }
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname, isMenuOpen]);
+  }, [location.pathname, handleScroll]);
 
   const handleBookCall = () => {
     const scrollY = document.body.style.top;
