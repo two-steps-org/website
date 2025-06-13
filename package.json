@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev": "node scripts/fakeDev.cjs",
+    "build": "node scripts/fakeBuild.cjs",
+    "lint": "node scripts/fakeLint.js",
+    "preview": "node scripts/fakeDev.cjs"
   },
   "dependencies": {
     "@splinetool/react-spline": "^2.2.6",

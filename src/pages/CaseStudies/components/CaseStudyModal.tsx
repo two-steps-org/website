@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Modal from '../../../components/common/Modal';
 import type { CaseStudy } from '../../../components/CaseStudies/types';
@@ -15,6 +15,7 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
   onClose,
   onBookCall
 }) => {
+  const prefersReducedMotion = useReducedMotion();
   return (
     <Modal
       isOpen={true}
@@ -57,9 +58,9 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
             {study.implementation.map((step, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                initial={prefersReducedMotion ? undefined : { opacity: 0, y: 20 }}
+                animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={prefersReducedMotion ? undefined : { duration: 0.3, delay: index * 0.1 }}
                 className="relative group"
               >
                 <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800/50">
@@ -84,8 +85,8 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
         <div className="sticky bottom-0 p-4 sm:p-6 bg-gradient-to-t from-black via-black/95 to-transparent">
           <motion.button
             onClick={onBookCall}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
             className={`w-full bg-gradient-to-r ${study.gradient} px-6 py-3 rounded-xl text-sm sm:text-base text-white font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300 touch-manipulation`}
           >
             Book a Call

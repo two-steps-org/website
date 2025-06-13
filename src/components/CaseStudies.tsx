@@ -81,7 +81,13 @@ const CaseStudies = () => {
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Home</span>
             </a>
-            <img src="/two-steps-logo.png" alt="Two Steps" className="h-12" />
+            <img
+              src="/two-steps-logo.png"
+              alt="Two Steps"
+              loading="lazy"
+              decoding="async"
+              className="h-12"
+            />
           </div>
         </div>
       </div>
@@ -159,6 +165,8 @@ const CaseStudies = () => {
                         <img
                           src={study.image}
                           alt={study.title}
+                          loading="lazy"
+                          decoding="async"
                           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-60" />

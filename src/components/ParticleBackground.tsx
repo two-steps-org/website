@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, memo } from 'react';
+import { useReducedMotion } from 'framer-motion';
 
 /**
  * ParticleBackground renders a full-screen animated particle system on a canvas.
@@ -7,6 +8,11 @@ import React, { useEffect, useRef, memo } from 'react';
  */
 const ParticleBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return null;
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;

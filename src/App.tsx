@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { usePerformanceOptimizer } from './utils/performance/hooks';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { getDeviceType } from './utils/responsive/device';
 import type { DeviceType } from './utils/responsive/device';
@@ -67,6 +68,7 @@ const LoadingFallback = () => (
 );
 
 const App: React.FC = () => {
+  usePerformanceOptimizer();
   const deviceType: DeviceType = getDeviceType();
   const isMobile = deviceType === 'mobile' || deviceType === 'tablet';
   const HomeComponent = isMobile ? MobileApp : Landing;
