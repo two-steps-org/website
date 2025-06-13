@@ -26,7 +26,12 @@ const ParticleBackground: React.FC = () => {
     };
 
     setCanvasSize();
-    window.addEventListener('resize', setCanvasSize);
+    window.addEventListener('resize', setCanvasSize, { passive: true });
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      return () => window.removeEventListener('resize', setCanvasSize);
+    }
 
     /** Particle class definition */
     class Particle {
@@ -125,9 +130,20 @@ const ParticleBackground: React.FC = () => {
     // Start animation
     animate(0);
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+      } else {
+        animate(performance.now());
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Cleanup on unmount
     return () => {
       window.removeEventListener('resize', setCanvasSize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
