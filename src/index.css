@@ -1,0 +1,215 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    @apply bg-black text-white overflow-x-hidden min-h-screen-dvh;
+    touch-action: manipulation;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: none;
+  }
+
+  #root {
+    @apply min-h-screen-dvh flex flex-col overflow-x-hidden w-full;
+    position: relative;
+    isolation: isolate;
+  }
+
+  img {
+    @apply max-w-full h-auto;
+  }
+
+  ::selection {
+    @apply bg-blue-500/30 text-white;
+  }
+}
+
+/* Component styles */
+@layer components {
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto px-8;
+  }
+
+  .responsive-grid {
+    @apply grid grid-cols-3 gap-6 w-full;
+  }
+
+  .responsive-text {
+    @apply text-xl;
+  }
+
+  .responsive-heading {
+    @apply text-4xl font-bold;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/[0.02] border border-white/[0.05];
+  }
+
+  .glass-card {
+    @apply rounded-2xl glass-effect hover:bg-white/[0.03] transition-all duration-300;
+  }
+
+  .glass-button {
+    @apply glass-effect hover:bg-white/[0.05] active:bg-white/[0.02] transition-all duration-300;
+  }
+
+  .section-container {
+    @apply w-full max-w-7xl mx-auto px-8;
+  }
+
+  .section-padding {
+    @apply py-20;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent;
+  }
+
+  .touch-feedback {
+    @apply active:scale-95 transition-transform duration-200;
+  }
+
+  .card-hover {
+    @apply hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.5) rgba(17, 24, 39, 0.1);
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-900/50 rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-blue-500/50 rounded-full hover:bg-blue-500/70 transition-colors;
+  }
+
+  /* Neon glow effects */
+  .neon-glow {
+    @apply relative;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+  .neon-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-blue-400/20 blur-lg opacity-0 transition-opacity duration-300;
+  }
+  .neon-glow:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Neon tube effect */
+  .neon-tube {
+    @apply relative overflow-hidden;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  .neon-tube::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-blue-400/10 via-transparent to-blue-400/10;
+    animation: tubeShine 2s linear infinite;
+  }
+  @keyframes tubeShine {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Loader */
+  .loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Logo Carousel Animation */
+  .logo-track {
+    animation: scroll 30s linear infinite;
+  }
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Performance optimizations */
+.fonts-loaded {
+  @apply transition-opacity duration-300;
+}
+
+/* CSS-only hover animations when possible */
+@media (prefers-reduced-motion: no-preference) {
+  .hover-scale {
+    @apply transition-transform duration-300;
+  }
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+  .hover-lift {
+    @apply transition-transform duration-300;
+  }
+  .hover-lift:hover {
+    @apply -translate-y-1;
+  }
+}
+
+/* CSS containment for performance */
+.contain-paint {
+  contain: paint;
+}
+.contain-layout {
+  contain: layout;
+}
+.contain-strict {
+  contain: strict;
+}
