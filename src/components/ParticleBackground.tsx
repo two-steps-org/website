@@ -15,6 +15,8 @@ const ParticleBackground: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const isLowPowerDevice = (navigator.hardwareConcurrency || 4) <= 4;
+
     // Sets up the canvas dimensions with support for device pixel ratio
     const setCanvasSize = () => {
       const scale = window.devicePixelRatio || 1;
@@ -83,8 +85,8 @@ const ParticleBackground: React.FC = () => {
     // Initialize Particles
     const particles: Particle[] = [];
     const particleCount = Math.min(
-      100,
-      (window.innerWidth * window.innerHeight) / 10000
+      isLowPowerDevice ? 50 : 100,
+      (window.innerWidth * window.innerHeight) / (isLowPowerDevice ? 16000 : 10000)
     );
 
     for (let i = 0; i < particleCount; i++) {
@@ -93,7 +95,7 @@ const ParticleBackground: React.FC = () => {
 
     // Draw lines between nearby particles
     const connectParticles = (time: number) => {
-      const maxDistance = 150;
+      const maxDistance = isLowPowerDevice ? 100 : 150;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -114,16 +116,22 @@ const ParticleBackground: React.FC = () => {
     };
 
     let animationFrameId: number;
+    const targetFPS = isLowPowerDevice ? 30 : 60;
+    const frameDelay = 1000 / targetFPS;
+    let lastFrameTime = 0;
 
-    // Animation loop
+    // Animation loop with simple frame skipping
     const animate = (time: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (time - lastFrameTime >= frameDelay) {
+        lastFrameTime = time;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((particle) => {
-        particle.update(time);
-      });
+        particles.forEach((particle) => {
+          particle.update(time);
+        });
 
-      connectParticles(time);
+        connectParticles(time);
+      }
       animationFrameId = requestAnimationFrame(animate);
     };
 
