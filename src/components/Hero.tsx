@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, Suspense } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SplineScene } from "./ui/splite";
@@ -22,6 +22,7 @@ const Hero: React.FC = () => {
   const [setIntersectionRef, isVisible] = useIntersectionObserver({
     threshold: 0.1,
   });
+  const prefersReducedMotion = useReducedMotion();
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -46,19 +47,21 @@ const Hero: React.FC = () => {
   // Handle mouse movement for 3D rotation on the robot
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (prefersReducedMotion) return;
       const rect = e.currentTarget.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
       mouseX.set(x);
       mouseY.set(y);
     },
-    [mouseX, mouseY]
+    [mouseX, mouseY, prefersReducedMotion]
   );
 
   const handleMouseLeave = useCallback(() => {
+    if (prefersReducedMotion) return;
     mouseX.set(0);
     mouseY.set(0);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, prefersReducedMotion]);
 
   const handleBookCall = useCallback(() => {
     window.open("https://calendly.com/yoniinsell/30min", "_blank");
@@ -183,14 +186,14 @@ const Hero: React.FC = () => {
           <motion.div
             className="relative w-full h-[min(75vh,780px)] -mt-8"
             //  ↑ -mt-8 moves the robot ~2rem up to fit better
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+            onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
+            onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
+            initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.95 }}
+            animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
+            transition={prefersReducedMotion ? undefined : { duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           >
             <motion.div
-              style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+              style={prefersReducedMotion ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
               className="w-full h-full rounded-xl overflow-hidden"
             >
               {/* Adjusted scale for an even bigger robot */}

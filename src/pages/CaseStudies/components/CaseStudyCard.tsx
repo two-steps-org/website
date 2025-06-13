@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import type { CaseStudy } from '../../../components/CaseStudies/types';
 
@@ -16,14 +16,18 @@ const CaseStudyCard: React.FC<CaseStudyCardProps> = ({
   onSelect,
   isMobile
 }) => {
+  const prefersReducedMotion = useReducedMotion();
+
+  const motionProps = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 20 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true },
+        transition: { duration: 0.5, delay: index * 0.1 }
+      };
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative"
-    >
+    <motion.div {...motionProps} className="group relative">
       {/* Main Card Container */}
       <div className="relative overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-4">
@@ -62,6 +66,8 @@ const CaseStudyCard: React.FC<CaseStudyCardProps> = ({
               {/* Learn More Button */}
               <motion.button
                 onClick={() => onSelect(study)}
+                whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+                whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
                 className="mt-3 inline-flex items-center text-[14px] sm:text-[16px] font-medium transition-all duration-300 min-h-[44px] px-4 py-2"
               >
                 <span
@@ -101,6 +107,8 @@ const CaseStudyCard: React.FC<CaseStudyCardProps> = ({
               <img
                 src={study.image}
                 alt={study.title}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/50 to-transparent opacity-50" />
