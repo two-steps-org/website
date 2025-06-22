@@ -121,8 +121,8 @@ const Landing: React.FC = () => {
       }
       // Force initial scroll position immediately
       window.scrollTo(0, 0);
-      // Force again after a small delay to account for lazy loading
-      setTimeout(() => window.scrollTo(0, 0), 100);
+         // Force again after a small delay to account for lazy loading - REMOVED as Hero suspense should stabilize layout
+         // setTimeout(() => window.scrollTo(0, 0), 100);
       isFirstRender.current = false;
     }
 
@@ -160,11 +160,15 @@ const Landing: React.FC = () => {
 
         <main ref={mainRef} className="flex-1 w-full">
           <ErrorBoundary FallbackComponent={SectionErrorFallback}>
-            <Suspense fallback={<SectionLoadingFallback />}>
-              {/* Hero section */}
-              <section id="home">
+            {/* Hero section with its own Suspense and a viewport-height fallback */}
+            <section id="home">
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><SectionLoadingFallback /></div>}>
                 <Hero />
-              </section>
+              </Suspense>
+            </section>
+
+            {/* Rest of the sections with a shared Suspense */}
+            <Suspense fallback={<SectionLoadingFallback />}>
               {/* Services section */}
               <section id="services">
                 <Services />

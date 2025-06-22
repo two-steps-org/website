@@ -18,13 +18,11 @@
       body {
         opacity: 0;
         visibility: hidden;
-        /* height: 100%; Removed to allow natural body height */
-        /* position: fixed; Removed to prevent jump */
+        height: 100%;
+        position: fixed;
         width: 100%;
-        /* top: 0; Not needed without position:fixed */
-        /* left: 0; Not needed without position:fixed */
-        margin: 0; /* Ensure no default body margin interferes */
-        min-height: 100%; /* Ensure body takes at least viewport height if content is short */
+        top: 0;
+        left: 0;
       }
       /* Loading state */
       body.loading {
@@ -35,7 +33,7 @@
       body.loaded {
         opacity: 1;
         visibility: visible;
-        position: relative; /* Keep this for potential absolute positioning of children */
+        position: relative;
         transition: opacity 0.3s ease-out;
       }
     </style>

@@ -8,6 +8,9 @@ function handlePageLoad(): void {
   // Force scroll to top immediately
   window.scrollTo(0, 0);
 
+  // Ensure the body starts at the top
+  document.body.style.top = '0';
+
   // Remove loading class and add loaded class on the next frame
   requestAnimationFrame(() => {
     document.body.classList.remove('loading');
