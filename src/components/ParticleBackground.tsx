@@ -93,9 +93,11 @@ const ParticleBackground: React.FC = () => {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+          const distSq = dx * dx + dy * dy; // Squared distance
+          const maxDistSq = maxDistance * maxDistance; // Squared maxDistance
 
-          if (distance < maxDistance) {
+          if (distSq < maxDistSq) {
+            const distance = Math.sqrt(distSq); // Calculate sqrt only if needed for opacity
             const opacity = (1 - distance / maxDistance) * 0.2;
             ctx.beginPath();
             ctx.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
