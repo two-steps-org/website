@@ -34,22 +34,39 @@ export function NavBar({ items, className, onItemClick }: NavBarProps) {
 
     if (sections.length === 0) return;
 
-    // Use a finely spaced threshold for a smoother update.
-    const thresholds = Array.from({ length: 101 }, (_, i) => i / 100);
+    // Use a simpler threshold to reduce callback frequency.
+    // A threshold of 0.5 means the callback fires when 50% of the section is visible.
+    const reasonableThreshold = 0.5;
 
     const observer = new IntersectionObserver((entries) => {
-      let maxRatio = 0;
-      let newActive = activeTab;
-      // Look through each entry to determine which section is most visible.
-      entries.forEach(entry => {
-        const section = sections.find(sec => sec.element === entry.target);
-        if (section && entry.intersectionRatio > maxRatio) {
-          maxRatio = entry.intersectionRatio;
-          newActive = section.name;
+      // Find the entry that is currently intersecting and is most visible (highest intersectionRatio)
+      // or if multiple are equally visible, the one that is 'isIntersecting'.
+      // Filter for intersecting elements first.
+      const intersectingEntries = entries.filter(entry => entry.isIntersecting);
+
+      if (intersectingEntries.length > 0) {
+        // If there are intersecting entries, find the one with the largest intersection area.
+        // This helps when scrolling fast and multiple sections might be briefly "intersecting".
+        const mostVisibleEntry = intersectingEntries.reduce((prev, current) =>
+          (prev.intersectionRatio > current.intersectionRatio) ? prev : current
+        );
+
+        const section = sections.find(sec => sec.element === mostVisibleEntry.target);
+        if (section) {
+          setActiveTab(section.name);
         }
-      });
-      setActiveTab(newActive);
-    }, { threshold: thresholds });
+      } else {
+        // Optional: If no sections are "intersecting" based on the threshold (e.g. scrolling very fast
+        // or if sections are smaller than 2*threshold*viewportHeight), you might want to fall back
+        // to the previously active tab or determine the closest one.
+        // For now, we only update if there's a clear "most visible" intersecting section.
+        // This logic can be refined if the active tab "jumps" too much or disappears.
+        // A common strategy is to find the last section that had an intersectionRatio > 0
+        // when scrolling up, or the first when scrolling down, but that adds complexity.
+        // The current logic prioritizes the section taking up the most viewport space among those
+        // that have crossed the 0.5 threshold.
+      }
+    }, { threshold: reasonableThreshold });
 
     sections.forEach(section => {
       if (section.element) {
