@@ -12,14 +12,12 @@ interface LazyWithFallbackOptions {
 const lazyWithFallback = (
   importFn: () => Promise<any>,
   fallbackTitle: string,
-  options?: LazyWithFallbackOptions
+  options?: LazyWithFallbackOptions // Keep options for potential future use, but remove console.log
 ) => {
   return React.lazy(() =>
     importFn()
       .then(module => {
-        if (options?.successLog) {
-          console.log(options.successLog);
-        }
+        // Removed console.log(options?.successLog);
         return module;
       })
       .catch((error: Error) => {

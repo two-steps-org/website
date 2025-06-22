@@ -39,10 +39,7 @@ const Hero = React.lazy(() =>
 
 const Services = React.lazy(() => 
   import('../components/Services')
-    .then(module => {
-      console.log('Services component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load Services component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
@@ -51,10 +48,7 @@ const Services = React.lazy(() =>
 
 const WhyUs = React.lazy(() => 
   import('../components/WhyUs')
-    .then(module => {
-      console.log('WhyUs component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load WhyUs component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
@@ -63,10 +57,7 @@ const WhyUs = React.lazy(() =>
 
 const Process = React.lazy(() => 
   import('../components/Process')
-    .then(module => {
-      console.log('Process component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load Process component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
@@ -75,10 +66,7 @@ const Process = React.lazy(() =>
 
 const Team = React.lazy(() => 
   import('../components/Team')
-    .then(module => {
-      console.log('Team component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load Team component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
@@ -87,10 +75,7 @@ const Team = React.lazy(() =>
 
 const FAQ = React.lazy(() => 
   import('../components/FAQ')
-    .then(module => {
-      console.log('FAQ component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load FAQ component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
@@ -99,10 +84,7 @@ const FAQ = React.lazy(() =>
 
 const DashboardSection = React.lazy(() => 
   import('../components/DashboardSection')
-    .then(module => {
-      console.log('DashboardSection component loaded successfully');
-      return module;
-    })
+    .then(module => module)
     .catch(error => {
       console.error('Failed to load DashboardSection component:', error);
       return { default: () => <SectionErrorFallback error={error} /> };
