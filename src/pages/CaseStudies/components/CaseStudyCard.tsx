@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import type { CaseStudy } from '../../../components/CaseStudies/types';
-import { Spotlight } from '../../../components/ui/spotlight';
 
 interface CaseStudyCardProps {
   study: CaseStudy;
@@ -25,7 +24,6 @@ const CaseStudyCard: React.FC<CaseStudyCardProps> = ({
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="group relative"
     >
-      <Spotlight className="from-white/30 via-blue-500/20 to-transparent" size={300} />
       {/* Main Card Container */}
       <div className="relative overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-4">

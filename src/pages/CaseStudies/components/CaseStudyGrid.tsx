@@ -5,7 +5,6 @@ import CaseStudyModal from './CaseStudyModal';
 import { caseStudies } from '../../../components/CaseStudies/data';
 import type { CaseStudy } from '../../../components/CaseStudies/types';
 import { useBreakpoint } from '../../../utils/responsive/hooks';
-import ResponsiveGrid from '../../../components/common/ResponsiveGrid';
 
 const CaseStudyGrid = () => {
   const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
@@ -18,7 +17,7 @@ const CaseStudyGrid = () => {
 
   return (
     <>
-      <ResponsiveGrid cols={{ xs: 1, md: 2, xl: 3 }} gap="gap-8 lg:gap-10">
+      <div className="grid grid-cols-1 gap-6 sm:gap-8 md:gap-12">
         {caseStudies.map((study, index) => (
           <CaseStudyCard
             key={index}
@@ -28,7 +27,7 @@ const CaseStudyGrid = () => {
             isMobile={isMobile}
           />
         ))}
-      </ResponsiveGrid>
+      </div>
 
       <AnimatePresence>
         {selectedStudy && (
