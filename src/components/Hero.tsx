@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, Suspense } from "react";
+import React, { useEffect, useRef, useCallback, Suspense, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -22,6 +22,7 @@ const Hero: React.FC = () => {
   const [setIntersectionRef, isVisible] = useIntersectionObserver({
     threshold: 0.1,
   });
+  const [showRobot, setShowRobot] = useState(false);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -42,6 +43,14 @@ const Hero: React.FC = () => {
       setIntersectionRef(heroRef.current);
     }
   }, [setIntersectionRef]);
+
+  useEffect(() => {
+    let t: NodeJS.Timeout;
+    if (isVisible && !showRobot) {
+      t = setTimeout(() => setShowRobot(true), 200);
+    }
+    return () => clearTimeout(t);
+  }, [isVisible, showRobot]);
 
   // Handle mouse movement for 3D rotation on the robot
   const handleMouseMove = useCallback(
@@ -201,12 +210,14 @@ const Hero: React.FC = () => {
                   </div>
                 }
               >
-                <SplineScene
-                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                  className="w-full h-full scale-105"
-                  loading="eager"
-                  quality="low"
-                />
+                {showRobot && (
+                  <SplineScene
+                    scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                    className="w-full h-full scale-105"
+                    loading="lazy"
+                    quality="low"
+                  />
+                )}
               </Suspense>
             </motion.div>
           </motion.div>
