@@ -40,7 +40,9 @@ const Hero = React.lazy(() =>
 const Services = React.lazy(() => 
   import('../components/Services')
     .then(module => {
-      console.log('Services component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Services component loaded successfully');
+      }
       return module;
     })
     .catch(error => {
@@ -52,7 +54,9 @@ const Services = React.lazy(() =>
 const WhyUs = React.lazy(() => 
   import('../components/WhyUs')
     .then(module => {
-      console.log('WhyUs component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('WhyUs component loaded successfully');
+      }
       return module;
     })
     .catch(error => {
@@ -64,7 +68,9 @@ const WhyUs = React.lazy(() =>
 const Process = React.lazy(() => 
   import('../components/Process')
     .then(module => {
-      console.log('Process component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Process component loaded successfully');
+      }
       return module;
     })
     .catch(error => {
@@ -76,7 +82,9 @@ const Process = React.lazy(() =>
 const Team = React.lazy(() => 
   import('../components/Team')
     .then(module => {
-      console.log('Team component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Team component loaded successfully');
+      }
       return module;
     })
     .catch(error => {
@@ -88,7 +96,9 @@ const Team = React.lazy(() =>
 const FAQ = React.lazy(() => 
   import('../components/FAQ')
     .then(module => {
-      console.log('FAQ component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('FAQ component loaded successfully');
+      }
       return module;
     })
     .catch(error => {
@@ -100,7 +110,9 @@ const FAQ = React.lazy(() =>
 const DashboardSection = React.lazy(() => 
   import('../components/DashboardSection')
     .then(module => {
-      console.log('DashboardSection component loaded successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('DashboardSection component loaded successfully');
+      }
       return module;
     })
     .catch(error => {

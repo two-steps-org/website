@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback, Suspense } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
-import { SplineScene } from "./ui/splite";
+import { SplineScene } from "./ui/spline";
 import Section from "./common/Section";
 import AnimatedGradientText from "./common/AnimatedGradientText";
 import { useIntersectionObserver } from "../utils/performance/hooks";

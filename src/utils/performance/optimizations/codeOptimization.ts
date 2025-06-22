@@ -3,7 +3,7 @@ export function memoizeCalculation<T>(
   calculation: () => T,
   dependencies: any[]
 ): T {
-  const cache = new WeakMap();
+  const cache = new Map<string, T>();
   const key = JSON.stringify(dependencies);
   
   if (!cache.has(key)) {
