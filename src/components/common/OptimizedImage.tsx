@@ -1,7 +1,11 @@
 import React, { memo } from 'react';
 import clsx from 'clsx';
 import { useImagePreload } from '../../utils/performance/hooks';
-import { getOptimalImageSize, generateSrcSet, imageLoadingPriority } from '../../utils/performance/optimizations';
+import {
+  getOptimalImageSize,
+  generateSrcSet,
+  imageLoadingPriority
+} from '../../utils/performance/optimizations/imageOptimization';
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   /** The image source (path or URL) */

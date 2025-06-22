@@ -17,7 +17,7 @@ const lazyWithFallback = (
   return React.lazy(() =>
     importFn()
       .then(module => {
-        if (options?.successLog) {
+        if (options?.successLog && process.env.NODE_ENV === 'development') {
           console.log(options.successLog);
         }
         return module;

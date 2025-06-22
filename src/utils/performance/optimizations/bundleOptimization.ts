@@ -47,7 +47,9 @@ export function lazyLoadWithRetry<T extends ComponentType<any>>(
   const loadPromise = new Promise<{ default: T }>((resolve, reject) => {
     factory()
       .then(module => {
-        console.log(`Component ${componentName} loaded successfully`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Component ${componentName} loaded successfully`);
+        }
         loadedComponents.add(componentName);
         loadingComponents.set(componentName, Promise.resolve(module));
         resolve(module);
