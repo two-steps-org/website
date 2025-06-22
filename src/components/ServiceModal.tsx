@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useScrollLock } from '../utils/responsive';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { X, ArrowRight, MessageSquareText, Mic, LayoutDashboard, Code2 } from 'lucide-react';
@@ -47,32 +48,8 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen) {
-      // Lock scroll while preserving position
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
-    } else {
-      const scrollY = parseInt(document.body.style.top || '0') * -1;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.paddingRight = '';
-      window.scrollTo(0, scrollY);
-    }
-
-    return () => {
-      const scrollY = parseInt(document.body.style.top || '0') * -1;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.paddingRight = '';
-      window.scrollTo(0, scrollY);
-    };
-  }, [isOpen]);
+  // Lock body scroll when modal is open
+  useScrollLock(isOpen);
 
   if (!isOpen || !service) return null;
 
