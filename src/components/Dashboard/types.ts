@@ -1,5 +1,7 @@
+import type { LucideIcon } from 'lucide-react';
+
 // Common types used across dashboard components
-export type GradientStyle = 
+export type GradientStyle =
   | 'from-blue-500 to-indigo-500'
   | 'from-blue-400 to-indigo-400'
   | 'from-purple-500 to-pink-500'

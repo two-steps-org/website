@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   future: {
     hoverOnlyWhenSupported: true,
   },
@@ -13,18 +10,18 @@ export default {
         xs: '320px',
         sm: '375px',
         md: '768px',
-        lg: { min: '1024px' },
-        xl: { min: '1280px' },
-        '2xl': { min: '1536px' },
+        lg: '1024px',
+        xl: '1280px',
+        '2xl': '1536px',
       },
       // Consolidated spacing: combining your custom spacing with safe and modal spacing
       spacing: {
         // Standard spacing values
-        'mobile': 'clamp(0.75rem, 3vw, 1rem)',
-        'tablet': 'clamp(1rem, 4vw, 1.5rem)',
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        mobile: 'clamp(0.75rem, 3vw, 1rem)',
+        tablet: 'clamp(1rem, 4vw, 1.5rem)',
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem',
         // Safe area insets
         'safe-top': 'env(safe-area-inset-top)',
         'safe-bottom': 'env(safe-area-inset-bottom)',
@@ -131,9 +128,9 @@ export default {
     },
   },
   plugins: [
-    function({ addBase }) {
+    function ({ addBase }) {
       addBase({
-        html: { 
+        html: {
           '-webkit-tap-highlight-color': 'transparent',
           'text-size-adjust': '100%',
         },
@@ -148,4 +145,4 @@ export default {
       });
     },
   ],
-}
+};

@@ -18,11 +18,11 @@ interface ServiceModalProps {
   onBookCall: () => void;
 }
 
-const icons = {
+const icons: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
   'AI Chat Agents': MessageSquareText,
   'AI Voice Agents': Mic,
   'CRM Development': LayoutDashboard,
-  'Custom SaaS Solutions': Code2
+  'Custom SaaS Solutions': Code2,
 };
 
 const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, onBookCall }) => {
@@ -54,7 +54,9 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+      document.body.style.paddingRight = `${
+        window.innerWidth - document.documentElement.clientWidth
+      }px`;
     } else {
       const scrollY = parseInt(document.body.style.top || '0') * -1;
       document.body.style.position = '';
@@ -86,11 +88,11 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 flex items-center justify-center"
-          style={{ 
+          style={{
             zIndex: 999999,
-            isolation: 'isolate'
+            isolation: 'isolate',
           }}
         >
           {/* Backdrop */}
@@ -110,9 +112,11 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className="relative w-full max-w-2xl mx-4 max-h-[80vh] origin-center"
-            style={{ 
+            style={{
               zIndex: 2,
-              transformOrigin: modalPosition ? `${modalPosition.x}px ${modalPosition.y}px` : 'center center'
+              transformOrigin: modalPosition
+                ? `${modalPosition.x}px ${modalPosition.y}px`
+                : 'center center',
             }}
           >
             {/* Container Box */}
@@ -120,12 +124,16 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
               {/* Header */}
               <div className="sticky top-0 z-20 flex items-center justify-between p-5 border-b border-gray-800/50 bg-inherit">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group`}>
+                  <div
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group`}
+                  >
                     <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
                       <Icon className="w-5 h-5 text-white" />
                     </div>
                   </div>
-                  <h3 className={`text-xl font-bold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}>
+                  <h3
+                    className={`text-xl font-bold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}
+                  >
                     {service.title}
                   </h3>
                 </div>
@@ -148,14 +156,16 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
                     <h4 className="text-base font-semibold text-white mb-3">Key Features</h4>
                     <ul className="space-y-2">
                       {service.details.features.map((feature, index) => (
-                        <motion.li 
+                        <motion.li
                           key={index}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
                           className="flex items-center space-x-2"
                         >
-                          <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`} />
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`}
+                          />
                           <span className="text-gray-300 text-sm">{feature}</span>
                         </motion.li>
                       ))}
@@ -167,14 +177,16 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
                     <h4 className="text-base font-semibold text-white mb-3">Benefits</h4>
                     <ul className="space-y-2">
                       {service.details.benefits.map((benefit, index) => (
-                        <motion.li 
+                        <motion.li
                           key={index}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.3 + index * 0.1 }}
                           className="flex items-center space-x-2"
                         >
-                          <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`} />
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`}
+                          />
                           <span className="text-gray-300 text-sm">{benefit}</span>
                         </motion.li>
                       ))}

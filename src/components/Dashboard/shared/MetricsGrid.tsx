@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Metric } from '../types';
 import clsx from 'clsx';
+import { Metric } from '../types';
 
 interface MetricsGridProps {
   metrics: Metric[];
@@ -10,72 +10,55 @@ interface MetricsGridProps {
 const MetricsGrid: React.FC<MetricsGridProps> = ({ metrics }) => {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4"
       role="list"
-      aria-label="Dashboard Metrics"
+      aria-label="Dashboard metrics"
     >
-      {metrics.map((metric, index) => (
-        <motion.div
-          key={`${metric.label}-${index}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-          className="relative group"
-          role="listitem"
-        >
-          <div
-            className={clsx(
-              'relative overflow-hidden rounded-xl border transition-all duration-300',
-              'bg-gray-900/50 backdrop-blur-xl border-gray-800/50 hover:border-blue-500/30'
-            )}
+      {metrics.map((metric, idx) => {
+        const positive = metric.change.startsWith('+');
+        return (
+          <motion.div
+            key={`${metric.label}-${idx}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, delay: idx * 0.06 }}
+            role="listitem"
           >
-            <div className="p-3 sm:p-4">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <div
-                  className={clsx(
-                    'w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-r p-[1px] transition-transform duration-300 group-hover:scale-110',
-                    metric.gradient
-                  )}
-                >
-                  <div className="w-full h-full rounded-lg bg-gray-900 flex items-center justify-center">
-                    <metric.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" aria-hidden="true" />
+            <div className="relative rounded-lg border bg-gray-900/55 backdrop-blur-sm border-gray-800/40 overflow-hidden">
+              <div className="p-3 sm:p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className={clsx('w-10 h-10 rounded-lg p-[1px] ', metric.gradient)}>
+                    <div className="w-full h-full rounded-lg bg-gray-900 flex items-center justify-center">
+                      <metric.icon className="w-4 h-4 text-white" aria-hidden />
+                    </div>
                   </div>
+                  <span
+                    className={clsx(
+                      'text-xs sm:text-sm font-medium',
+                      positive ? 'text-green-400' : 'text-red-400',
+                    )}
+                  >
+                    {metric.change}
+                  </span>
                 </div>
-                <span
-                  className={clsx(
-                    'text-xs sm:text-sm font-medium',
-                    metric.change.startsWith('+') ? 'text-green-400' : 'text-red-400'
-                  )}
-                  aria-label={`Change: ${metric.change}`}
-                >
-                  {metric.change}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-gray-400 text-xs sm:text-sm">{metric.label}</p>
-                <p
-                  className={clsx(
-                    'text-base sm:text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent',
-                    metric.gradient
-                  )}
-                  aria-label={`${metric.label}: ${metric.value}`}
-                >
-                  {metric.value}
-                </p>
+
+                <div className="flex items-center justify-between">
+                  <p className="text-xs sm:text-sm text-gray-400">{metric.label}</p>
+                  <p
+                    className={clsx(
+                      'text-base sm:text-lg font-bold bg-clip-text text-transparent',
+                      metric.gradient,
+                    )}
+                    aria-label={`${metric.label}: ${metric.value}`}
+                  >
+                    {metric.value}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Hover Glow Effect */}
-          <div
-            className={clsx(
-              'absolute -inset-1.5 bg-gradient-to-r rounded-2xl opacity-0 blur-xl transition-opacity duration-500 -z-10',
-              metric.gradient
-            )}
-            aria-hidden="true"
-          />
-        </motion.div>
-      ))}
+          </motion.div>
+        );
+      })}
     </div>
   );
 };

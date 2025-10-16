@@ -3,44 +3,38 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Function to handle page load tasks
+/**
+ * Handles tasks that should only run once the page is loaded.
+ */
 function handlePageLoad(): void {
-  // Force scroll to top immediately
   window.scrollTo(0, 0);
-
-  // Ensure the body starts at the top
   document.body.style.top = '0';
 
-  // Remove loading class and add loaded class on the next frame
   requestAnimationFrame(() => {
-    document.body.classList.remove('loading');
-    document.body.classList.add('loaded');
+    document.body.classList.replace('loading', 'loaded');
   });
 }
 
-// Schedule the handlePageLoad using requestIdleCallback if available, otherwise fallback to setTimeout
+/**
+ * Schedules non-critical tasks when the browser is idle.
+ */
 function scheduleHandlePageLoad(): void {
-  if (typeof window.requestIdleCallback === 'function') {
-    window.requestIdleCallback(handlePageLoad);
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(handlePageLoad);
   } else {
-    // Fallback delay of 200ms for browsers that do not support requestIdleCallback
     setTimeout(handlePageLoad, 200);
   }
 }
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error('Root element with id "root" not found. Please ensure the element exists in your HTML.');
+  throw new Error('Root element with id "root" not found. Please ensure it exists in index.html');
 }
 
-const root = createRoot(rootElement);
-
-// Render the app within React.StrictMode for highlighting potential issues
-root.render(
+createRoot(rootElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
-// Schedule non-essential tasks for when the browser is idle
 scheduleHandlePageLoad();

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import compression from 'vite-plugin-compression';
+import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
   plugins: [
@@ -14,7 +15,12 @@ export default defineConfig({
     compression({
       algorithm: 'gzip',
       ext: '.gz'
-    })
+    }),
+
+    // Generate bundle analysis report for optimization insights
+    visualizer({
+      filename: "stats.html",
+    }),
   ],
   build: {
     target: 'esnext',
