@@ -190,9 +190,7 @@ const Team: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
               </div>
 
-              <h3 className="text-xl font-bold text-white mb-1 px-4">
-                {team[currentIndex].name}
-              </h3>
+              <h3 className="text-xl font-bold text-white mb-1 px-4">{team[currentIndex].name}</h3>
               <p
                 className={`px-4 text-sm font-semibold bg-gradient-to-r ${team[currentIndex].gradient} bg-clip-text text-transparent mb-5`}
               >

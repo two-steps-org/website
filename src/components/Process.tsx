@@ -152,6 +152,58 @@ const Process: React.FC = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Mobile View */}
+          <div className="block lg:hidden relative space-y-12">
+            {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative"
+              >
+                {/* Step Number + Icon */}
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${step.gradient} px-2 py-0.5 rounded-full shadow-lg`}
+                  >
+                    {step.step}
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${step.gradient} p-[1px]`}>
+                    <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center backdrop-blur-xl">
+                      <step.icon className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expandable Card */}
+                <motion.div
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+                  className="relative rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-6 cursor-pointer mt-4"
+                >
+                  <h3
+                    className={`text-lg font-bold mb-3 bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {expandedIndex === index ? step.fullDescription : step.shortDescription}
+                  </p>
+                  <div className="flex justify-center mt-4 text-sm font-medium bg-gradient-to-r bg-clip-text text-transparent from-blue-400 to-purple-400">
+                    {expandedIndex === index ? 'See Less' : 'See More'}
+                    <ChevronDown
+                      className={`w-4 h-4 ml-2 transition-transform ${
+                        expandedIndex === index ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* Mobile View */}
