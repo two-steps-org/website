@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Section from './common/Section';
 import ServiceModal from './ServiceModal';
+import BackgroundGradient from './common/BackgroundGradient';
 
 const services = [
   {
@@ -148,222 +149,220 @@ const Service: React.FC = () => {
   };
 
   return (
-    <Section id="services" className="bg-black py-16">
-      <div className="relative">
-        {/* Background Effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-
-        {/* Section Title */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12 lg:mb-24">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3 }}
-            className="text-blue-400 text-sm font-semibold tracking-wider uppercase mb-3 block"
-          >
-            OUR SERVICES
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-5xl font-bold"
-          >
-            <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              Automate Roles, Not Just Tasks
-            </span>
-          </motion.h2>
-        </div>
-
-        {/* Desktop Grid */}
-        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
+    <BackgroundGradient>
+      <Section id="services" className="bg-black py-16">
+        <div className="relative">
+          {/* Section Title */}
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-12 lg:mb-24">
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3 }}
+              className="text-blue-400 text-sm font-semibold tracking-wider uppercase mb-3 block"
+            >
+              OUR SERVICES
+            </motion.span>
+            <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: service.delay }}
-              className={`group relative ${service.featured ? 'lg:-mt-16 z-10' : ''}`}
+              transition={{ duration: 0.5 }}
+              className="text-3xl md:text-5xl font-bold"
             >
-              <div
-                className={
-                  service.featured
-                    ? `relative h-full rounded-2xl overflow-hidden backdrop-blur-xl p-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-blue-500/20`
-                    : `relative h-full overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300`
-                }
+              <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+                Automate Roles, Not Just Tasks
+              </span>
+            </motion.h2>
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden lg:grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: service.delay }}
+                className={`group relative ${service.featured ? 'lg:-mt-16 z-10' : ''}`}
               >
                 <div
                   className={
-                    service.featured ? 'h-full rounded-2xl bg-[#0A0F1F]/95 p-8' : 'h-full p-8'
+                    service.featured
+                      ? `relative h-full rounded-2xl overflow-hidden backdrop-blur-xl p-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-blue-500/20`
+                      : `relative h-full overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30 transition-all duration-300`
                   }
                 >
-                  {/* Icon */}
-                  <div className="mb-6">
-                    <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                        <service.icon className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <h3
-                    className={`text-xl font-bold mb-4 bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}
-                  >
-                    {service.title}
-                  </h3>
-
-                  <p className="text-gray-400 mb-8 leading-relaxed">{service.description}</p>
-
-                  <button
-                    onClick={() => setSelectedService(service)}
-                    className="flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group/btn"
-                  >
-                    See More
-                    <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover/btn:opacity-100 transform -translate-x-2 group-hover/btn:translate-x-0 transition-all duration-300" />
-                  </button>
-
-                  {service.featured && (
-                    <div className="absolute top-4 right-4">
-                      <div className="px-4 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25">
-                        Popular
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div
-                className={`absolute -inset-2 bg-gradient-to-r ${service.gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
-              />
-              {service.featured && (
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-5 blur-2xl -z-20" />
-              )}
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Mobile Carousel */}
-        <div className="block lg:hidden relative min-h-[280px] overflow-hidden px-2">
-          <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={currentIndex}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: 'spring', stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 },
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={1}
-              onDragEnd={(_, { offset, velocity }) => {
-                const swipe = swipePower(offset.x, velocity.x);
-                if (swipe < -swipeConfidenceThreshold) {
-                  paginate(1);
-                } else if (swipe > swipeConfidenceThreshold) {
-                  paginate(-1);
-                }
-              }}
-              className="absolute w-[98%]"
-            >
-              <motion.div
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedService(services[currentIndex])}
-                className="relative h-[220px] overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-4 group hover:border-blue-500/30 transition-all duration-300 cursor-pointer"
-              >
-                <div className="flex items-center gap-3 mb-4">
                   <div
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-r ${services[currentIndex].gradient} p-[1px] flex-shrink-0`}
+                    className={
+                      service.featured ? 'h-full rounded-2xl bg-[#0A0F1F]/95 p-8' : 'h-full p-8'
+                    }
                   >
-                    <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                      {React.createElement(services[currentIndex].icon, {
-                        className: 'w-5 h-5 text-white',
-                      })}
+                    {/* Icon */}
+                    <div className="mb-6">
+                      <div
+                        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group-hover:scale-110 transition-transform duration-300`}
+                      >
+                        <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
+                          <service.icon className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
                     </div>
+
+                    <h3
+                      className={`text-xl font-bold mb-4 bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}
+                    >
+                      {service.title}
+                    </h3>
+
+                    <p className="text-gray-400 mb-8 leading-relaxed">{service.description}</p>
+
+                    <button
+                      onClick={() => setSelectedService(service)}
+                      className="flex items-center text-sm font-medium text-blue-400 hover:text-blue-300 transition-colors group/btn"
+                    >
+                      See More
+                      <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover/btn:opacity-100 transform -translate-x-2 group-hover/btn:translate-x-0 transition-all duration-300" />
+                    </button>
+
+                    {service.featured && (
+                      <div className="absolute top-4 right-4">
+                        <div className="px-4 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25">
+                          Popular
+                        </div>
+                      </div>
+                    )}
                   </div>
-
-                  <h3
-                    className={`text-lg font-bold bg-gradient-to-r ${services[currentIndex].gradient} bg-clip-text text-transparent`}
-                  >
-                    {services[currentIndex].title}
-                  </h3>
-                </div>
-
-                <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                  {services[currentIndex].description}
-                </p>
-
-                <div className="absolute bottom-5 left-0 right-0 flex justify-center">
-                  <button
-                    className={`relative flex items-center text-sm font-medium bg-gradient-to-r ${services[currentIndex].gradient} bg-clip-text text-transparent hover:opacity-80`}
-                  >
-                    Learn More
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </button>
                 </div>
                 <div
-                  className={`absolute -inset-2 bg-gradient-to-r ${services[currentIndex].gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
+                  className={`absolute -inset-2 bg-gradient-to-r ${service.gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
                 />
+                {service.featured && (
+                  <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-5 blur-2xl -z-20" />
+                )}
               </motion.div>
-            </motion.div>
-          </AnimatePresence>
+            ))}
+          </div>
 
-          {/* Controls */}
-          <div className="absolute inset-x-0 bottom-0 flex justify-center items-center">
-            <div className="flex items-center gap-3 mb-2">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => paginate(-1)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+          {/* Mobile Carousel */}
+          <div className="block lg:hidden relative min-h-[280px] overflow-hidden px-2">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.div
+                key={currentIndex}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: 'spring', stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={(_, { offset, velocity }) => {
+                  const swipe = swipePower(offset.x, velocity.x);
+                  if (swipe < -swipeConfidenceThreshold) {
+                    paginate(1);
+                  } else if (swipe > swipeConfidenceThreshold) {
+                    paginate(-1);
+                  }
+                }}
+                className="absolute w-[98%]"
               >
-                <ChevronLeft className="w-5 h-5 text-gray-400" />
-              </motion.button>
+                <motion.div
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedService(services[currentIndex])}
+                  className="relative h-[220px] overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-4 group hover:border-blue-500/30 transition-all duration-300 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div
+                      className={`w-10 h-10 rounded-xl bg-gradient-to-r ${services[currentIndex].gradient} p-[1px] flex-shrink-0`}
+                    >
+                      <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
+                        {React.createElement(services[currentIndex].icon, {
+                          className: 'w-5 h-5 text-white',
+                        })}
+                      </div>
+                    </div>
 
-              <div className="flex space-x-2">
-                {services.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setDirection(idx > currentIndex ? 1 : -1);
-                      setCurrentIndex(idx);
-                    }}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      idx === currentIndex
-                        ? `bg-gradient-to-r ${services[currentIndex].gradient}`
-                        : 'bg-gray-600'
-                    }`}
+                    <h3
+                      className={`text-lg font-bold bg-gradient-to-r ${services[currentIndex].gradient} bg-clip-text text-transparent`}
+                    >
+                      {services[currentIndex].title}
+                    </h3>
+                  </div>
+
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                    {services[currentIndex].description}
+                  </p>
+
+                  <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+                    <button
+                      className={`relative flex items-center text-sm font-medium bg-gradient-to-r ${services[currentIndex].gradient} bg-clip-text text-transparent hover:opacity-80`}
+                    >
+                      Learn More
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </button>
+                  </div>
+                  <div
+                    className={`absolute -inset-2 bg-gradient-to-r ${services[currentIndex].gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
                   />
-                ))}
-              </div>
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
 
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => paginate(1)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </motion.button>
+            {/* Controls */}
+            <div className="absolute inset-x-0 bottom-0 flex justify-center items-center">
+              <div className="flex items-center gap-3 mb-2">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => paginate(-1)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-400" />
+                </motion.button>
+
+                <div className="flex space-x-2">
+                  {services.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setDirection(idx > currentIndex ? 1 : -1);
+                        setCurrentIndex(idx);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        idx === currentIndex
+                          ? `bg-gradient-to-r ${services[currentIndex].gradient}`
+                          : 'bg-gray-600'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => paginate(1)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </motion.button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Service Details Modal */}
-      <ServiceModal
-        isOpen={!!selectedService}
-        onClose={() => setSelectedService(null)}
-        service={selectedService}
-        onBookCall={handleBookCall}
-      />
-    </Section>
+        {/* Service Details Modal */}
+        <ServiceModal
+          isOpen={!!selectedService}
+          onClose={() => setSelectedService(null)}
+          service={selectedService}
+          onBookCall={handleBookCall}
+        />
+      </Section>
+    </BackgroundGradient>
   );
 };
 

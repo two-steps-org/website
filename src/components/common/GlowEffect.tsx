@@ -20,30 +20,30 @@ const GlowEffect: React.FC<GlowEffectProps> = ({
   color = 'blue',
   opacity = 0.1,
   blur = '100px',
-  className = ''
+  className = '',
 }) => {
   const colors: Record<string, string> = {
     blue: 'bg-blue-500',
     purple: 'bg-purple-500',
-    cyan: 'bg-cyan-500'
+    cyan: 'bg-cyan-500',
   };
 
   return (
     <motion.div
       className={clsx('absolute rounded-full', colors[color], className)}
       initial={{ opacity: 0 }}
-      animate={{ 
+      animate={{
         opacity: [opacity * 0.5, opacity, opacity * 0.5],
-        scale: [0.9, 1.1, 0.9]
+        scale: [0.9, 1.1, 0.9],
       }}
       transition={{
         duration: 4,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut',
       }}
-      style={{ 
+      style={{
         filter: `blur(${blur})`,
-        willChange: 'transform, opacity'
+        willChange: 'transform, opacity',
       }}
     />
   );
