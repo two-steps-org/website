@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Section from './common/Section';
+import BackgroundGradient from './common/BackgroundGradient';
 
 const features = [
   {
@@ -111,7 +112,7 @@ const WhyUs: React.FC = () => {
       </div>
 
       {/* Features grid */}
-      <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {features.map((feature, index) => (
           <motion.div
             key={index}
@@ -143,7 +144,6 @@ const WhyUs: React.FC = () => {
                 {feature.description}
               </p>
             </div>
-
             {/* Hover/Active Effect */}
             <div
               className={`absolute -inset-2 bg-gradient-to-r ${feature.gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
