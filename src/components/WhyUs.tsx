@@ -12,7 +12,6 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Section from './common/Section';
-import BackgroundGradient from './common/BackgroundGradient';
 
 const features = [
   {

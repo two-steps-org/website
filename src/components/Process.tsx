@@ -153,9 +153,56 @@ const Process: React.FC = () => {
             ))}
           </div>
 
-          {/* Mobile View */}
-          <div className="block lg:hidden relative space-y-12">
+          {/* Steps */}
+          <div className="space-y-12">
             {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+                className={clsx(
+                  'relative flex',
+                  index % 2 === 0 ? 'items-center justify-start' : 'items-center justify-end',
+                )}
+              >
+                {/* Card */}
+                <div className={clsx('w-[calc(50%-2rem)]', index % 2 === 0 ? 'pr-8' : 'pl-8')}>
+                  <div className="relative bg-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-800/50 shadow-lg hover:shadow-xl transition-all">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${step.gradient}`}>
+                        <span className="text-sm font-bold text-white">{step.step}</span>
+                      </div>
+                      <h3
+                        className={`text-xl font-bold bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`}
+                      >
+                        {step.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-400 leading-relaxed text-sm">{step.fullDescription}</p>
+                  </div>
+                </div>
+
+                {/* Icon */}
+                <div className="absolute left-1/2 -translate-x-1/2">
+                  <div
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${step.gradient} p-[1px]`}
+                  >
+                    <div className="w-full h-full rounded-2xl bg-black flex items-center justify-center">
+                      <step.icon className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile View */}
+        <div className="block lg:hidden relative space-y-10">
+          {steps.map((step, index) => {
+            if (index >= 3 && !showAllMobile) return null;
+            return (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -164,26 +211,17 @@ const Process: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="relative"
               >
-                {/* Step Number + Icon */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`mb-2 text-[10px] font-bold text-white bg-gradient-to-r ${step.gradient} px-2 py-0.5 rounded-full shadow-lg`}
-                  >
-                    {step.step}
-                  </div>
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${step.gradient} p-[1px]`}>
-                    <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center backdrop-blur-xl">
-                      <step.icon className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Expandable Card */}
                 <motion.div
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
                   className="relative rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-6 cursor-pointer mt-4"
                 >
+                  <div
+                    className={`mb-2 w-fit text-[10px] font-bold text-white bg-gradient-to-r ${step.gradient} px-2 py-0.5 rounded-full shadow-lg`}
+                  >
+                    {step.step}
+                  </div>
                   <h3
                     className={`text-lg font-bold mb-3 bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`}
                   >
@@ -202,8 +240,28 @@ const Process: React.FC = () => {
                   </div>
                 </motion.div>
               </motion.div>
-            ))}
-          </div>
+            );
+          })}
+          {!showAllMobile && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowAllMobile(true)}
+                className="rounded-xl w-full border bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50 px-5 py-3 text-sm font-semibold text-white/80 transition-all duration-300 hover:text-white"
+              >
+                See more steps
+              </button>
+            </div>
+          )}
+          {showAllMobile && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowAllMobile(false)}
+                className="rounded-xl w-full border bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50 px-5 py-3 text-sm font-semibold text-white/80 transition-all duration-300 hover:text-white"
+              >
+                See fewer steps
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile View */}
