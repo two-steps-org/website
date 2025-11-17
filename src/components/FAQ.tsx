@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import Section from './common/Section';
@@ -45,15 +45,11 @@ const faqs = [
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [showAllMobile, setShowAllMobile] = useState(false);
 
-  // Split FAQs evenly into two columns
-  const half = Math.ceil(faqs.length / 2);
-  const leftColumnFaqs = faqs.slice(0, half);
-  const rightColumnFaqs = faqs.slice(half);
-
-  // Render a single FAQ item
   const renderFaqItem = (faq: (typeof faqs)[0], index: number) => {
     const isOpen = openIndex === index;
+
     return (
       <motion.div
         key={index}
@@ -61,11 +57,14 @@ const FAQ = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
-        className="relative group"
+        className={clsx(
+          'relative group',
+          index >= 3 && !showAllMobile ? 'hidden lg:block' : 'block',
+        )}
       >
         <motion.div
           className={clsx(
-            'relative overflow-hidden rounded-2xl border transition-all duration-300',
+            'relative overflow-hidden rounded-2xl border transition-all duration-300 h-full',
             isOpen
               ? 'bg-gray-900/50 border-blue-500/50'
               : 'bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50',
@@ -106,7 +105,6 @@ const FAQ = () => {
             )}
           </button>
         </motion.div>
-        {/* Hover Glow Effect */}
         <div
           className={clsx(
             'absolute -inset-2 bg-gradient-to-r rounded-3xl opacity-0 blur-xl transition-opacity duration-500 -z-10',
@@ -138,14 +136,25 @@ const FAQ = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column */}
-        <div className="space-y-4">
-          {leftColumnFaqs.map((faq, index) => renderFaqItem(faq, index))}
-        </div>
-        {/* Right Column */}
-        <div className="space-y-4">
-          {rightColumnFaqs.map((faq, index) => renderFaqItem(faq, index + leftColumnFaqs.length))}
-        </div>
+        {faqs.map((faq, index) => renderFaqItem(faq, index))}
+      </div>
+
+      <div className="mt-8 flex justify-center lg:hidden">
+        {showAllMobile ? (
+          <button
+            onClick={() => setShowAllMobile(false)}
+            className="rounded-xl h-full w-full border bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50 px-6 py-4 text-sm font-semibold text-white/80 transition-all duration-300 hover:text-white"
+          >
+            See fewer questions
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowAllMobile(true)}
+            className="rounded-xl h-full w-full border bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50 px-6 py-4 text-sm font-semibold text-white/80 transition-all duration-300 hover:text-white"
+          >
+            See more questions
+          </button>
+        )}
       </div>
     </Section>
   );

@@ -21,11 +21,11 @@ const BaseSection = forwardRef<HTMLElement, SectionProps>(
         ref={ref}
         id={id}
         className={clsx(
-          'relative w-full min-h-[calc(100vh-80px)] flex flex-col justify-center py-16 lg:py-24 scroll-mt-20',
-          className
+          'relative w-full min-h-[auto] flex flex-col justify-center py-8 md:py-12 lg:py-16 scroll-mt-16 md:scroll-mt-20 md:min-h-[calc(100vh-80px)]',
+          className,
         )}
       >
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-8">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 xl:px-12">
           {children}
         </div>
       </section>
