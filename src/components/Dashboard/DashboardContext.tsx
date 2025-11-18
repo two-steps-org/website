@@ -13,11 +13,11 @@ const DashboardContext = createContext<DashboardContextType>({
 /**
  * DashboardProvider wraps the application and provides dark mode state.
  */
-export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DashboardProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const toggleDarkMode = useCallback(() => {
-    setIsDarkMode(prev => !prev);
+    setIsDarkMode((prev) => !prev);
   }, []);
 
   return (

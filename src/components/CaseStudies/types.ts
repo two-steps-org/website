@@ -27,7 +27,7 @@ export interface CaseStudy {
   /** Tailwind CSS gradient classes used for styling the case study. */
   readonly gradient: string;
   /** Key performance metrics for the case study. */
-  readonly metrics: Readonly<Record<string, string>>;
+  readonly metrics: Record<string, string>;
   /** A brief description of the case study. */
   readonly description: string;
   /** The solution provided in the case study. */

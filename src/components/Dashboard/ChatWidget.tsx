@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Mic, Paperclip, MinusCircle } from 'lucide-react';
+import { X, Send, Mic, Paperclip, MinusCircle, PlusCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface ChatWidgetProps {
@@ -22,55 +22,75 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
   >([
     {
       id: 1,
-      text: `Hello! I'm your ${mode === 'chat' ? 'chat' : 'voice'} assistant. How can I help you today?`,
+      text: `Hello! I'm your ${
+        mode === 'chat' ? 'chat' : 'voice'
+      } assistant. How can I help you today?`,
       sender: 'ai',
       timestamp: new Date(),
     },
   ]);
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // --- Replace this with your real API call ---
+  const fetchAIResponse = async (userMessage: string) => {
+    try {
+      // Example with your NestJS or external chatbot API
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      });
+      const data = await res.json();
+
+      return data.reply || "I'm not sure, could you clarify?";
+    } catch (err) {
+      console.error('AI fetch failed:', err);
+      return 'Sorry, I had trouble responding. Please try again.';
+    }
+  };
+
   // Handler for sending a message
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     if (!message.trim()) return;
+
     // Add user message
-    setMessages(prev => [
+    const newMsg = {
+      id: Date.now(),
+      text: message,
+      sender: 'user' as const,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, newMsg]);
+    setMessage('');
+
+    // Get AI reply
+    const aiReply = await fetchAIResponse(message);
+    setMessages((prev) => [
       ...prev,
       {
-        id: Date.now(),
-        text: message,
-        sender: 'user',
+        id: Date.now() + 1,
+        text: aiReply,
+        sender: 'ai',
         timestamp: new Date(),
       },
     ]);
-    // Simulate AI reply after 1 second
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now(),
-          text: "I understand you're interested in our AI solutions. How can I assist you further?",
-          sender: 'ai',
-          timestamp: new Date(),
-        },
-      ]);
-    }, 1000);
-    setMessage('');
   }, [message]);
 
-  // Handle pressing Enter key in the input
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSend();
-      }
+      if (e.key === 'Enter') handleSend();
     },
-    [handleSend]
+    [handleSend],
   );
 
-  // Reset minimized state when widget is hidden
   useEffect(() => {
-    if (!isVisible) {
-      setIsMinimized(false);
-    }
+    if (!isVisible) setIsMinimized(false);
   }, [isVisible]);
 
   return (
@@ -119,10 +139,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsMinimized(!isMinimized)}
+                    onClick={() => setIsMinimized((prev) => !prev)}
                     className="w-8 h-8 rounded-lg bg-gray-800/50 flex items-center justify-center hover:bg-gray-700/50 transition-colors"
                   >
-                    <MinusCircle className="w-4 h-4 text-gray-400" />
+                    {isMinimized ? (
+                      <PlusCircle className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <MinusCircle className="w-4 h-4 text-gray-400" />
+                    )}
                   </motion.button>
                   {onClose && (
                     <motion.button
@@ -147,10 +171,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
                   >
                     {/* Messages */}
                     <div className="h-[440px] overflow-y-auto p-4 space-y-4">
-                      {messages.map(msg => (
+                      {messages.map((msg) => (
                         <div
                           key={msg.id}
-                          className={clsx('flex', msg.sender === 'user' ? 'justify-end' : 'justify-start')}
+                          className={clsx(
+                            'flex',
+                            msg.sender === 'user' ? 'justify-end' : 'justify-start',
+                          )}
                         >
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
@@ -159,7 +186,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
                               'max-w-[80%] rounded-2xl p-3',
                               msg.sender === 'user'
                                 ? 'bg-blue-500 text-white'
-                                : 'bg-gray-800/50 text-gray-100'
+                                : 'bg-gray-800/50 text-gray-100',
                             )}
                           >
                             <p>{msg.text}</p>
@@ -172,6 +199,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
                           </motion.div>
                         </div>
                       ))}
+                      <div ref={messagesEndRef} />
                     </div>
 
                     {/* Input Area */}
@@ -187,9 +215,11 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isVisible, onClose, mode = 'cha
                         <input
                           type="text"
                           value={message}
-                          onChange={e => setMessage(e.target.value)}
+                          onChange={(e) => setMessage(e.target.value)}
                           onKeyPress={handleKeyPress}
-                          placeholder={mode === 'chat' ? 'Type your message...' : 'Type or speak...'}
+                          placeholder={
+                            mode === 'chat' ? 'Type your message...' : 'Type or speak...'
+                          }
                           className="flex-1 bg-gray-800/50 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                         {mode === 'voice' && (

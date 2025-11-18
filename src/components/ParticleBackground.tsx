@@ -1,18 +1,20 @@
-import React, { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 
 /**
  * ParticleBackground renders a full-screen animated particle system on a canvas.
  * - Particles move slowly, oscillate in size, and can connect with lines if close.
  * - Canvas is resized dynamically, supporting high DPI screens.
  */
-const ParticleBackground: React.FC = () => {
+const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+
     if (!ctx) return;
 
     // Sets up the canvas dimensions with support for device pixel ratio
@@ -77,10 +79,7 @@ const ParticleBackground: React.FC = () => {
 
     // Initialize Particles
     const particles: Particle[] = [];
-    const particleCount = Math.min(
-      100,
-      (window.innerWidth * window.innerHeight) / 10000
-    );
+    const particleCount = Math.min(100, (window.innerWidth * window.innerHeight) / 10000);
 
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());

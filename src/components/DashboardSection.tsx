@@ -1,132 +1,209 @@
-import React, { useState, Suspense } from 'react';
-import { motion } from 'framer-motion';
-import { LayoutDashboard, MessageSquareText, Mic } from 'lucide-react';
+import React, { useState, useCallback, useMemo, Suspense, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { LayoutDashboard, MessageSquareText, Mic, Sparkles } from 'lucide-react';
 import { DashboardProvider } from './Dashboard/DashboardContext';
-const CRMDashboard = React.lazy(() => import('./Dashboard/CRMDashboard'));
-import ChatDashboard from './Dashboard/ChatDashboard';
-import VoiceDashboard from './Dashboard/VoiceDashboard';
 import Section from './common/Section';
 
-const features = [
+// lazy load is preserved; we now also prepare prefetch hooks
+const CRMDashboard = React.lazy(() => import('./Dashboard/CRMDashboard'));
+const ChatDashboard = React.lazy(() => import('./Dashboard/ChatDashboard'));
+const VoiceDashboard = React.lazy(() => import('./Dashboard/VoiceDashboard'));
+
+type Feature = { id: string; icon: React.ComponentType<any>; text: string; gradient: string };
+
+const FEATURES: Feature[] = [
   {
+    id: 'crm',
     icon: LayoutDashboard,
-    text: "CRM Dashboard",
-    gradient: "from-blue-500 to-indigo-500",
-    id: "crm"
+    text: 'CRM Dashboard',
+    gradient: 'from-blue-500 to-indigo-500',
   },
   {
+    id: 'chat',
     icon: MessageSquareText,
-    text: "Chat Agents",
-    gradient: "from-purple-500 to-pink-500",
-    id: "chat"
+    text: 'Chat Agents',
+    gradient: 'from-purple-500 to-pink-500',
   },
-  {
-    icon: Mic,
-    text: "Voice Agents",
-    gradient: "from-amber-500 to-orange-500",
-    id: "voice"
-  }
+  { id: 'voice', icon: Mic, text: 'Voice Agents', gradient: 'from-amber-500 to-orange-500' },
 ];
 
-const DashboardSection = () => {
-  const [activeTab, setActiveTab] = useState('crm');
+const Spinner: React.FC = () => (
+  <div
+    className="min-h-[300px] md:min-h-[480px] flex items-center justify-center"
+    role="status"
+    aria-live="polite"
+  >
+    <svg className="w-8 h-8 animate-spin" viewBox="0 0 24 24" aria-hidden>
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+        fill="none"
+      />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    <span className="sr-only">Loading dashboard…</span>
+  </div>
+);
 
-  const renderDashboard = () => {
-    switch (activeTab) {
-      case 'chat':
-        return <ChatDashboard />;
-      case 'voice':
-        return <VoiceDashboard />;
-      default:
-        return <CRMDashboard />;
-    }
-  };
+const DashboardSection: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>('crm');
+  const reduceMotion = useReducedMotion();
+
+  // memoize features so class names do not regenerate on every render
+  const features = useMemo(() => FEATURES, []);
+
+  // prefetch other dashboard chunks when user hovers or touches a tab (warm the bundle)
+  const prefetchDashboard = useCallback((id: string) => {
+    if (id === 'chat') import('./Dashboard/ChatDashboard');
+    if (id === 'voice') import('./Dashboard/VoiceDashboard');
+    if (id === 'crm') import('./Dashboard/CRMDashboard');
+  }, []);
+
+  // keyboard navigation for tabs
+  const onKeyNav = useCallback(
+    (e: React.KeyboardEvent, idx: number) => {
+      const currentIndex = features.findIndex((f) => f.id === activeTab);
+      if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) {
+        e.preventDefault();
+        let nextIndex = currentIndex;
+        if (e.key === 'ArrowRight') nextIndex = (currentIndex + 1) % features.length;
+        if (e.key === 'ArrowLeft')
+          nextIndex = (currentIndex - 1 + features.length) % features.length;
+        if (e.key === 'Home') nextIndex = 0;
+        if (e.key === 'End') nextIndex = features.length - 1;
+        setActiveTab(features[nextIndex].id);
+        // prefetch next
+        prefetchDashboard(features[nextIndex].id);
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setActiveTab(features[idx].id);
+      }
+    },
+    [activeTab, features, prefetchDashboard],
+  );
+
+  const renderDashboard = useMemo(() => {
+    // memoize the mapping so re-evaluations are cheap
+    const map: Record<string, React.ReactNode> = {
+      crm: <CRMDashboard />,
+      chat: <ChatDashboard />,
+      voice: <VoiceDashboard />,
+    };
+    return map[activeTab] ?? <CRMDashboard />;
+  }, [activeTab]);
+
+  // On mount, prefetch the CRM chunk (fast first paint)
+  useEffect(() => {
+    // call without awaiting, allow browser to schedule
+    import('./Dashboard/CRMDashboard');
+
+    // gently prefetch chat/voice in background
+    void import('./Dashboard/ChatDashboard');
+    void import('./Dashboard/VoiceDashboard');
+  }, []);
 
   return (
-    <Section id="dashboard" className="bg-black">
+    <Section id="dashboard" className="hidden md:block">
       <div className="relative">
-        {/* Loading State */}
-        <Suspense fallback={
-          <div className="min-h-[600px] flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        }>
-        {/* Background Effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full filter blur-3xl animate-pulse" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+          {/* Header */}
+          <div className="text-center mb-6 md:mb-10">
+            <div className="inline-flex mb-4 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto lg:mx-0">
+              <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
+                <Sparkles className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
+                INTERATIVE DEMOS
+              </span>
+            </div>
 
-        <div className="relative">
-          <div className="text-center mb-12">
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-blue-400 text-sm font-semibold tracking-wider uppercase mb-4 block"
-            >
-              INTERACTIVE DEMOS
-            </motion.span>
             <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={reduceMotion ? {} : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold mb-6"
+              className="text-2xl md:text-4xl font-bold mb-2 md:mb-4 leading-tight"
             >
-              <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                 Experience Our Solutions
               </span>
             </motion.h2>
           </div>
 
           <DashboardProvider>
-            <div className="flex justify-center gap-4 mb-6 max-w-4xl mx-auto">
-              {features.map((feature, index) => (
-                <motion.button
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  onClick={() => setActiveTab(feature.id)}
-                  className="group relative"
-                >
-                  <div className={`relative overflow-hidden rounded-xl ${
-                    activeTab === feature.id 
-                      ? 'bg-gray-900/80'
-                      : 'bg-gray-900/50'
-                  } backdrop-blur-xl border ${
-                    activeTab === feature.id
-                      ? 'border-blue-500/30'
-                      : 'border-gray-800/50'
-                  } p-3 hover:border-blue-500/30 transition-all duration-300`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${feature.gradient} p-[1px] group-hover:scale-110 transition-transform duration-300`}>
-                        <div className="w-full h-full rounded-lg bg-gray-900 flex items-center justify-center">
-                          <feature.icon className="w-5 h-5 text-white" />
+            {/* Tabs */}
+            <div
+              role="tablist"
+              aria-label="Dashboard tabs"
+              className="flex justify-center gap-3 mb-4 md:mb-8 px-2 snap-x h-fit"
+            >
+              {features.map((feature, index) => {
+                const active = activeTab === feature.id;
+                return (
+                  <button
+                    key={feature.id}
+                    role="tab"
+                    aria-selected={active}
+                    aria-controls={`panel-${feature.id}`}
+                    id={`tab-${feature.id}`}
+                    tabIndex={active ? 0 : -1}
+                    onClick={() => setActiveTab(feature.id)}
+                    onMouseEnter={() => prefetchDashboard(feature.id)}
+                    onTouchStart={() => prefetchDashboard(feature.id)}
+                    onKeyDown={(e) => onKeyNav(e, index)}
+                    className="group relative snap-start"
+                  >
+                    <div
+                      className={`relative overflow-hidden rounded-full md:rounded-xl ${
+                        active ? 'bg-gray-900/80' : 'bg-gray-900/55'
+                      } backdrop-blur-sm border px-3 py-2 md:px-5 md:py-3 flex items-center gap-2 transition-all duration-250 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+                    >
+                      <div
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full md:rounded-lg bg-gradient-to-r ${feature.gradient} p-[1px]`}
+                        aria-hidden
+                      >
+                        <div className="w-full h-full rounded-full md:rounded-lg bg-gray-900 flex items-center justify-center">
+                          <feature.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                         </div>
                       </div>
-                      <span className="text-sm font-medium text-gray-300">{feature.text}</span>
+                      <span className="text-xs hidden md:block md:text-sm font-medium text-gray-300 whitespace-nowrap">
+                        {feature.text}
+                      </span>
                     </div>
-                  </div>
-                  {/* Hover Glow Effect */}
-                  <div className={`absolute -inset-2 bg-gradient-to-r ${feature.gradient} rounded-2xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`} />
-                </motion.button>
-              ))}
+                    {/* hover glow - keep minimal for performance */}
+                    <span
+                      aria-hidden
+                      className={`absolute -inset-2 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300 -z-10 bg-gradient-to-r ${feature.gradient}`}
+                    />
+                  </button>
+                );
+              })}
             </div>
 
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {renderDashboard()}
-            </motion.div>
+            {/* Dashboard Content */}
+            <Suspense fallback={<Spinner />}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeTab}
+                  id={`panel-${activeTab}`}
+                  role="tabpanel"
+                  aria-labelledby={`tab-${activeTab}`}
+                  initial={reduceMotion ? {} : { opacity: 0, y: 8 }}
+                  animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+                  exit={reduceMotion ? {} : { opacity: 0, y: -6 }}
+                  transition={{ duration: 0.32 }}
+                  className="mx-auto"
+                >
+                  {renderDashboard}
+                </motion.div>
+              </AnimatePresence>
+            </Suspense>
           </DashboardProvider>
         </div>
-        </Suspense>
       </div>
     </Section>
   );
 };
 
-export default DashboardSection;
+export default React.memo(DashboardSection);

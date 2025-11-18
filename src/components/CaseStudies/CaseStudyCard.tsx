@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { CaseStudy } from './types';
-import clsx from 'clsx';
+import type { CaseStudy } from './types';
+import { CaseStudyMetrics } from './CaseStudyMetrics';
 
 interface CaseStudyCardProps {
   study: CaseStudy;
   index: number;
-  onSelect: (study: CaseStudy) => void;
+  onSelect: () => void;
 }
 
 const CaseStudyCard: React.FC<CaseStudyCardProps> = ({ study, index, onSelect }) => {
@@ -16,135 +16,63 @@ const CaseStudyCard: React.FC<CaseStudyCardProps> = ({ study, index, onSelect })
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={clsx('group', 'relative')}
+      className="group touch-manipulation h-full"
     >
-      <div
-        className={clsx(
-          'relative',
-          'overflow-hidden',
-          'rounded-3xl',
-          'bg-gray-900/50',
-          'backdrop-blur-xl',
-          'border',
-          'border-gray-800/50',
-          'hover:border-blue-500/30',
-          'transition-all',
-          'duration-300'
-        )}
+      <motion.div
+        whileTap={{ scale: 0.98 }}
+        onClick={onSelect}
+        className="relative overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 h-full flex flex-col"
       >
-        <div className={clsx('grid', 'grid-cols-1', 'lg:grid-cols-2', 'gap-8', 'p-8')}>
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div
-                className={clsx(
-                  'w-14',
-                  'h-14',
-                  'rounded-xl',
-                  'p-[1px]',
-                  'shrink-0',
-                  `bg-gradient-to-r ${study.gradient}`
-                )}
-              >
-                <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                  <study.icon className="w-7 h-7 text-white" />
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3
-                  className={clsx(
-                    'text-2xl',
-                    'font-bold',
-                    'truncate',
-                    `bg-gradient-to-r ${study.gradient} bg-clip-text text-transparent`
-                  )}
-                >
-                  {study.title}
-                </h3>
-                <div className="flex flex-wrap gap-x-4 text-gray-400 text-sm mt-0.5">
-                  <p>Client: {study.client}</p>
-                  <p>Industry: {study.industry}</p>
-                  <p>Platform: {study.deployedPlatform}</p>
-                </div>
+        {/* Image */}
+        <div className="relative h-48">
+          <img
+            src={study.image}
+            alt={study.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
+        </div>
+
+        {/* Content */}
+        <div className="p-4 flex-1 flex flex-col">
+          <div className="flex items-start gap-3 mb-3">
+            <div
+              className={`w-10 h-10 rounded-lg bg-gradient-to-r ${study.gradient} p-[1px] shrink-0`}
+            >
+              <div className="w-full h-full rounded-lg bg-gray-900 flex items-center justify-center">
+                <study.icon className="w-5 h-5 text-white" />
               </div>
             </div>
-
-            <div className="space-y-4">
-              <p className="text-gray-300 leading-relaxed">{study.description}</p>
-
-              <button
-                onClick={() => onSelect(study)}
-                className="flex items-center text-sm font-medium group/btn"
+            <div>
+              <h3
+                className={`text-lg font-bold bg-gradient-to-r ${study.gradient} bg-clip-text text-transparent mb-1`}
               >
-                <span
-                  className={clsx(
-                    `bg-gradient-to-r ${study.gradient} bg-clip-text text-transparent`
-                  )}
-                >
-                  Learn More
-                </span>
-                <ArrowRight
-                  className={clsx(
-                    'w-4',
-                    'h-4',
-                    'ml-1',
-                    'opacity-0',
-                    'group-hover/btn:opacity-100',
-                    'transform',
-                    '-translate-x-2',
-                    'group-hover/btn:translate-x-0',
-                    'transition-all',
-                    'duration-300',
-                    `${study.gradient} bg-clip-text`
-                  )}
-                />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(study.metrics).map(([key, value]) => (
-                <div key={key} className="bg-gray-800/50 rounded-xl p-4">
-                  <p className="text-gray-400 text-sm mb-1">{key}</p>
-                  <p
-                    className={clsx(
-                      'text-xl',
-                      'font-bold',
-                      `bg-gradient-to-r ${study.gradient} bg-clip-text text-transparent`
-                    )}
-                  >
-                    {value}
-                  </p>
-                </div>
-              ))}
+                {study.title}
+              </h3>
+              <div className="flex flex-wrap gap-x-2 text-gray-400 text-xs">
+                <p>{study.client}</p>
+                <span>•</span>
+                <p>{study.industry}</p>
+              </div>
             </div>
           </div>
 
-          <div className="relative h-[300px] lg:h-auto rounded-xl overflow-hidden">
-            <img
-              src={study.image}
-              alt={study.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-60" />
+          <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-2">
+            {study.description}
+          </p>
+
+          <CaseStudyMetrics study={study} />
+
+          {/* Learn More Button */}
+          <div className="flex items-center text-sm font-medium text-blue-400 group/btn">
+            Learn More
+            <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover/btn:opacity-100 transform -translate-x-2 group-hover/btn:translate-x-0 transition-all duration-300" />
           </div>
         </div>
-      </div>
-
-      <div
-        className={clsx(
-          'absolute',
-          '-inset-2',
-          `bg-gradient-to-r ${study.gradient}`,
-          'rounded-[2rem]',
-          'opacity-0',
-          'group-hover:opacity-10',
-          'blur-xl',
-          'transition-opacity',
-          'duration-500',
-          '-z-10'
-        )}
-      />
+      </motion.div>
     </motion.div>
   );
 };
 
-export default React.memo(CaseStudyCard);
+export default CaseStudyCard;

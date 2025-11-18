@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, memo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -30,8 +32,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Personal Information: Name, email, phone, company details from forms and consultations',
           'Payment details for service purchases',
           'Automatically collected data: IP address, browser type, OS',
-          'Cookies and similar tracking technologies'
-        ]
+          'Cookies and similar tracking technologies',
+        ],
       },
       {
         title: 'How We Use Your Information',
@@ -41,8 +43,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Respond to inquiries and requests',
           'Improve website functionality and service offerings',
           'Send promotional materials (with opt-in consent)',
-          'Ensure website security and prevent fraud'
-        ]
+          'Ensure website security and prevent fraud',
+        ],
       },
       {
         title: 'Information Sharing',
@@ -50,8 +52,8 @@ const legalContent: Record<string, LegalContentType> = {
           'We never sell or rent your personal information',
           'Trusted service providers for service delivery',
           'Legal obligations and authority requests',
-          'Business transfers in case of merger/acquisition'
-        ]
+          'Business transfers in case of merger/acquisition',
+        ],
       },
       {
         title: 'Data Security & Rights',
@@ -59,10 +61,10 @@ const legalContent: Record<string, LegalContentType> = {
           'Robust technical and organizational security measures',
           'Right to access, correct, or delete your data',
           'Option to object to or restrict processing',
-          'Ability to request data copy and withdraw consent'
-        ]
-      }
-    ]
+          'Ability to request data copy and withdraw consent',
+        ],
+      },
+    ],
   },
   terms: {
     title: 'Terms of Service',
@@ -75,8 +77,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Custom AI solutions including chat agents and voice agents',
           'Tailored CRM development and SaaS platforms',
           'Integration and deployment services',
-          'Ongoing support and maintenance'
-        ]
+          'Ongoing support and maintenance',
+        ],
       },
       {
         title: 'User Responsibilities',
@@ -84,8 +86,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Provide accurate and complete information',
           'Use services only for lawful purposes',
           'Protect account credentials and access',
-          'Comply with all applicable laws and regulations'
-        ]
+          'Comply with all applicable laws and regulations',
+        ],
       },
       {
         title: 'Intellectual Property',
@@ -93,8 +95,8 @@ const legalContent: Record<string, LegalContentType> = {
           'All content and software are Two Steps property',
           'Website design, text, and graphics are protected',
           'Custom AI solutions and tools ownership',
-          'No unauthorized use or distribution'
-        ]
+          'No unauthorized use or distribution',
+        ],
       },
       {
         title: 'Service Terms',
@@ -102,8 +104,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Custom pricing based on project requirements',
           'Payments due as outlined in agreements',
           'Delivery timelines vary by project scope',
-          'Support included per service agreement'
-        ]
+          'Support included per service agreement',
+        ],
       },
       {
         title: 'Legal Compliance',
@@ -111,10 +113,10 @@ const legalContent: Record<string, LegalContentType> = {
           'Limited liability for indirect damages',
           'Right to terminate for Terms violations',
           'Privacy Policy compliance required',
-          'Governing law and jurisdiction apply'
-        ]
-      }
-    ]
+          'Governing law and jurisdiction apply',
+        ],
+      },
+    ],
   },
   cookies: {
     title: 'Cookie Policy',
@@ -127,8 +129,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Small text files stored on your device when visiting our website',
           'Help recognize your device and remember preferences',
           'Enable personalized browsing experience',
-          'Support website functionality and performance'
-        ]
+          'Support website functionality and performance',
+        ],
       },
       {
         title: 'Types of Cookies We Use',
@@ -136,8 +138,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Essential Cookies: Required for basic website functionality',
           'Performance Cookies: Track website usage and improve performance',
           'Functionality Cookies: Remember your preferences and settings',
-          'Targeting/Advertising Cookies: Deliver relevant ads and track campaigns'
-        ]
+          'Targeting/Advertising Cookies: Deliver relevant ads and track campaigns',
+        ],
       },
       {
         title: 'How We Use Cookies',
@@ -145,8 +147,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Improve website performance and loading speed',
           'Enhance user experience with personalized content',
           'Analyze traffic patterns and user behavior',
-          'Optimize marketing and advertising effectiveness'
-        ]
+          'Optimize marketing and advertising effectiveness',
+        ],
       },
       {
         title: 'Managing Cookie Preferences',
@@ -154,8 +156,8 @@ const legalContent: Record<string, LegalContentType> = {
           'Control cookies through browser settings',
           'Choose which types of cookies to accept',
           'Opt-out of non-essential cookies',
-          'Note: Disabling cookies may affect website functionality'
-        ]
+          'Note: Disabling cookies may affect website functionality',
+        ],
       },
       {
         title: 'Third-Party Cookies',
@@ -163,11 +165,11 @@ const legalContent: Record<string, LegalContentType> = {
           'Some cookies set by trusted third parties',
           'Analytics providers and advertisers',
           'Governed by third-party privacy policies',
-          'Regular review of third-party compliance'
-        ]
-      }
-    ]
-  }
+          'Regular review of third-party compliance',
+        ],
+      },
+    ],
+  },
 };
 
 /** Props for the LegalModal component. */
@@ -205,7 +207,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
         // Jump back to saved scroll position
         window.scrollTo({
           top: scrollRef.current,
-          behavior: 'instant'
+          behavior: 'instant',
         });
       };
     }
@@ -252,7 +254,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
             className={clsx(
               'relative w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col',
               'bg-gradient-to-b from-gray-900/95 to-black/95 rounded-2xl',
-              'border border-gray-800/50 backdrop-blur-xl'
+              'border border-gray-800/50 backdrop-blur-xl',
             )}
           >
             {/* Header */}
@@ -261,7 +263,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 <div
                   className={clsx(
                     'w-12 h-12 rounded-xl bg-gradient-to-r p-[1px]',
-                    content.gradient
+                    content.gradient,
                   )}
                 >
                   <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
@@ -271,7 +273,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 <h3
                   className={clsx(
                     'text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent',
-                    content.gradient
+                    content.gradient,
                   )}
                 >
                   {content.title}
@@ -283,7 +285,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 whileTap={{ scale: 0.9 }}
                 className={clsx(
                   'p-2 rounded-lg bg-gradient-to-r hover:opacity-90 transition-opacity',
-                  content.gradient
+                  content.gradient,
                 )}
               >
                 <X className="w-5 h-5 text-white" />
@@ -318,7 +320,7 @@ const BaseLegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                     className={clsx(
                       'absolute -inset-2 bg-gradient-to-r rounded-2xl opacity-0 group-hover:opacity-10',
                       'blur-xl transition-opacity duration-500 -z-10',
-                      content.gradient
+                      content.gradient,
                     )}
                   />
                 </motion.div>

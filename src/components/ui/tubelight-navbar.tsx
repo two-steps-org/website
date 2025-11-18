@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { DivideIcon as LucideIcon } from "lucide-react";
-import { cn } from "../../lib/utils";
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 interface NavItem {
   name: string;
   url: string;
-  icon: LucideIcon;
+  icon: typeof X;
 }
 
 interface NavBarProps {
@@ -21,37 +21,40 @@ export function NavBar({ items, className, onItemClick }: NavBarProps) {
   useEffect(() => {
     // Prepare a list of section objects from items
     const sections = items
-      .filter(item => item.url.startsWith("#"))
-      .map(item => {
+      .filter((item) => item.url.startsWith('#'))
+      .map((item) => {
         const id = item.url.slice(1);
         return {
           id,
           name: item.name,
-          element: document.getElementById(id)
+          element: document.getElementById(id),
         };
       })
-      .filter(section => section.element !== null);
+      .filter((section) => section.element !== null);
 
     if (sections.length === 0) return;
 
     // Use a finely spaced threshold for a smoother update.
     const thresholds = Array.from({ length: 101 }, (_, i) => i / 100);
 
-    const observer = new IntersectionObserver((entries) => {
-      let maxRatio = 0;
-      let newActive = activeTab;
-      // Look through each entry to determine which section is most visible.
-      entries.forEach(entry => {
-        const section = sections.find(sec => sec.element === entry.target);
-        if (section && entry.intersectionRatio > maxRatio) {
-          maxRatio = entry.intersectionRatio;
-          newActive = section.name;
-        }
-      });
-      setActiveTab(newActive);
-    }, { threshold: thresholds });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let maxRatio = 0;
+        let newActive = activeTab;
+        // Look through each entry to determine which section is most visible.
+        entries.forEach((entry) => {
+          const section = sections.find((sec) => sec.element === entry.target);
+          if (section && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            newActive = section.name;
+          }
+        });
+        setActiveTab(newActive);
+      },
+      { threshold: thresholds },
+    );
 
-    sections.forEach(section => {
+    sections.forEach((section) => {
       if (section.element) {
         observer.observe(section.element);
       }
@@ -70,7 +73,7 @@ export function NavBar({ items, className, onItemClick }: NavBarProps) {
   };
 
   return (
-    <div className={cn("flex-1 flex justify-center", className)}>
+    <div className={cn('flex-1 flex justify-center', className)}>
       <div className="flex items-center gap-3 bg-gray-900/50 border border-gray-800/50 backdrop-blur-lg py-1 px-1 rounded-full shadow-lg">
         {items.map((item) => {
           const Icon = item.icon;
@@ -80,9 +83,9 @@ export function NavBar({ items, className, onItemClick }: NavBarProps) {
               key={item.name}
               onClick={() => handleClick(item)}
               className={cn(
-                "relative cursor-pointer text-sm font-semibold px-4 py-2 rounded-full transition-colors",
-                "text-gray-400 hover:text-white",
-                isActive && "text-white"
+                'relative cursor-pointer text-sm font-semibold px-4 py-2 rounded-full transition-colors',
+                'text-gray-400 hover:text-white',
+                isActive && 'text-white',
               )}
             >
               <span className="hidden md:inline">{item.name}</span>
@@ -95,7 +98,7 @@ export function NavBar({ items, className, onItemClick }: NavBarProps) {
                   className="absolute inset-0 w-full bg-blue-500/5 rounded-full -z-10"
                   initial={false}
                   transition={{
-                    type: "spring",
+                    type: 'spring',
                     stiffness: 300,
                     damping: 30,
                   }}

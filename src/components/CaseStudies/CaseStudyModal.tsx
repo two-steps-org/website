@@ -6,23 +6,20 @@ import type { CaseStudy } from './types';
 import clsx from 'clsx';
 
 interface CaseStudyModalProps {
-  study: CaseStudy;
+  study?: CaseStudy;
+  isOpen: boolean;
   onClose: () => void;
   onBookCall: () => void;
 }
 
-const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
-  study,
-  onClose,
-  onBookCall,
-}) => {
+const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ study, isOpen, onClose, onBookCall }) => {
   return (
     <Modal
-      isOpen={true}
+      isOpen={isOpen}
       onClose={onClose}
-      title={study.title}
-      gradient={study.gradient}
-      icon={<study.icon className="w-5 h-5 text-white" />}
+      title={study?.title}
+      gradient={study?.gradient}
+      icon={study && <study.icon className="w-5 h-5 text-white" />}
       maxWidth="xl"
     >
       <div className="flex flex-col h-[calc(100dvh-65px)] sm:h-[min(600px,80vh)]">
@@ -32,36 +29,30 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gray-900/50 rounded-xl p-4">
               <p className="text-gray-400 text-sm mb-1">Client</p>
-              <p className="text-white font-medium">{study.client}</p>
+              <p className="text-white font-medium">{study?.client}</p>
             </div>
             <div className="bg-gray-900/50 rounded-xl p-4">
               <p className="text-gray-400 text-sm mb-1">Industry</p>
-              <p className="text-white font-medium">{study.industry}</p>
+              <p className="text-white font-medium">{study?.industry}</p>
             </div>
           </div>
 
           {/* Description */}
           <div className="bg-gray-900/50 rounded-xl p-4">
-            <h4 className="text-base sm:text-lg font-semibold text-white mb-2">
-              Overview
-            </h4>
-            <p className="text-gray-300 leading-relaxed">{study.description}</p>
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Overview</h4>
+            <p className="text-gray-300 leading-relaxed">{study?.description}</p>
           </div>
 
           {/* Solution */}
           <div className="bg-gray-900/50 rounded-xl p-4">
-            <h4 className="text-base sm:text-lg font-semibold text-white mb-2">
-              Solution
-            </h4>
-            <p className="text-gray-300 leading-relaxed">{study.solution}</p>
+            <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Solution</h4>
+            <p className="text-gray-300 leading-relaxed">{study?.solution}</p>
           </div>
 
           {/* Implementation Steps */}
           <div className="space-y-3 sm:space-y-4">
-            <h4 className="text-base sm:text-lg font-semibold text-white">
-              Implementation
-            </h4>
-            {study.implementation.map((step, index) => (
+            <h4 className="text-base sm:text-lg font-semibold text-white">Implementation</h4>
+            {study?.implementation.map((step, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -73,7 +64,7 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
                   <h5
                     className={clsx(
                       'text-sm sm:text-base font-semibold mb-2',
-                      `bg-gradient-to-r ${study.gradient} bg-clip-text text-transparent`
+                      `bg-gradient-to-r ${study?.gradient} bg-clip-text text-transparent`,
                     )}
                   >
                     {index + 1}. {step.title}
@@ -84,12 +75,10 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
                         <div
                           className={clsx(
                             'w-1.5 h-1.5 rounded-full mt-1.5 shrink-0',
-                            `bg-gradient-to-r ${study.gradient}`
+                            `bg-gradient-to-r ${study?.gradient}`,
                           )}
                         />
-                        <span className="text-gray-300 text-xs sm:text-sm">
-                          {detail}
-                        </span>
+                        <span className="text-gray-300 text-xs sm:text-sm">{detail}</span>
                       </li>
                     ))}
                   </ul>
@@ -107,10 +96,10 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({
             whileTap={{ scale: 0.98 }}
             className={clsx(
               'w-full bg-gradient-to-r',
-              study.gradient,
+              study?.gradient,
               'px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base text-white font-medium flex items-center justify-center gap-2',
               'hover:shadow-lg transition-all duration-300 touch-manipulation',
-              'min-h-[44px] sm:min-h-[48px] my-2 sm:my-0'
+              'min-h-[44px] sm:min-h-[48px] my-2 sm:my-0',
             )}
           >
             Book a Call

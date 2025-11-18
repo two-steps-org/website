@@ -1,9 +1,0 @@
-export { default as MobileNavbar } from './MobileNavbar';
-export { default as MobileHero } from './MobileHero';
-export { default as MobileServices } from './MobileServices';
-export { default as MobileWhyUs } from './MobileWhyUs';
-export { default as MobileProcess } from './MobileProcess';
-export { default as MobileTeam } from './MobileTeam';
-export { default as MobileFAQ } from './MobileFAQ';
-export { default as MobileFooter } from './MobileFooter';
-export { default as ScrollToTop } from './ScrollToTop';
