@@ -31,10 +31,13 @@ if (!rootElement) {
   throw new Error('Root element with id "root" not found. Please ensure it exists in index.html');
 }
 
-createRoot(rootElement).render(
+// Disable StrictMode in production for better performance
+const AppWrapper = process.env.NODE_ENV === 'production' ? App : () => (
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+
+createRoot(rootElement).render(<AppWrapper />);
 
 scheduleHandlePageLoad();

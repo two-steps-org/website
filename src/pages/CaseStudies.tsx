@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Search, Filter, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -53,6 +53,62 @@ const CaseStudies: React.FC = () => {
       setCurrentIndex(newIndex);
     }
   };
+
+  // Track scroll position to update currentIndex
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || filteredStudies.length === 0) return;
+
+    const handleScroll = () => {
+      if (!container) return;
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = container.offsetWidth;
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      const clampedIndex = Math.max(0, Math.min(newIndex, filteredStudies.length - 1));
+      
+      setCurrentIndex((prevIndex) => {
+        // Only update if index actually changed
+        return clampedIndex !== prevIndex ? clampedIndex : prevIndex;
+      });
+    };
+
+    // Throttle scroll events for better performance
+    let ticking = false;
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    container.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    
+    // Also listen for scrollend event if available (better for snap scrolling)
+    if ('onscrollend' in container) {
+      container.addEventListener('scrollend', handleScroll, { passive: true });
+    }
+
+    // Initial check
+    handleScroll();
+
+    return () => {
+      container.removeEventListener('scroll', throttledHandleScroll);
+      if ('onscrollend' in container) {
+        container.removeEventListener('scrollend', handleScroll);
+      }
+    };
+  }, [filteredStudies.length]);
+
+  // Reset currentIndex when filtered studies change
+  useEffect(() => {
+    setCurrentIndex(0);
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ left: 0, behavior: 'auto' });
+    }
+  }, [filteredStudies]);
 
   return (
     <>
@@ -113,10 +169,23 @@ const CaseStudies: React.FC = () => {
         {/* Mobile Carousel */}
         <div className="block md:hidden">
           <div className="relative">
-            <div ref={containerRef} className="overflow-hidden snap-x snap-mandatory touch-pan-x">
+            <div
+              ref={containerRef}
+              className="overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                scrollBehavior: 'smooth',
+                touchAction: 'pan-x',
+                msOverflowStyle: 'none',
+                scrollbarWidth: 'none',
+              }}
+            >
               <div className="flex">
                 {filteredStudies.map((study, index) => (
-                  <div key={index} className="w-full flex-shrink-0 snap-center px-4">
+                  <div
+                    key={`${study.title}-${index}`}
+                    className="w-full flex-shrink-0 snap-center px-4"
+                  >
                     <CaseStudyCard
                       study={study}
                       index={index}

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, Suspense, memo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { isMobileDevice } from '../utils/responsive/device';
 
 const Hero = React.lazy(() => import('../components/Hero'));
 const Services = React.lazy(() => import('../components/Services'));
@@ -12,25 +13,60 @@ const Team = React.lazy(() => import('../components/Team'));
 const FAQ = React.lazy(() => import('../components/FAQ'));
 
 const SectionLoadingFallback = () => (
-  <div className="min-h-[400px] flex items-center justify-center">
-    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+  <div className="min-h-[200px] flex items-center justify-center">
+    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
   </div>
 );
 
 const SectionErrorFallback = ({ error }: { error: Error }) => (
-  <div className="min-h-[400px] flex items-center justify-center">
-    <div className="text-center p-8">
-      <h2 className="text-xl font-bold text-red-500 mb-4">Failed to load section</h2>
-      <p className="text-gray-400 mb-4">{error.message}</p>
-      <button
-        onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-      >
-        Retry
-      </button>
+  <div className="min-h-[200px] flex items-center justify-center p-4">
+    <div className="text-center">
+      <p className="text-gray-400 text-sm">{error.message}</p>
     </div>
   </div>
 );
+
+// Lazy section with intersection observer
+const LazySection: React.FC<{
+  id: string;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ id, children, className = '' }) => {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const isMobile = isMobileDevice();
+
+  useEffect(() => {
+    // Load immediately on desktop
+    if (!isMobile) {
+      setShouldLoad(true);
+      return;
+    }
+
+    // Use intersection observer on mobile
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' } // Start loading 200px before visible
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  return (
+    <section id={id} ref={sectionRef} className={className}>
+      {shouldLoad ? children : <SectionLoadingFallback />}
+    </section>
+  );
+};
 
 const Home = () => {
   useEffect(() => {
@@ -38,53 +74,55 @@ const Home = () => {
       history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
-    setTimeout(() => window.scrollTo(0, 0), 100);
-
-    const handleHashNavigation = () => {
-      const hash = window.location.hash;
-      if (!hash) return;
-
-      const element = document.getElementById(hash.slice(1));
-
-      if (element) {
-        const navHeight = 56;
-        const rect = element.getBoundingClientRect();
-        const offset = rect.top + window.pageYOffset - navHeight;
-        window.scrollTo({ top: offset, behavior: 'smooth' });
-      }
-    };
-
-    const timeout = setTimeout(handleHashNavigation, 500);
-    return () => clearTimeout(timeout);
   }, []);
 
   return (
     <ErrorBoundary FallbackComponent={SectionErrorFallback}>
-      <Suspense fallback={<SectionLoadingFallback />}>
-        <section id="home">
+      {/* Hero loads immediately */}
+      <section id="home">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <Hero />
-        </section>
-        <section id="services">
+        </React.Suspense>
+      </section>
+
+      {/* Other sections lazy load on mobile */}
+      <LazySection id="services">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <Services />
-        </section>
-        <section id="dashboard" className="hidden md:block">
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection id="dashboard" className="hidden md:block">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <DashboardSection />
-        </section>
-        <section id="why-us">
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection id="why-us">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <WhyUs />
-        </section>
-        <section id="process">
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection id="process">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <Process />
-        </section>
-        <section id="team">
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection id="team">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <Team />
-        </section>
-        <section id="faq">
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection id="faq">
+        <React.Suspense fallback={<SectionLoadingFallback />}>
           <FAQ />
-        </section>
-      </Suspense>
+        </React.Suspense>
+      </LazySection>
     </ErrorBoundary>
   );
 };
 
-export default memo(Home);
+export default React.memo(Home);

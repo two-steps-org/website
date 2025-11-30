@@ -1,27 +1,26 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { isMobileDevice } from '../../utils/responsive/device';
 import clsx from 'clsx';
 
 interface GlowEffectProps {
-  /** Color key for the glow effect (e.g., "blue", "purple", "cyan") */
   color?: string;
-  /** Base opacity value for the glow effect */
   opacity?: number;
-  /** Blur amount for the glow effect */
   blur?: string;
-  /** Additional custom classes */
   className?: string;
 }
 
-/**
- * GlowEffect renders an animated, blurred glow using Framer Motion.
- */
 const GlowEffect: React.FC<GlowEffectProps> = ({
   color = 'blue',
   opacity = 0.5,
   blur = '100px',
   className = '',
 }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
   const presets: Record<string, { background: string; glow: string }> = {
     blue: {
       background:
@@ -48,26 +47,21 @@ const GlowEffect: React.FC<GlowEffectProps> = ({
   const palette = presets[color] ?? presets.blue;
 
   return (
-    <motion.div
-      className={clsx('absolute pointer-events-none select-none mix-blend-screen', className)}
-      initial={{ opacity: opacity * 0.35, scale: 0.95 }}
-      animate={{
-        opacity: [opacity * 0.6, opacity, opacity * 0.6],
-        scale: [1.05, 1.22, 1.05],
-      }}
-      transition={{
-        duration: 5.2,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
+    <div
+      className={clsx(
+        'absolute pointer-events-none select-none mix-blend-screen',
+        isMobile ? '' : 'animate-glow-pulse',
+        className
+      )}
       style={{
         background: palette.background,
         filter: `blur(${blur})`,
         boxShadow: palette.glow,
-        willChange: 'transform, opacity',
+        opacity: isMobile ? opacity * 0.6 : undefined, // Static on mobile
       }}
     />
   );
 };
 
 export default React.memo(GlowEffect);
+

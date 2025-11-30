@@ -1,14 +1,9 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import { lazyWithFallback } from './utils/lazyWithFallback';
 import BaseLayout from './components/layout/BaseLayout';
-
-const Home = lazyWithFallback(() => import('./pages/Home'), 'Failed to load page');
-const CaseStudies = lazyWithFallback(
-  () => import('./pages/CaseStudies'),
-  'Failed to load case studies',
-);
+import Home from './pages/Home';
+import CaseStudies from './pages/CaseStudies';
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
