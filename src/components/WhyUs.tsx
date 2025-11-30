@@ -193,14 +193,12 @@ const WhyUs: React.FC = () => {
                     })}
                   </div>
                 </div>
-
                 <h3
-                  className={`text-lg font-bold bg-gradient-to-r ${features[currentIndex].gradient} bg-clip-text text-transparent`}
+                  className={`text-lg sm:text-xl font-bold bg-gradient-to-r ${features[currentIndex].gradient} bg-clip-text text-transparent`}
                 >
                   {features[currentIndex].title}
                 </h3>
               </div>
-
               <p className="text-gray-400 text-sm leading-relaxed mb-6">
                 {features[currentIndex].description}
               </p>
