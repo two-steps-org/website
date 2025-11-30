@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { useAnimationOptimizer } from '../../utils/performance/hooks/useAnimationOptimizer';
+import React, { useEffect, useState } from 'react';
+import { isMobileDevice } from '../../utils/responsive/device';
 import clsx from 'clsx';
 
 interface AnimatedGradientTextProps {
@@ -18,20 +17,22 @@ const AnimatedGradientText: React.FC<AnimatedGradientTextProps> = ({
   duration = 4,
   disabled = false,
 }) => {
-  const prefersReducedMotion = useReducedMotion();
-  const animationQuality = useAnimationOptimizer();
-  
-  // Determine if animations should be disabled
-  const shouldDisableAnimation = useMemo(() => {
-    return disabled || prefersReducedMotion || animationQuality === 'low';
-  }, [disabled, prefersReducedMotion, animationQuality]);
-  
-  // Adjust animation duration based on performance quality
-  const adjustedDuration = useMemo(() => {
-    return animationQuality === 'medium' ? duration * 1.5 : duration;
-  }, [duration, animationQuality]);
-  
-  // If animations are disabled, render static gradient text
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    
+    const handleChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const shouldDisableAnimation = disabled || isMobile || prefersReducedMotion;
+
+  // Use CSS animation on desktop, static on mobile
   if (shouldDisableAnimation) {
     return (
       <span
@@ -47,28 +48,26 @@ const AnimatedGradientText: React.FC<AnimatedGradientTextProps> = ({
       </span>
     );
   }
-  
+
   return (
-    <motion.span
+    <span
       className={clsx(
         'bg-gradient-to-r',
         'bg-clip-text',
         'text-transparent',
         'bg-[length:200%_auto]',
+        'animate-gradient-shift',
         gradient,
         className
       )}
-      animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-      transition={{
-        duration: adjustedDuration,
-        repeat: Infinity,
-        ease: 'linear',
-        willChange: 'background-position'
+      style={{
+        animationDuration: `${duration}s`,
       }}
     >
       {children}
-    </motion.span>
+    </span>
   );
 };
 
 export default React.memo(AnimatedGradientText);
+

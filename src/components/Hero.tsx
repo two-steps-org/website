@@ -1,59 +1,35 @@
-import React, { useEffect, useRef, useCallback, Suspense } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useCallback, Suspense, useState, useEffect } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SplineScene } from './ui/splite';
 import Section from './common/Section';
 import AnimatedGradientText from './common/AnimatedGradientText';
-import { useIntersectionObserver } from '../utils/performance/hooks';
+import { isMobileDevice } from '../utils/responsive/device';
+
+// Lazy load framer-motion only on desktop
+const MotionComponents = React.lazy(() =>
+  isMobileDevice()
+    ? Promise.resolve({ default: { div: 'div', button: 'button' } })
+    : import('framer-motion').then((mod) => ({
+        default: { div: mod.motion.div, button: mod.motion.button },
+      }))
+);
 
 const Hero: React.FC = () => {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [setIntersectionRef, isVisible] = useIntersectionObserver({ threshold: 0.1 });
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springConfig = { damping: 30, stiffness: 250, mass: 1 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
-
-  useEffect(() => {
-    if (heroRef.current) setIntersectionRef(heroRef.current);
-  }, [setIntersectionRef]);
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      mouseX.set(x);
-      mouseY.set(y);
-    },
-    [mouseX, mouseY],
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    mouseX.set(0);
-    mouseY.set(0);
-  }, [mouseX, mouseY]);
-
+  const [isMobile, setIsMobile] = useState(true);
   const handleBookCall = useCallback(() => {
     window.open('https://calendly.com/yoniinsell/30min', '_blank');
   }, []);
 
+  useEffect(() => {
+    setIsMobile(isMobileDevice());
+  }, []);
+
   return (
-    <Section
-      ref={heroRef}
-      className="relative flex flex-col justify-center overflow-hidden pt-20 pb-14 sm:pt-24 lg:pt-28 lg:pb-20 md:min-h-[calc(100vh-72px)]"
-    >
+    <Section className="relative flex flex-col justify-center overflow-hidden pt-20 pb-14 sm:pt-24 lg:pt-28 lg:pb-20 md:min-h-[calc(100vh-72px)]">
       <div className="relative w-full px-4 sm:px-6 lg:px-8 mx-auto grid lg:grid-cols-2 items-center gap-10 lg:gap-12">
         {/* Left Column */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="z-10 space-y-6 sm:space-y-8 text-center lg:text-left"
-        >
+        <div className="z-10 space-y-6 sm:space-y-8 text-center lg:text-left animate-fade-in">
           {/* Tagline */}
           <div className="inline-flex px-4 sm:px-5 py-2 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto lg:mx-0">
             <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
@@ -91,62 +67,49 @@ const Hero: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col lg:flex-col md:flex-wrap md:flex-row gap-4 pt-4 justify-center lg:justify-start w-full">
-            <motion.button
+            <button
               onClick={handleBookCall}
-              whileHover={{ scale: 1.03, y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-auto relative min-h-[52px] sm:min-h-[56px] px-6 sm:px-7 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold overflow-hidden shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 text-base sm:text-lg flex items-center justify-center gap-2"
+              className="w-auto relative min-h-[52px] sm:min-h-[56px] px-6 sm:px-7 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold overflow-hidden shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-95 transition-all duration-300 text-base sm:text-lg flex items-center justify-center gap-2"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500" />
               <span className="relative flex items-center justify-center gap-2 text-white">
                 Book a Call
                 <ArrowRight className="w-5 h-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
               </span>
-            </motion.button>
+            </button>
 
             <Link to="/case-studies" className="w-auto">
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                className="w-full px-4 min-h-[52px] h-full rounded-xl font-medium border border-gray-700 text-white hover:border-blue-400 hover:bg-blue-500/10 active:bg-blue-500/5 transition-all duration-300 backdrop-blur-sm"
-              >
+              <button className="w-full px-4 min-h-[52px] h-full rounded-xl font-medium border border-gray-700 text-white hover:border-blue-400 hover:bg-blue-500/10 active:bg-blue-500/5 active:scale-95 transition-all duration-300 backdrop-blur-sm">
                 Case Studies
-              </motion.button>
+              </button>
             </Link>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Right Column */}
-        <motion.div
-          className="relative w-full h-[min(75vh,780px)] hidden lg:inline-block"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-        >
-          <motion.div
-            style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-            className="w-full h-full rounded-xl overflow-hidden"
-          >
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-              }
-            >
-              <SplineScene
-                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                className="w-full h-full scale-105"
-                loading="eager"
-                quality="low"
-              />
-            </Suspense>
-          </motion.div>
-        </motion.div>
+        {/* Right Column - Only on desktop, no Spline on mobile */}
+        {!isMobile && (
+          <div className="relative w-full h-[min(75vh,780px)] hidden lg:inline-block animate-fade-in">
+            <div className="w-full h-full rounded-xl overflow-hidden">
+              <Suspense
+                fallback={
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                }
+              >
+                <SplineScene
+                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                  className="w-full h-full scale-105"
+                  loading="lazy"
+                  quality="low"
+                />
+              </Suspense>
+            </div>
+          </div>
+        )}
       </div>
     </Section>
   );
 };
 
-export default Hero;
+export default React.memo(Hero);
