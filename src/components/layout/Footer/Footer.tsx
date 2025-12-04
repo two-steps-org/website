@@ -102,7 +102,7 @@ const Footer: React.FC = () => {
   const [selectedLegal, setSelectedLegal] = useState<string | null>(null);
 
   const handleBookCall = () => {
-    window.open('https://calendly.com/yoniinsell/30min', '_blank', 'noopener,noreferrer');
+    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank', 'noopener,noreferrer');
   };
 
   const handleClick = (href: string) => {

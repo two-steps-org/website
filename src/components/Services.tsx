@@ -119,7 +119,7 @@ const Service: React.FC = () => {
   const [direction, setDirection] = useState(0);
 
   const handleBookCall = () => {
-    window.open('https://calendly.com/yoniinsell/30min', '_blank');
+    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
   };
 
   // Carousel logic

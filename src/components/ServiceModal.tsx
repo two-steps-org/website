@@ -81,7 +81,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
   const Icon = icons[service.title] || MessageSquareText;
 
   const handleBookCall = () => {
-    window.open('https://calendly.com/yoniinsell/30min', '_blank');
+    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
     onBookCall();
   };
 
