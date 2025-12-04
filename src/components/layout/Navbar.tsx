@@ -89,7 +89,7 @@ const Navbar = () => {
   );
 
   const handleBookCall = useCallback(() => {
-    window.open('https://calendly.com/yoniinsell/30min', '_blank');
+    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
     setIsMenuOpen(false);
   }, []);
 
