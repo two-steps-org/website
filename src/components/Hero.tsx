@@ -1,45 +1,27 @@
-import React, { useCallback, Suspense, useState, useEffect } from 'react';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { SplineScene } from './ui/splite';
+import { AINetworkVisualization } from './ui/AINetworkVisualization';
 import Section from './common/Section';
 import AnimatedGradientText from './common/AnimatedGradientText';
-import { isMobileDevice } from '../utils/responsive/device';
-
-// Lazy load framer-motion only on desktop
-const MotionComponents = React.lazy(() =>
-  isMobileDevice()
-    ? Promise.resolve({ default: { div: 'div', button: 'button' } })
-    : import('framer-motion').then((mod) => ({
-        default: { div: mod.motion.div, button: mod.motion.button },
-      }))
-);
+import ErrorBoundary from './common/ErrorBoundary';
+import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
 
 const Hero: React.FC = () => {
-  const [isMobile, setIsMobile] = useState(true);
+  const deviceType = useDeviceType();
+  const isMobile = deviceType === 'mobile';
+
   const handleBookCall = useCallback(() => {
     window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
   }, []);
 
-  useEffect(() => {
-    setIsMobile(isMobileDevice());
-  }, []);
-
   return (
-    <Section className="relative flex flex-col justify-center overflow-hidden pt-20 pb-14 sm:pt-24 lg:pt-28 lg:pb-20 md:min-h-[calc(100vh-72px)]">
-      <div className="relative w-full px-4 sm:px-6 lg:px-8 mx-auto grid lg:grid-cols-2 items-center gap-10 lg:gap-12">
+    <Section className="relative overflow-hidden min-h-0 lg:min-h-[calc(100vh-80px)] flex items-center justify-center pt-28 pb-12 md:py-28 lg:py-0">
+      <div className="grid lg:grid-cols-[1fr,1.1fr] items-center gap-8 lg:gap-8 w-full max-w-7xl mx-auto">
         {/* Left Column */}
-        <div className="z-10 space-y-6 sm:space-y-8 text-center lg:text-left animate-fade-in">
-          {/* Tagline */}
-          <div className="inline-flex px-4 sm:px-5 py-2 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto lg:mx-0">
-            <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
-              <Sparkles className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
-              AI Solutions Tailored for Your Business
-            </span>
-          </div>
-
+        <div className="z-10 space-y-6 text-center lg:text-left animate-fade-in flex flex-col justify-center h-full">
           {/* Headline */}
-          <h1 className="text-[clamp(2rem,7vw,2.4rem)] text-[1.2rem] sm:text-[1.8rem] lg:text-[3rem] xl:text-[3.5rem] font-bold tracking-tight leading-[1.1]">
+          <h1 className="text-[clamp(2.5rem,6vw,4rem)] font-bold tracking-tight leading-[1.05]">
             <AnimatedGradientText
               gradient="from-purple-400 via-blue-400 to-cyan-400"
               className="bg-[length:300%_auto]"
@@ -47,66 +29,56 @@ const Hero: React.FC = () => {
             >
               Always Be Ahead
             </AnimatedGradientText>
-            <div className="h-2 sm:h-2.5 lg:h-3" />
-            <span className="text-white">AI Built Just For You</span>
+            <div className="h-1 lg:h-2" />
+            <span className="text-white block">AI Built Just For You</span>
           </h1>
 
           {/* Description */}
-          <p className="text-gray-400 text-[15px] text-xs sm:text-sm lg:text-lg leading-[1.75] tracking-[-0.01em] max-w-xl mx-auto lg:mx-0">
+          <p className="text-gray-400 text-base sm:text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto lg:mx-0">
             At Two Steps, our process is simple:{' '}
             <span className="font-semibold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
               You Bring The Vision,
             </span>
-            <br />
-            <span className="font-semibold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-              We Bring It To Life.
-            </span>
-            <br />
+            {' '}we bring it to life.
+            <br className="hidden lg:block" />
             We craft custom AI solutions, turning complex challenges into seamless automation.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col lg:flex-col md:flex-wrap md:flex-row gap-4 pt-4 justify-center lg:justify-start w-full">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center lg:justify-start w-full sm:w-auto">
             <button
               onClick={handleBookCall}
-              className="w-auto relative min-h-[52px] sm:min-h-[56px] px-6 sm:px-7 lg:px-8 py-3 lg:py-3.5 rounded-xl font-semibold overflow-hidden shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-95 transition-all duration-300 text-base sm:text-lg flex items-center justify-center gap-2"
+              className="relative group min-h-[56px] px-8 rounded-xl font-bold overflow-hidden shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40 active:scale-95 transition-all duration-300 text-lg w-full sm:w-auto"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:from-blue-500 group-hover:to-purple-500 transition-colors" />
               <span className="relative flex items-center justify-center gap-2 text-white">
                 Book a Call
-                <ArrowRight className="w-5 h-5 transition-transform duration-300 ease-out group-hover:translate-x-1" />
+                <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </button>
 
-            <Link to="/case-studies" className="w-auto">
-              <button className="w-full px-4 min-h-[52px] h-full rounded-xl font-medium border border-gray-700 text-white hover:border-blue-400 hover:bg-blue-500/10 active:bg-blue-500/5 active:scale-95 transition-all duration-300 backdrop-blur-sm">
+            <Link to="/case-studies" className="w-full sm:w-auto">
+              <button className="w-full px-8 min-h-[56px] rounded-xl font-bold border border-white/10 text-white hover:border-blue-500/50 hover:bg-blue-500/5 active:scale-95 transition-all duration-300 backdrop-blur-sm">
                 Case Studies
               </button>
             </Link>
           </div>
         </div>
 
-        {/* Right Column - Only on desktop, no Spline on mobile */}
-        {!isMobile && (
-          <div className="relative w-full h-[min(75vh,780px)] hidden lg:inline-block animate-fade-in">
-            <div className="w-full h-full rounded-xl overflow-hidden">
-              <Suspense
-                fallback={
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                  </div>
-                }
-              >
-                <SplineScene
-                  scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-                  className="w-full h-full scale-105"
-                  loading="lazy"
-                  quality="low"
-                />
-              </Suspense>
-            </div>
+        {/* Right Column - AI Network Visualization */}
+        <div className="relative w-full h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center animate-fade-in select-none mt-4 lg:mt-0">
+          <div className="w-full h-full relative flex items-center justify-center p-4 sm:p-0">
+            <ErrorBoundary
+              fallback={
+                <div className="w-full h-full flex items-center justify-center bg-blue-500/5 rounded-3xl border border-blue-500/10">
+                  <p className="text-gray-500">Visualization unavailable</p>
+                </div>
+              }
+            >
+              <AINetworkVisualization simplified={isMobile} />
+            </ErrorBoundary>
           </div>
-        )}
+        </div>
       </div>
     </Section>
   );

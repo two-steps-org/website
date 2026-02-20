@@ -1,5 +1,3 @@
-import { breakpoints } from './breakpoints';
-
 export type DeviceType = 'mobile' | 'tablet' | 'desktop';
 
 export function getDeviceType(): DeviceType {
@@ -19,7 +17,7 @@ export function isTouchDevice(): boolean {
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
-    (navigator as any).msMaxTouchPoints > 0
+    ((navigator as unknown as { msMaxTouchPoints?: number }).msMaxTouchPoints ?? 0) > 0
   );
 }
 

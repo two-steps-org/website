@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const lazyWithFallback = (
-  importFn: () => Promise<any>,
+  importFn: () => Promise<{ default: React.ComponentType }>,
   fallbackTitle: string,
   options?: { successLog?: string },
 ) => {

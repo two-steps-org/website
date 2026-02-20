@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useBreakpoint } from '../../../utils/responsive/hooks';
 import { TYPOGRAPHY } from '../../../utils/typography/constants';
 import clsx from 'clsx';
@@ -26,13 +26,15 @@ export const Text: React.FC<TextProps> = ({
   const typography = isMobile ? TYPOGRAPHY.mobile : TYPOGRAPHY.desktop;
 
   const getTypographyClasses = () => {
-    const styles = typography[variant];
-    return variant === 'body'
-      ? clsx(styles[type], 'leading-[1.8]', styles.tracking, isMobile && 'text-left')
-      : clsx(styles.size, 'leading-[1.5]', styles.tracking, isMobile && 'text-left');
+    if (variant === 'body') {
+      const styles = typography.body;
+      return clsx(styles[type], styles.lineHeight, styles.tracking, isMobile && 'text-left');
+    }
+    const styles = typography[variant] as { size: string; tracking: string };
+    return clsx(styles.size, 'leading-[1.5]', styles.tracking, isMobile && 'text-left');
   };
 
-  const Component = motion[variant === 'body' ? 'p' : variant];
+  const Component = (m as unknown as Record<string, React.ElementType>)[variant === 'body' ? 'p' : variant];
 
   const motionProps = animate
     ? {

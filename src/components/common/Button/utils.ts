@@ -70,8 +70,6 @@ export const getIconClasses = (position: 'left' | 'right', size: ButtonSize): st
   return [
     BUTTON_SIZES[size].iconSize,
     position === 'left' ? BUTTON_LAYOUT.icon.left : BUTTON_LAYOUT.icon.right,
-    // Apply animation class only when icon is positioned on the right.
-    position === 'right' ? BUTTON_LAYOUT.icon.animate : '',
   ]
     .filter(Boolean)
     .join(' ');

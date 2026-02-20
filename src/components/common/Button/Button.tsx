@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { getButtonClasses, getIconClasses } from './utils';
 import type { ButtonProps } from './types';
 
@@ -57,7 +57,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     });
 
     return (
-      <motion.button
+      <m.button
         ref={ref}
         whileHover={isDisabled ? undefined : { scale: 1.02 }}
         whileTap={isDisabled ? undefined : { scale: 0.98 }}
@@ -79,7 +79,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <Icon className={getIconClasses('right', size)} />
           )}
         </span>
-      </motion.button>
+      </m.button>
     );
   }
 );

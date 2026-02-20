@@ -1,4 +1,5 @@
 import { useEffect, useRef, memo } from 'react';
+import { useReducedMotion } from 'framer-motion';
 
 /**
  * ParticleBackground renders a full-screen animated particle system on a canvas.
@@ -7,8 +8,11 @@ import { useEffect, useRef, memo } from 'react';
  */
 const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (shouldReduceMotion) return;
+    
     const canvas = canvasRef.current;
 
     if (!canvas) return;
@@ -30,7 +34,17 @@ const ParticleBackground = () => {
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
-    /** Particle class definition */
+    // Initialize Particles
+    const particles: Particle[] = [];
+    const isMobile = window.innerWidth < 768;
+    // Reduce particle count on mobile for performance
+    const maxParticles = isMobile ? 30 : 100;
+    const particleCount = Math.min(maxParticles, (window.innerWidth * window.innerHeight) / 10000);
+
+    // Use logical width/height for particle positioning since we already scaled the context
+    const logicalWidth = window.innerWidth;
+    const logicalHeight = window.innerHeight;
+
     class Particle {
       x: number;
       y: number;
@@ -42,51 +56,47 @@ const ParticleBackground = () => {
       phase: number;
 
       constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+        this.x = Math.random() * logicalWidth;
+        this.y = Math.random() * logicalHeight;
         this.baseSize = Math.random() * 1.5 + 0.5;
         this.speedX = Math.random() * 0.5 - 0.25;
         this.speedY = Math.random() * 0.5 - 0.25;
         this.opacity = Math.random() * 0.5 + 0.2;
-        this.phase = Math.random() * Math.PI * 2; // random starting offset for the oscillation
+        this.phase = Math.random() * Math.PI * 2; 
 
-        // Random hue between 220-280 => from blue to purple
         const hue = Math.random() * 60 + 220;
         this.color = `hsla(${hue}, 70%, 50%, ${this.opacity})`;
       }
 
       update(time: number) {
-        // Move
         this.x += this.speedX;
         this.y += this.speedY;
 
-        // Wrap around screen edges
-        if (this.x > canvas.width) this.x = 0;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        if (this.y < 0) this.y = canvas.height;
+        // Wrap around screen edges using logical dimensions
+        if (this.x > logicalWidth) this.x = 0;
+        if (this.x < 0) this.x = logicalWidth;
+        if (this.y > logicalHeight) this.y = 0;
+        if (this.y < 0) this.y = logicalHeight;
 
-        // Oscillate size
         const oscillation = Math.sin(time * 0.001 + this.phase) * 0.3;
         const size = Math.max(0.1, this.baseSize + oscillation);
 
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        ctx!.beginPath();
+        ctx!.arc(this.x, this.y, size, 0, Math.PI * 2);
+        ctx!.fillStyle = this.color;
+        ctx!.fill();
       }
     }
-
-    // Initialize Particles
-    const particles: Particle[] = [];
-    const particleCount = Math.min(100, (window.innerWidth * window.innerHeight) / 10000);
 
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
 
     // Draw lines between nearby particles
-    const connectParticles = (time: number) => {
+    const connectParticles = () => {
+      // Skip connections on mobile for performance
+      if (isMobile) return;
+
       const maxDistance = 150;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -96,30 +106,62 @@ const ParticleBackground = () => {
 
           if (distance < maxDistance) {
             const opacity = (1 - distance / maxDistance) * 0.2;
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
-            ctx.lineWidth = 1;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
+            ctx!.beginPath();
+            ctx!.strokeStyle = `rgba(100, 150, 255, ${opacity})`;
+            ctx!.lineWidth = 1;
+            ctx!.moveTo(particles[i].x, particles[i].y);
+            ctx!.lineTo(particles[j].x, particles[j].y);
+            ctx!.stroke();
           }
         }
       }
     };
 
     let animationFrameId: number;
+    let isVisible = true;
+    let isIntersecting = true;
 
     // Animation loop
     const animate = (time: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!isVisible || !isIntersecting) return;
+      
+      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
 
       particles.forEach((particle) => {
         particle.update(time);
       });
 
-      connectParticles(time);
+      connectParticles();
       animationFrameId = requestAnimationFrame(animate);
     };
+
+    // Handle visibility change to pause animation when tab is hidden
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        isVisible = false;
+        cancelAnimationFrame(animationFrameId);
+      } else {
+        isVisible = true;
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    // Intersection Observer to pause when not in viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting && isVisible) {
+          animationFrameId = requestAnimationFrame(animate);
+        } else {
+          cancelAnimationFrame(animationFrameId);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(canvas);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Start animation
     animate(0);
@@ -127,9 +169,11 @@ const ParticleBackground = () => {
     // Cleanup on unmount
     return () => {
       window.removeEventListener('resize', setCanvasSize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      observer.disconnect();
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [shouldReduceMotion]);
 
   return (
     <canvas

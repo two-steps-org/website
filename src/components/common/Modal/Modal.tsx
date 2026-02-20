@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useBreakpoint } from '../../../utils/responsive/hooks';
+import clsx from 'clsx';
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ModalProps {
   showCloseButton?: boolean;
   gradient?: string;
   icon?: React.ReactNode;
+  scrollbarStyle?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -22,7 +24,8 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = 'lg',
   showCloseButton = true,
   gradient = 'from-blue-500 to-purple-500',
-  icon
+  icon,
+  scrollbarStyle
 }) => {
   const breakpoint = useBreakpoint();
   const isMobile = ['xs', 'sm'].includes(breakpoint);
@@ -35,18 +38,18 @@ const Modal: React.FC<ModalProps> = ({
     if (isOpen) {
       scrollPosition.current = window.scrollY;
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      
+
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollPosition.current}px`;
       document.body.style.width = '100%';
       document.body.style.paddingRight = `${scrollbarWidth}px`;
-      
+
       return () => {
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
         document.body.style.paddingRight = '';
-        window.scrollTo(0, scrollPosition.current);
+        window.scrollTo({ top: scrollPosition.current, behavior: 'instant' });
       };
     }
   }, [isOpen]);
@@ -96,16 +99,16 @@ const Modal: React.FC<ModalProps> = ({
           onClick={handleClickOutside}
         >
           {/* Backdrop */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
           {/* Modal Container */}
           <div className="w-full h-full flex items-center justify-center p-4 xs:p-5 sm:p-6">
-            <motion.div
+            <m.div
               ref={modalRef}
               tabIndex={-1}
               role="dialog"
@@ -117,9 +120,10 @@ const Modal: React.FC<ModalProps> = ({
               transition={{ duration: 0.3 }}
               className={`
                 relative w-full 
-                ${isMobile || isTablet ? 'h-[calc(100%-2rem)]' : maxWidthClasses[maxWidth]} 
+                ${maxWidthClasses[maxWidth]} 
+                max-h-[90vh] flex flex-col
                 bg-gradient-to-b from-gray-900/95 to-black/95 
-                rounded-xl xs:rounded-2xl
+                rounded-2xl
                 border border-gray-800/50 
                 backdrop-blur-xl 
                 overflow-hidden
@@ -129,42 +133,43 @@ const Modal: React.FC<ModalProps> = ({
             >
               {/* Header */}
               {(title || showCloseButton) && (
-                <div className="sticky top-0 z-20 flex items-center justify-between p-4 xs:p-5 sm:p-6 border-b border-gray-800/50 bg-inherit">
+                <div className="sticky top-0 z-20 flex items-center justify-between p-5 border-b border-gray-800/50 bg-inherit">
                   {title && (
-                    <div className="flex items-center gap-3 xs:gap-4">
+                    <div className="flex items-center gap-4">
                       {icon && (
-                        <div className={`w-8 xs:w-10 sm:w-12 h-8 xs:h-10 sm:h-12 rounded-lg xs:rounded-xl bg-gradient-to-r ${gradient} p-[1px]`}>
-                          <div className="w-full h-full rounded-lg xs:rounded-xl bg-gray-900 flex items-center justify-center">
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gradient} p-[1px]`}>
+                          <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
                             {icon}
                           </div>
                         </div>
                       )}
-                      <h3 id="modal-title" className={`text-base xs:text-lg sm:text-xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent line-clamp-1`}>
+                      <h3 id="modal-title" className={`text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent line-clamp-1`}>
                         {title}
                       </h3>
                     </div>
                   )}
                   
                   {showCloseButton && (
-                    <motion.button
+                    <m.button
                       onClick={onClose}
                       whileHover={{ scale: 1.1, rotate: 90 }}
                       whileTap={{ scale: 0.9 }}
-                      className={`p-2 xs:p-2.5 rounded-lg bg-gradient-to-r ${gradient} hover:opacity-90 transition-opacity touch-manipulation`}
+                      className={`p-2 rounded-lg bg-gradient-to-r ${gradient} hover:opacity-90 transition-opacity touch-manipulation`}
                     >
-                      <X className="w-4 xs:w-5 h-4 xs:h-5 text-white" />
-                    </motion.button>
+                      <X className="w-5 h-5 text-white" />
+                    </m.button>
                   )}
                 </div>
               )}
 
               {/* Modal Content */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar overscroll-contain -webkit-overflow-scrolling-touch">
-                <div className="p-4 xs:p-5 sm:p-6">
-                  {children}
-                </div>
+              <div className={clsx(
+                'flex-1 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch',
+                scrollbarStyle ? scrollbarStyle : 'custom-scrollbar'
+              )}>
+                {children}
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       )}
