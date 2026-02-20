@@ -1,6 +1,6 @@
 import { useState, memo } from 'react';
-import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { m } from 'framer-motion';
+import { HelpCircle, Plus } from 'lucide-react';
 import Section from './common/Section';
 import clsx from 'clsx';
 
@@ -51,7 +51,7 @@ const FAQ = () => {
     const isOpen = openIndex === index;
 
     return (
-      <motion.div
+      <m.div
         key={index}
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -62,12 +62,12 @@ const FAQ = () => {
           index >= 3 && !showAllMobile ? 'hidden lg:block' : 'block',
         )}
       >
-        <motion.div
+        <m.div
           className={clsx(
             'relative overflow-hidden rounded-2xl border transition-all duration-300 h-full',
             isOpen
               ? 'bg-gray-900/50 border-blue-500/50'
-              : 'bg-gray-900/30 border-gray-800/50 hover:border-gray-700/50',
+              : 'bg-gray-900/50 border-gray-800/50 hover:border-gray-700/50',
           )}
         >
           <button
@@ -93,7 +93,7 @@ const FAQ = () => {
               </div>
             </div>
             {isOpen && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
@@ -101,41 +101,44 @@ const FAQ = () => {
                 className="mt-4 text-gray-400 leading-relaxed"
               >
                 {faq.answer}
-              </motion.div>
+              </m.div>
             )}
           </button>
-        </motion.div>
+        </m.div>
         <div
           className={clsx(
             'absolute -inset-2 bg-gradient-to-r rounded-3xl opacity-0 blur-xl transition-opacity duration-500 -z-10',
             faq.gradient,
           )}
         />
-      </motion.div>
+      </m.div>
     );
   };
 
   return (
-    <Section id="faq">
+    <Section className="py-6 sm:py-12 md:py-16 lg:py-24" id="faq">
       {/* FAQ Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="text-center mb-16"
+        className="text-center mb-8 md:mb-16"
       >
-        <span className="text-blue-400 text-sm font-semibold tracking-wider uppercase mb-4 block">
-          FREQUENTLY ASKED QUESTIONS
-        </span>
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <div className="inline-flex mb-4 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto">
+          <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
+            <HelpCircle className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
+            FREQUENTLY ASKED QUESTIONS
+          </span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
           <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-            Got Questions?
+            Got Any Questions?
           </span>
         </h2>
-      </motion.div>
+      </m.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
         {faqs.map((faq, index) => renderFaqItem(faq, index))}
       </div>
 

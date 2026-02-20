@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { m } from 'framer-motion';
 import {
   Target,
   Puzzle,
@@ -7,11 +7,12 @@ import {
   Rocket,
   ShieldCheck,
   HeartHandshake,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 import Section from './common/Section';
+import { hapticFeedback } from '../utils/mobile/hapticFeedback';
+import clsx from 'clsx';
 
 const features = [
   {
@@ -59,61 +60,75 @@ const features = [
 ];
 
 const WhyUs: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  
+  const totalItems = features.length;
+  const extendedFeatures = [...features, ...features, ...features];
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
+  useEffect(() => {
+    if (scrollRef.current) {
+      const { scrollWidth } = scrollRef.current;
+      scrollRef.current.scrollLeft = scrollWidth / 3;
+    }
+  }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      // Scroll by roughly one card width + gap
+      const scrollAmount = clientWidth - 40;
+      const targetScroll = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
+      
+      scrollRef.current.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      hapticFeedback.selection();
+    }
   };
 
-  const swipeConfidenceThreshold = 10000;
-  const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity;
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      const singleSetWidth = scrollWidth / 3;
 
-  const paginate = (newDirection: number) => {
-    setDirection(newDirection);
-    setCurrentIndex((prev) => (prev + newDirection + features.length) % features.length);
+      // Seamless jump logic - jump when nearing edges to avoid "hitting a wall"
+      if (scrollLeft < 20) {
+        scrollRef.current.scrollLeft = scrollLeft + singleSetWidth;
+      } else if (scrollLeft > scrollWidth - clientWidth - 20) {
+        scrollRef.current.scrollLeft = scrollLeft - singleSetWidth;
+      }
+
+      const relativeScroll = (scrollLeft % singleSetWidth);
+      const itemWidth = singleSetWidth / totalItems;
+      const index = Math.round(relativeScroll / itemWidth);
+      setActiveIndex(index % totalItems);
+    }
   };
 
   return (
-    <Section id="why-us" className="py-14 sm:py-18 md:py-22 lg:py-24 relative">
-      {/* Heading */}
-      <div className="relative text-center mb-12 md:mb-16">
-        <div className="inline-flex mb-4 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto lg:mx-0">
+    <Section className="py-6 sm:py-12 md:py-16 lg:py-24 relative" id="why-us">
+      <div className="relative text-center mb-8 md:mb-16">
+        <div className="inline-flex mb-4 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto">
           <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
-            <Sparkles className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
-            UNIQUE VALUES
+            <Target className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
+            WHY US?
           </span>
         </div>
-        <motion.h2
+        <m.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-2xl md:text-4xl md:text-5xl font-bold"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold"
         >
           <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-            Why Choose Us?
+            What Sets Us Apart
           </span>
-        </motion.h2>
+        </m.h2>
       </div>
 
-      {/* Features grid */}
       <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
         {features.map((feature, index) => (
-          <motion.div
+          <m.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -122,7 +137,6 @@ const WhyUs: React.FC = () => {
             className="group relative"
           >
             <div className="relative overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-5 md:p-6 hover:border-blue-500/30 transition-all duration-300">
-              {/* Header */}
               <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
                 <div
                   className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-r ${feature.gradient} p-[1px] shrink-0 group-hover:scale-110 transition-transform duration-300`}
@@ -137,112 +151,81 @@ const WhyUs: React.FC = () => {
                   {feature.title}
                 </h3>
               </div>
-
-              {/* Description */}
               <p className="text-gray-400 text-sm md:text-base leading-relaxed">
                 {feature.description}
               </p>
             </div>
-
-            {/* Hover/Active Effect */}
             <div
               className={`absolute -inset-2 bg-gradient-to-r ${feature.gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
             />
-          </motion.div>
+          </m.div>
         ))}
       </div>
 
-      {/* Mobile carousel */}
-      <div className="block md:hidden relative min-h-[320px] overflow-visible px-1 sm:px-2">
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={currentIndex}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: 'spring', stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={1}
-            onDragEnd={(_, { offset, velocity }) => {
-              const swipe = swipePower(offset.x, velocity.x);
-              if (swipe < -swipeConfidenceThreshold) {
-                paginate(1);
-              } else if (swipe > swipeConfidenceThreshold) {
-                paginate(-1);
-              }
-            }}
-            className="absolute inset-0 px-1"
+      <div className="block md:hidden">
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 px-10 scrollbar-hide"
+            style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
           >
-            <motion.div
-              whileTap={{ scale: 0.98 }}
-              className="relative h-[80%] min-h-[240px] overflow-hidden rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-5 sm:p-6 group hover:border-blue-500/30 transition-all duration-300"
-            >
-              <div className="flex items-center gap-3 mb-4">
+            {extendedFeatures.map((feature, index) => (
+              <div key={`${feature.title}-${index}`} className="snap-center shrink-0 w-[280px] xs:w-[300px]">
                 <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-r ${features[currentIndex].gradient} p-[1px] flex-shrink-0`}
+                  className="relative h-full min-h-[280px] flex flex-col overflow-hidden rounded-3xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 p-6 group transition-all duration-300 touch-manipulation"
                 >
-                  <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                    {React.createElement(features[currentIndex].icon, {
-                      className: 'w-5 h-5 text-white',
-                    })}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-[0.03]`} />
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.gradient} p-[1px] shadow-lg shadow-blue-500/10 shrink-0`}>
+                        <div className="w-full h-full rounded-2xl bg-gray-950 flex items-center justify-center">
+                          <feature.icon className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+                      <h3 className={`text-xl font-bold bg-gradient-to-r ${feature.gradient} bg-clip-text text-transparent leading-tight`}>
+                        {feature.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-400 text-base leading-relaxed flex-grow">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
-                <h3
-                  className={`text-lg sm:text-xl font-bold bg-gradient-to-r ${features[currentIndex].gradient} bg-clip-text text-transparent`}
-                >
-                  {features[currentIndex].title}
-                </h3>
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                {features[currentIndex].description}
-              </p>
+            ))}
+          </div>
 
-              <div
-                className={`absolute -inset-2 bg-gradient-to-r ${features[currentIndex].gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`}
-              />
-            </motion.div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Controls */}
-        <div className="absolute inset-x-0 bottom-0 flex justify-center items-center z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => paginate(-1)}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
-            </motion.button>
-
-            <div className="flex space-x-2">
-              {features.map((feature, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setDirection(idx > currentIndex ? 1 : -1);
-                    setCurrentIndex(idx);
-                  }}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    idx === currentIndex ? `bg-gradient-to-r ${feature.gradient}` : 'bg-gray-600'
-                  }`}
-                />
-              ))}
+          <div className="flex flex-col items-center mt-2 w-full">
+            <div className="flex items-center gap-6">
+              <m.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => scroll('left')}
+                className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </m.button>
+              <div className="flex gap-2">
+                {features.map((_, i) => (
+                  <div
+                    key={i}
+                    className={clsx(
+                      "w-1.5 h-1.5 rounded-full transition-all duration-300",
+                      activeIndex === i ? "bg-blue-500 w-3" : "bg-gray-700"
+                    )}
+                  />
+                ))}
+              </div>
+              <m.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => scroll('right')}
+                className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </m.button>
             </div>
-
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => paginate(1)}
-              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </motion.button>
           </div>
         </div>
       </div>

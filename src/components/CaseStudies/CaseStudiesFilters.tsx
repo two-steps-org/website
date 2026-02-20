@@ -11,7 +11,7 @@ interface CaseStudiesFiltersProps {
     service: string;
     year: string;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: { industry: string; service: string; year: string }) => void;
 }
 
 const CaseStudiesFilters: React.FC<CaseStudiesFiltersProps> = ({

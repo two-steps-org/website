@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface ModalOverlayProps {
   /** Opacity level for the overlay background (default: 0.8) */
@@ -11,7 +11,7 @@ interface ModalOverlayProps {
  */
 const ModalOverlay: React.FC<ModalOverlayProps> = ({ opacity = 0.8 }) => {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

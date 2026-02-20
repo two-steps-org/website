@@ -14,6 +14,15 @@ export default {
         xl: '1280px',
         '2xl': '1536px',
       },
+      // Container queries for component-level responsiveness (2026 best practice)
+      containers: {
+        xs: '20rem',  // 320px
+        sm: '23.4375rem',  // 375px
+        md: '48rem',  // 768px
+        lg: '64rem',  // 1024px
+        xl: '80rem',  // 1280px
+        '2xl': '96rem',  // 1536px
+      },
       // Consolidated spacing: combining your custom spacing with safe and modal spacing
       spacing: {
         // Standard spacing values
@@ -58,6 +67,7 @@ export default {
         manipulation: 'manipulation',
       },
       fontSize: {
+        // Fluid typography for mobile (320px - 767px)
         mobile: {
           xs: 'clamp(0.75rem, calc(0.75rem + 0.25vw), 0.875rem)',
           sm: 'clamp(0.875rem, calc(0.875rem + 0.25vw), 1rem)',
@@ -65,7 +75,11 @@ export default {
           lg: 'clamp(1.125rem, calc(1.125rem + 0.375vw), 1.25rem)',
           xl: 'clamp(1.25rem, calc(1.25rem + 0.5vw), 1.5rem)',
           '2xl': 'clamp(1.5rem, calc(1.5rem + 0.75vw), 1.75rem)',
+          '3xl': 'clamp(1.75rem, calc(1.75rem + 1vw), 2rem)',
+          '4xl': 'clamp(2rem, calc(2rem + 1.25vw), 2.5rem)',
+          '5xl': 'clamp(2.5rem, calc(2.5rem + 1.5vw), 3rem)',
         },
+        // Fluid typography for tablet (768px - 1023px)
         tablet: {
           xs: 'clamp(0.875rem, calc(0.875rem + 0.375vw), 1rem)',
           sm: 'clamp(1rem, calc(1rem + 0.375vw), 1.125rem)',
@@ -73,6 +87,22 @@ export default {
           lg: 'clamp(1.25rem, calc(1.25rem + 0.625vw), 1.5rem)',
           xl: 'clamp(1.5rem, calc(1.5rem + 0.75vw), 1.75rem)',
           '2xl': 'clamp(1.75rem, calc(1.75rem + 1vw), 2rem)',
+          '3xl': 'clamp(2rem, calc(2rem + 1.25vw), 2.5rem)',
+          '4xl': 'clamp(2.5rem, calc(2.5rem + 1.5vw), 3rem)',
+          '5xl': 'clamp(3rem, calc(3rem + 2vw), 3.75rem)',
+        },
+        // Fluid typography for desktop (1024px+)
+        desktop: {
+          xs: 'clamp(1rem, calc(1rem + 0.5vw), 1.125rem)',
+          sm: 'clamp(1.125rem, calc(1.125rem + 0.625vw), 1.25rem)',
+          base: 'clamp(1.25rem, calc(1.25rem + 0.75vw), 1.375rem)',
+          lg: 'clamp(1.5rem, calc(1.5rem + 1vw), 1.75rem)',
+          xl: 'clamp(1.75rem, calc(1.75rem + 1.25vw), 2rem)',
+          '2xl': 'clamp(2rem, calc(2rem + 1.5vw), 2.5rem)',
+          '3xl': 'clamp(2.5rem, calc(2.5rem + 2vw), 3rem)',
+          '4xl': 'clamp(3rem, calc(3rem + 2.5vw), 3.75rem)',
+          '5xl': 'clamp(3.75rem, calc(3.75rem + 3vw), 4.5rem)',
+          '6xl': 'clamp(4.5rem, calc(4.5rem + 3.5vw), 5.5rem)',
         },
       },
       animation: {

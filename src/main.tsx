@@ -2,6 +2,20 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { registerSW } from 'virtual:pwa-register';
+
+// Register service worker
+if (typeof window !== 'undefined') {
+  registerSW({
+    onNeedRefresh() {
+      // In a real app, you might show a toast to the user
+      console.log('New content available, please refresh.');
+    },
+    onOfflineReady() {
+      console.log('App ready to work offline.');
+    },
+  });
+}
 
 /**
  * Handles tasks that should only run once the page is loaded.
@@ -20,7 +34,7 @@ function handlePageLoad(): void {
  */
 function scheduleHandlePageLoad(): void {
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(handlePageLoad);
+    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(handlePageLoad);
   } else {
     setTimeout(handlePageLoad, 200);
   }
@@ -32,7 +46,7 @@ if (!rootElement) {
 }
 
 // Disable StrictMode in production for better performance
-const AppWrapper = process.env.NODE_ENV === 'production' ? App : () => (
+const AppWrapper = import.meta.env.PROD ? App : () => (
   <React.StrictMode>
     <App />
   </React.StrictMode>
@@ -40,4 +54,7 @@ const AppWrapper = process.env.NODE_ENV === 'production' ? App : () => (
 
 createRoot(rootElement).render(<AppWrapper />);
 
-scheduleHandlePageLoad();
+// Schedule post-load tasks
+if (typeof window !== 'undefined') {
+  scheduleHandlePageLoad();
+}

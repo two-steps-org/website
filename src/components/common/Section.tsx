@@ -21,7 +21,7 @@ const BaseSection = forwardRef<HTMLElement, SectionProps>(
         ref={ref}
         id={id}
         className={clsx(
-          'relative w-full min-h-[auto] flex flex-col justify-center py-8 md:py-12 lg:py-16 scroll-mt-16 md:scroll-mt-20 md:min-h-[calc(100vh-80px)]',
+          'relative w-full min-h-[auto] flex flex-col justify-center py-6 md:py-12 lg:py-16 md:min-h-[calc(100vh-80px)]',
           className,
         )}
       >

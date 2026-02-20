@@ -1,21 +1,21 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ErrorBoundary } from '../components/common/ErrorBoundary';
-import { isMobileDevice } from '../utils/responsive/device';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import { lazyWithFallback } from '../utils/lazyWithFallback';
+import { useSharedIntersectionObserver } from '../hooks/useSharedIntersectionObserver';
 
-const Hero = React.lazy(() => import('../components/Hero'));
-const Services = React.lazy(() => import('../components/Services'));
-const DashboardSection = React.lazy(() => import('../components/DashboardSection'));
-const WhyUs = React.lazy(() => import('../components/WhyUs'));
-const Process = React.lazy(() => import('../components/Process'));
-const Team = React.lazy(() => import('../components/Team'));
-const FAQ = React.lazy(() => import('../components/FAQ'));
+const Hero = lazyWithFallback(() => import('../components/Hero'), 'Failed to load Hero');
+const Services = lazyWithFallback(() => import('../components/Services'), 'Failed to load Services');
+const BentoGridSection = lazyWithFallback(() => import('../components/BentoGrid'), 'Failed to load Showcase');
+const WhyUs = lazyWithFallback(() => import('../components/WhyUs'), 'Failed to load Why Us');
+const Process = lazyWithFallback(() => import('../components/Process'), 'Failed to load Process');
+const Team = lazyWithFallback(() => import('../components/Team'), 'Failed to load Team');
+const FAQ = lazyWithFallback(() => import('../components/FAQ'), 'Failed to load FAQ');
 
 const SectionLoadingFallback = () => (
-  <div className="min-h-[200px] flex items-center justify-center">
-    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-  </div>
+  <div className="min-h-[200px]" aria-hidden="true" />
 );
 
 const SectionErrorFallback = ({ error }: { error: Error }) => (
@@ -28,52 +28,135 @@ const SectionErrorFallback = ({ error }: { error: Error }) => (
 
 // Lazy section with intersection observer
 const LazySection: React.FC<{
-  id: string;
+  id?: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ id, children, className = '' }) => {
-  const [shouldLoad, setShouldLoad] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const isMobile = isMobileDevice();
+  forceLoadAll?: boolean;
+}> = ({ id, children, className = '', forceLoadAll = false }) => {
+  const [sectionRef, isIntersecting] = useSharedIntersectionObserver({
+    triggerOnce: true,
+    initialVisible: false
+  });
+  const [shouldLoad, setShouldLoad] = useState(forceLoadAll);
 
   useEffect(() => {
-    // Load immediately on desktop
-    if (!isMobile) {
+    if (forceLoadAll) {
       setShouldLoad(true);
-      return;
     }
+  }, [forceLoadAll]);
 
-    // Use intersection observer on mobile
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShouldLoad(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '200px' } // Start loading 200px before visible
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+  useEffect(() => {
+    if (isIntersecting) {
+      setShouldLoad(true);
     }
+  }, [isIntersecting]);
 
-    return () => observer.disconnect();
-  }, [isMobile]);
+  // Force-load this section immediately when navbar navigates to any hash section.
+  // Without this, lazy placeholders (200px tall) cause layout shift after scroll,
+  // making the first navbar click land on the wrong section.
+  useEffect(() => {
+    const handleForceLoad = () => setShouldLoad(true);
+    window.addEventListener('navForceLoad', handleForceLoad);
+    return () => window.removeEventListener('navForceLoad', handleForceLoad);
+  }, []);
 
   return (
-    <section id={id} ref={sectionRef} className={className}>
+    <div {...(id && { id })} ref={sectionRef} className={className}>
       {shouldLoad ? children : <SectionLoadingFallback />}
-    </section>
+    </div>
   );
 };
 
 const Home = () => {
+  const location = useLocation();
+  const hasConsumedSectionNav = useRef(false);
+  const navState = (location.state as { targetSection?: string; isSectionNav?: boolean } | null) ?? null;
+  const targetSection = navState?.isSectionNav ? navState.targetSection ?? null : null;
+  const forceLoadAll = Boolean(targetSection);
+
+  useLayoutEffect(() => {
+    if (targetSection) {
+      hasConsumedSectionNav.current = true;
+      const sectionId = targetSection;
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      let pollTimer: number | null = null;
+
+      // Ensure target sections mount immediately, then jump before paint.
+      root.style.scrollBehavior = 'auto';
+      window.dispatchEvent(new CustomEvent('navForceLoad'));
+
+      const jumpToTarget = () => {
+        const el = document.getElementById(sectionId);
+        if (!el) return false;
+        el.scrollIntoView({ behavior: 'auto', block: 'start' });
+        return true;
+      };
+
+      // Keep final alignment stable while lazy sections finish expanding.
+      let lastScrollHeight = document.body.scrollHeight;
+      let stableCount = 0;
+      let attempts = 0;
+
+      const settle = () => {
+        jumpToTarget();
+        const currentScrollHeight = document.body.scrollHeight;
+        attempts++;
+
+        if (currentScrollHeight !== lastScrollHeight) {
+          stableCount = 0;
+        } else {
+          stableCount++;
+        }
+
+        lastScrollHeight = currentScrollHeight;
+
+        if (stableCount < 3 && attempts < 40) {
+          pollTimer = window.setTimeout(settle, 40);
+        }
+      };
+
+      const timer1 = window.setTimeout(settle, 80);
+      const timer2 = window.setTimeout(settle, 200);
+      const timer3 = window.setTimeout(settle, 380);
+      const restoreTimer = window.setTimeout(() => {
+        root.style.scrollBehavior = previousScrollBehavior;
+      }, 500);
+
+      jumpToTarget();
+      requestAnimationFrame(settle);
+
+      return () => {
+        if (pollTimer) window.clearTimeout(pollTimer);
+        window.clearTimeout(timer1);
+        window.clearTimeout(timer2);
+        window.clearTimeout(timer3);
+        window.clearTimeout(restoreTimer);
+        root.style.scrollBehavior = previousScrollBehavior;
+      };
+    }
+
+    // After consuming section-nav state, avoid resetting to top on the follow-up
+    // render where location.state is cleared/replaced by the router.
+    if (!hasConsumedSectionNav.current) {
+      window.scrollTo(0, 0);
+    }
+  }, [targetSection]);
+
   useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
-    window.scrollTo(0, 0);
+
+    // Prefetch all section chunks so they're already cached when the user
+    // clicks a navbar link. Without this, dynamic imports on slow connections
+    // cause layout shifts that make hash-scroll land on the wrong section.
+    import('../components/Services');
+    import('../components/WhyUs');
+    import('../components/BentoGrid');
+    import('../components/Process');
+    import('../components/Team');
+    import('../components/FAQ');
   }, []);
 
   return (
@@ -85,38 +168,38 @@ const Home = () => {
         </React.Suspense>
       </section>
 
-      {/* Other sections lazy load on mobile */}
-      <LazySection id="services">
+      {/* Other sections lazy load */}
+      <LazySection forceLoadAll={forceLoadAll}>
         <React.Suspense fallback={<SectionLoadingFallback />}>
           <Services />
         </React.Suspense>
       </LazySection>
 
-      <LazySection id="dashboard" className="hidden md:block">
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <DashboardSection />
-        </React.Suspense>
-      </LazySection>
-
-      <LazySection id="why-us">
+      <LazySection forceLoadAll={forceLoadAll}>
         <React.Suspense fallback={<SectionLoadingFallback />}>
           <WhyUs />
         </React.Suspense>
       </LazySection>
 
-      <LazySection id="process">
+      <LazySection id="showcase" className="hidden md:block" forceLoadAll={forceLoadAll}>
+        <React.Suspense fallback={<SectionLoadingFallback />}>
+          <BentoGridSection />
+        </React.Suspense>
+      </LazySection>
+
+      <LazySection forceLoadAll={forceLoadAll}>
         <React.Suspense fallback={<SectionLoadingFallback />}>
           <Process />
         </React.Suspense>
       </LazySection>
 
-      <LazySection id="team">
+      <LazySection forceLoadAll={forceLoadAll}>
         <React.Suspense fallback={<SectionLoadingFallback />}>
           <Team />
         </React.Suspense>
       </LazySection>
 
-      <LazySection id="faq">
+      <LazySection forceLoadAll={forceLoadAll}>
         <React.Suspense fallback={<SectionLoadingFallback />}>
           <FAQ />
         </React.Suspense>

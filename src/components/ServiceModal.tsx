@@ -1,7 +1,21 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+'use client';
+
+import React, { useEffect, useState, memo } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { X, ArrowRight, MessageSquareText, Mic, LayoutDashboard, Code2 } from 'lucide-react';
+import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
+import { 
+  X, 
+  ArrowRight, 
+  MessageSquareText, 
+  Mic, 
+  LayoutDashboard, 
+  Code2, 
+  LucideIcon,
+  CheckCircle2
+} from 'lucide-react';
+import clsx from 'clsx';
+import { hapticFeedback } from '../utils/mobile/hapticFeedback';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -13,12 +27,13 @@ interface ServiceModalProps {
       features: string[];
       benefits: string[];
       useCase: string;
+      extendedDescription?: string;
     };
   } | null;
   onBookCall: () => void;
 }
 
-const icons: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+const icons: Record<string, LucideIcon> = {
   'AI Chat Agents': MessageSquareText,
   'AI Voice Agents': Mic,
   'CRM Development': LayoutDashboard,
@@ -26,201 +41,281 @@ const icons: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
 };
 
 const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, onBookCall }) => {
-  const modalRoot = document.getElementById('modal-root') || document.body;
-  const [modalPosition, setModalPosition] = React.useState<{ x: number; y: number } | null>(null);
-
-  // Capture click position when opening modal
-  React.useEffect(() => {
-    if (isOpen && !modalPosition) {
-      const handleClick = (e: MouseEvent) => {
-        setModalPosition({ x: e.clientX, y: e.clientY });
-      };
-      document.addEventListener('click', handleClick, { once: true });
-      return () => document.removeEventListener('click', handleClick);
-    }
-  }, [isOpen, modalPosition]);
-
-  // Reset modal position when modal closes
-  React.useEffect(() => {
-    if (!isOpen) {
-      setModalPosition(null);
-    }
-  }, [isOpen]);
+  const deviceType = useDeviceType();
+  const isMobile = deviceType === 'mobile';
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      // Lock scroll while preserving position
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.paddingRight = `${
-        window.innerWidth - document.documentElement.clientWidth
-      }px`;
-    } else {
-      const scrollY = parseInt(document.body.style.top || '0') * -1;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.paddingRight = '';
-      window.scrollTo(0, scrollY);
-    }
+    setMounted(true);
+  }, []);
 
-    return () => {
-      const scrollY = parseInt(document.body.style.top || '0') * -1;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.paddingRight = '';
-      window.scrollTo(0, scrollY);
-    };
+  // Lock background scroll while modal is open on all devices
+  useEffect(() => {
+    if (isOpen) {
+      const scrollRef = window.pageYOffset;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollRef}px`;
+      document.body.style.width = '100%';
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo({ top: scrollRef, behavior: 'auto' });
+      };
+    }
   }, [isOpen]);
 
-  if (!isOpen || !service) return null;
+  if (!mounted || !service) return null;
 
   const Icon = icons[service.title] || MessageSquareText;
 
-  const handleBookCall = () => {
-    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
-    onBookCall();
+  // Map gradient to scrollbar style
+  const getScrollbarStyle = (gradient?: string) => {
+    if (!gradient) return '';
+    if (gradient.includes('blue')) return 'modal-scrollbar-blue';
+    if (gradient.includes('purple')) return 'modal-scrollbar-purple';
+    if (gradient.includes('green')) return 'modal-scrollbar-green';
+    if (gradient.includes('amber')) return 'modal-scrollbar-amber';
+    if (gradient.includes('orange')) return 'modal-scrollbar-orange';
+    if (gradient.includes('pink')) return 'modal-scrollbar-pink';
+    if (gradient.includes('cyan')) return 'modal-scrollbar-cyan';
+    return '';
   };
+
+  // 2026 Design Refresh for Modal Content - Optimized for Mobile Density
+  const Content = (
+    <div className="space-y-5">
+      {/* Extended Description */}
+      {service.details.extendedDescription && (
+        <div className="relative overflow-hidden p-4 rounded-xl bg-gray-900/50 border border-gray-800/50">
+          <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-50", service.gradient)} />
+          <p className="text-gray-300 text-sm leading-relaxed">
+            {service.details.extendedDescription}
+          </p>
+        </div>
+      )}
+
+      {/* Features Section */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <div className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-[0.15em]">What's Included</h4>
+        </div>
+        
+        <div className="grid gap-2">
+          {service.details.features.map((feature, idx) => (
+            <div key={idx} className="group flex items-start gap-3 p-3 rounded-xl bg-gray-900/50 border border-gray-800/50 hover:bg-gray-900/60 transition-colors">
+              <div className={clsx("mt-0.5 p-0.5 rounded-full bg-white/5 shrink-0", service.gradient.replace('from-', 'text-').split(' ')[0])}>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-gray-300 text-sm font-medium leading-relaxed">{feature}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Benefits Section */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <div className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
+          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-[0.15em]">Key Benefits</h4>
+        </div>
+        
+        <div className="grid gap-2">
+          {service.details.benefits.map((benefit, idx) => (
+            <div key={idx} className="group flex items-start gap-3 p-3 rounded-xl bg-gray-900/50 border border-gray-800/50 hover:bg-gray-900/60 transition-colors">
+              <div className={clsx("mt-0.5 p-0.5 rounded-full bg-white/5 shrink-0", service.gradient.replace('from-', 'text-').split(' ')[0])}>
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-gray-300 text-sm font-medium leading-relaxed">{benefit}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Use Case Section */}
+      <div className="relative overflow-hidden p-4 rounded-xl bg-gray-900/50 border border-gray-800/50">
+        <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-50", service.gradient)} />
+        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+          <span className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
+          Ideal Solution For
+        </h4>
+        <p className="text-gray-300 text-sm leading-relaxed font-medium">
+          "{service.details.useCase}"
+        </p>
+      </div>
+
+      {/* Main Action */}
+      <div className="pt-2">
+        <m.button
+          onClick={() => {
+            onBookCall();
+            hapticFeedback.success();
+          }}
+          whileTap={{ scale: 0.98 }}
+          className={clsx(
+            "w-full px-5 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition-all active:opacity-90", 
+            "bg-gradient-to-r",
+            service.gradient
+          )}
+        >
+          <span>Consult an Expert</span>
+          <ArrowRight className="w-4 h-4" />
+        </m.button>
+        <p className="text-center text-xs text-gray-500 mt-2.5 font-medium">
+          No commitment required • Free 30-min consultation
+        </p>
+      </div>
+    </div>
+  );
+
+  const mobileContent = (
+    <div className="space-y-3 pb-1">
+      <div
+        className={clsx(
+          'relative overflow-hidden rounded-2xl border border-gray-800/60',
+          'bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-xl',
+        )}
+      >
+        <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-70", service.gradient)} />
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className={clsx(
+                'w-10 h-10 rounded-xl bg-gradient-to-r p-[1px] shrink-0',
+                service.gradient,
+              )}
+            >
+              <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <h3
+              className={clsx(
+                'text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent truncate',
+                service.gradient,
+              )}
+            >
+              {service.title}
+            </h3>
+          </div>
+
+          <m.button
+            onClick={onClose}
+            whileTap={{ scale: 0.92 }}
+            className={clsx(
+              'p-2 rounded-lg bg-gradient-to-r transition-opacity shrink-0',
+              service.gradient,
+            )}
+            aria-label="Close modal"
+          >
+            <X className="w-4 h-4 text-white" />
+          </m.button>
+        </div>
+      </div>
+
+      <div
+        className={clsx(
+          'relative overflow-hidden rounded-2xl border border-gray-800/50',
+          'bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-xl p-4',
+        )}
+      >
+        {Content}
+      </div>
+    </div>
+  );
 
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center"
-          style={{
-            zIndex: 999999,
-            isolation: 'isolate',
-          }}
-        >
-          {/* Backdrop */}
-          <motion.div
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
             onClick={onClose}
-            style={{ zIndex: 1 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="relative w-full max-w-2xl mx-4 max-h-[80vh] origin-center"
-            style={{
-              zIndex: 2,
-              transformOrigin: modalPosition
-                ? `${modalPosition.x}px ${modalPosition.y}px`
-                : 'center center',
-            }}
-          >
-            {/* Container Box */}
-            <div className="relative w-full max-h-[80vh] bg-gradient-to-b from-gray-900/95 to-black/95 rounded-2xl border border-gray-800/50 backdrop-blur-xl overflow-hidden shadow-2xl">
+          {isMobile ? (
+            <m.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              transition={{ duration: 0.22 }}
+              className={clsx(
+                "relative w-full max-w-md mx-4 max-h-[86dvh] overflow-y-auto",
+                getScrollbarStyle(service.gradient)
+              )}
+            >
+              {mobileContent}
+            </m.div>
+          ) : (
+            <m.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className={clsx(
+                'relative w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col',
+                'bg-gradient-to-b from-gray-900/95 to-black/95 rounded-2xl',
+                'border border-gray-800/50 backdrop-blur-xl',
+              )}
+            >
               {/* Header */}
-              <div className="sticky top-0 z-20 flex items-center justify-between p-5 border-b border-gray-800/50 bg-inherit">
+              <div className="flex items-center justify-between p-5 border-b border-gray-800/50">
                 <div className="flex items-center gap-4">
                   <div
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group`}
+                    className={clsx(
+                      'w-12 h-12 rounded-xl bg-gradient-to-r p-[1px]',
+                      service.gradient,
+                    )}
                   >
                     <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-white" />
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
                   <h3
-                    className={`text-xl font-bold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}
+                    className={clsx(
+                      'text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent',
+                      service.gradient,
+                    )}
                   >
                     {service.title}
                   </h3>
                 </div>
-                <motion.button
+                <m.button
                   onClick={onClose}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
-                  className={`p-1.5 rounded-lg bg-gradient-to-r ${service.gradient} hover:opacity-90 transition-opacity`}
+                  className={clsx(
+                    'p-2 rounded-lg bg-gradient-to-r hover:opacity-90 transition-opacity',
+                    service.gradient,
+                  )}
+                  aria-label="Close modal"
                 >
-                  <X className="w-4 h-4 text-white" />
-                </motion.button>
+                  <X className="w-5 h-5 text-white" />
+                </m.button>
               </div>
 
-              {/* Content */}
-              <div className="overflow-y-auto p-5 space-y-6 custom-scrollbar">
-                {/* Features & Benefits Grid */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Features */}
-                  <div>
-                    <h4 className="text-base font-semibold text-white mb-3">Key Features</h4>
-                    <ul className="space-y-2">
-                      {service.details.features.map((feature, index) => (
-                        <motion.li
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="flex items-center space-x-2"
-                        >
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`}
-                          />
-                          <span className="text-gray-300 text-sm">{feature}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Benefits */}
-                  <div>
-                    <h4 className="text-base font-semibold text-white mb-3">Benefits</h4>
-                    <ul className="space-y-2">
-                      {service.details.benefits.map((benefit, index) => (
-                        <motion.li
-                          key={index}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + index * 0.1 }}
-                          className="flex items-center space-x-2"
-                        >
-                          <div
-                            className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${service.gradient}`}
-                          />
-                          <span className="text-gray-300 text-sm">{benefit}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Use Case */}
-                <div className={`mt-6 p-4 bg-gray-900/50 rounded-xl`}>
-                  <div className="bg-black/20 rounded-lg p-4 backdrop-blur-sm border border-white/5">
-                    <h4 className="text-base font-semibold text-white mb-2">Perfect For</h4>
-                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
-                      {service.details.useCase}
-                    </p>
-                    <motion.button
-                      onClick={handleBookCall}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`w-full bg-gradient-to-r ${service.gradient} px-6 py-2.5 rounded-xl text-white font-medium flex items-center justify-center gap-2 hover:shadow-lg transition-all duration-300`}
-                    >
-                      Book a Call
-                      <ArrowRight className="w-4 h-4" />
-                    </motion.button>
-                  </div>
-                </div>
+              {/* Scrollable Content */}
+              <div
+                className={clsx(
+                  "flex-1 overflow-y-auto p-5",
+                  getScrollbarStyle(service.gradient)
+                )}
+              >
+                {Content}
               </div>
-            </div>
-          </motion.div>
+            </m.div>
+          )}
         </div>
       )}
     </AnimatePresence>
   );
 
-  return createPortal(modalContent, modalRoot);
+  const targetNode = typeof document !== 'undefined' ? (document.getElementById('modal-root') || document.body) : null;
+  return targetNode ? createPortal(modalContent, targetNode) : null;
 };
 
-export default ServiceModal;
+export default memo(ServiceModal);

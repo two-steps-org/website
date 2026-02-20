@@ -1,5 +1,6 @@
+import React from "react";
 import { LucideIcon } from 'lucide-react';
-import { ButtonHTMLAttributes } from 'react';
+import { HTMLMotionProps } from 'framer-motion';
 import { BUTTON_VARIANTS, BUTTON_SIZES } from './constants';
 
 /**
@@ -15,7 +16,7 @@ export type ButtonSize = keyof typeof BUTTON_SIZES;
 /**
  * Props for the Button component.
  */
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends HTMLMotionProps<"button"> {
   /**
    * The visual variant of the button.
    * @default 'primary'

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useBreakpoint } from '../../../utils/responsive/hooks';
 import { TYPOGRAPHY } from '../../../utils/typography/constants';
 import clsx from 'clsx';
@@ -26,7 +26,7 @@ export const Heading: React.FC<HeadingProps> = ({
   const styles = typography[variant];
 
   // Use the motion component for the specified heading level
-  const Component = motion[`h${level}`];
+  const Component = (m as unknown as Record<string, React.ElementType>)[variant];
 
   // Animation props when enabled
   const motionProps = animate
