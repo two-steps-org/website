@@ -80,7 +80,6 @@ const Home = () => {
       const sectionId = targetSection;
       const root = document.documentElement;
       const previousScrollBehavior = root.style.scrollBehavior;
-      let pollTimer: number | null = null;
 
       // Ensure target sections mount immediately, then jump before paint.
       root.style.scrollBehavior = 'auto';
@@ -93,46 +92,60 @@ const Home = () => {
         return true;
       };
 
-      // Keep final alignment stable while lazy sections finish expanding.
-      let lastScrollHeight = document.body.scrollHeight;
+      // Keep final alignment stable while lazy sections finish expanding using ResizeObserver
       let stableCount = 0;
       let attempts = 0;
+      let resizeObserver: ResizeObserver | null = null;
 
       const settle = () => {
         jumpToTarget();
-        const currentScrollHeight = document.body.scrollHeight;
         attempts++;
 
-        if (currentScrollHeight !== lastScrollHeight) {
-          stableCount = 0;
-        } else {
-          stableCount++;
-        }
-
-        lastScrollHeight = currentScrollHeight;
-
-        if (stableCount < 3 && attempts < 40) {
-          pollTimer = window.setTimeout(settle, 40);
+        if (stableCount >= 3 || attempts >= 40) {
+          // Layout is stable, restore scroll behavior
+          root.style.scrollBehavior = previousScrollBehavior;
+          if (resizeObserver) {
+            resizeObserver.disconnect();
+            resizeObserver = null;
+          }
         }
       };
 
-      const timer1 = window.setTimeout(settle, 80);
-      const timer2 = window.setTimeout(settle, 200);
-      const timer3 = window.setTimeout(settle, 380);
+      // Use ResizeObserver to detect when the body height stabilizes
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.height > 0) {
+            // Height changed, reset stable count
+            stableCount = 0;
+          } else {
+            // Height stable, increment counter
+            stableCount++;
+          }
+        }
+        settle();
+      });
+
+      // Start observing the body element
+      resizeObserver.observe(document.body);
+
+      // Initial jump and setup
+      jumpToTarget();
+      
+      // Restore scroll behavior after timeout
       const restoreTimer = window.setTimeout(() => {
         root.style.scrollBehavior = previousScrollBehavior;
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
       }, 500);
 
-      jumpToTarget();
-      requestAnimationFrame(settle);
-
       return () => {
-        if (pollTimer) window.clearTimeout(pollTimer);
-        window.clearTimeout(timer1);
-        window.clearTimeout(timer2);
-        window.clearTimeout(timer3);
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
         window.clearTimeout(restoreTimer);
-        root.style.scrollBehavior = previousScrollBehavior;
       };
     }
 

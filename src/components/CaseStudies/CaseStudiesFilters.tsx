@@ -48,7 +48,7 @@ const CaseStudiesFilters: React.FC<CaseStudiesFiltersProps> = ({
             {/* Header */}
             <div className="p-4 border-b border-gray-800/50 flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Filters</h3>
-              <button onClick={onClose} className="p-2 rounded-lg bg-gray-800/50">
+              <button onClick={onClose} aria-label="Close filters" className="p-2 rounded-lg bg-gray-800/50">
                 <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>

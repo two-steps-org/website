@@ -77,21 +77,31 @@ const Team: React.FC = () => {
 
   const handleScroll = () => {
     if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      const singleSetWidth = scrollWidth / 3;
+      // Batch DOM reads to prevent forced reflows
+      requestAnimationFrame(() => {
+        if (!scrollRef.current) return;
 
-      // Seamless jump logic - jump when nearing edges to avoid "hitting a wall"
-      if (scrollLeft < 20) {
-        scrollRef.current.scrollLeft = scrollLeft + singleSetWidth;
-      } else if (scrollLeft > scrollWidth - clientWidth - 20) {
-        scrollRef.current.scrollLeft = scrollLeft - singleSetWidth;
-      }
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const singleSetWidth = scrollWidth / 3;
 
-      // Update active dot based on relative position
-      const relativeScroll = (scrollLeft % singleSetWidth);
-      const itemWidth = singleSetWidth / totalItems;
-      const index = Math.round(relativeScroll / itemWidth);
-      setActiveIndex(index % totalItems);
+        // Batch DOM writes after all reads
+        requestAnimationFrame(() => {
+          if (!scrollRef.current) return;
+
+          // Seamless jump logic - jump when nearing edges to avoid "hitting a wall"
+          if (scrollLeft < 20) {
+            scrollRef.current.scrollLeft = scrollLeft + singleSetWidth;
+          } else if (scrollLeft > scrollWidth - clientWidth - 20) {
+            scrollRef.current.scrollLeft = scrollLeft - singleSetWidth;
+          }
+
+          // Update active dot based on relative position
+          const relativeScroll = (scrollLeft % singleSetWidth);
+          const itemWidth = singleSetWidth / totalItems;
+          const index = Math.round(relativeScroll / itemWidth);
+          setActiveIndex(index % totalItems);
+        });
+      });
     }
   };
 

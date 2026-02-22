@@ -5,12 +5,15 @@ import { useReducedMotion } from 'framer-motion';
  * ParticleBackground renders a full-screen animated particle system on a canvas.
  * - Particles move slowly, oscillate in size, and can connect with lines if close.
  * - Canvas is resized dynamically, supporting high DPI screens.
+ * - In prerender mode (SSG), returns null to avoid canvas creation
  */
 const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const shouldReduceMotion = useReducedMotion();
+  const isBrowser = typeof window !== 'undefined';
 
   useEffect(() => {
+    if (!isBrowser) return;
     if (shouldReduceMotion) return;
     
     const canvas = canvasRef.current;
@@ -38,7 +41,7 @@ const ParticleBackground = () => {
     const particles: Particle[] = [];
     const isMobile = window.innerWidth < 768;
     // Reduce particle count on mobile for performance
-    const maxParticles = isMobile ? 30 : 100;
+    const maxParticles = isMobile ? 15 : 100;
     const particleCount = Math.min(maxParticles, (window.innerWidth * window.innerHeight) / 10000);
 
     // Use logical width/height for particle positioning since we already scaled the context
@@ -173,7 +176,12 @@ const ParticleBackground = () => {
       observer.disconnect();
       cancelAnimationFrame(animationFrameId);
     };
-  }, [shouldReduceMotion]);
+  }, [isBrowser, shouldReduceMotion]);
+
+  // Skip rendering during prerendering (SSG / non-browser environments)
+  if (!isBrowser) {
+    return null;
+  }
 
   return (
     <canvas

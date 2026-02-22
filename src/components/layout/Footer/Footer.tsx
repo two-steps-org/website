@@ -64,10 +64,10 @@ const navigation: NavItem[] = [
 ];
 
 const solutions: SolutionItem[] = [
-  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/#services', gradient: 'from-purple-500 to-pink-500' },
-  { label: 'AI Voice Agents', icon: Mic, href: '/#services', gradient: 'from-amber-500 to-orange-500' },
-  { label: 'CRM Development', icon: LayoutDashboard, href: '/#services', gradient: 'from-blue-500 to-indigo-500' },
-  { label: 'Custom SaaS', icon: Code2, href: '/#services', gradient: 'from-green-500 to-emerald-500' },
+  { label: 'AI Chat Agents', icon: MessageSquareText, href: '#services', gradient: 'from-purple-500 to-pink-500' },
+  { label: 'AI Voice Agents', icon: Mic, href: '#services', gradient: 'from-amber-500 to-orange-500' },
+  { label: 'CRM Development', icon: LayoutDashboard, href: '#services', gradient: 'from-blue-500 to-indigo-500' },
+  { label: 'Custom SaaS', icon: Code2, href: '#services', gradient: 'from-green-500 to-emerald-500' },
 ];
 
 const contact: ContactItem[] = [
@@ -172,95 +172,50 @@ const Footer: React.FC = () => {
     );
   };
 
-  const handleClick = (href: string) => {
-    if (href.startsWith('/#')) {
-      const sectionId = href.replace('/#', '');
-      
-      // Same scroll mechanism as Navbar - dispatch navForceLoad event and poll for stable height
-      const scrollWhenStable = () => {
-        window.dispatchEvent(new CustomEvent('navForceLoad'));
+  const scrollToSectionWhenStable = (sectionId: string) => {
+    window.dispatchEvent(new CustomEvent('navForceLoad'));
 
-        let lastScrollHeight = document.body.scrollHeight;
-        let stableCount = 0;
-        let attempts = 0;
+    let lastScrollHeight = document.body.scrollHeight;
+    let stableCount = 0;
+    let attempts = 0;
 
-        const poll = () => {
-          const currentScrollHeight = document.body.scrollHeight;
-          attempts++;
+    const poll = () => {
+      const currentScrollHeight = document.body.scrollHeight;
+      attempts++;
 
-          if (currentScrollHeight !== lastScrollHeight) {
-            stableCount = 0;
-          } else {
-            stableCount++;
-          }
-          lastScrollHeight = currentScrollHeight;
-
-          if (stableCount >= 4 || attempts >= 60) {
-            const el = document.getElementById(sectionId);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          } else {
-            setTimeout(poll, 50);
-          }
-        };
-
-        requestAnimationFrame(() => requestAnimationFrame(poll));
-      };
-
-      if (location.pathname !== '/') {
-        // Store scroll position before navigating
-        const scrollPos = window.scrollY;
-        navigate('/', { state: { targetSection: sectionId, returnScroll: scrollPos, isSectionNav: true } });
+      if (currentScrollHeight !== lastScrollHeight) {
+        stableCount = 0;
       } else {
-        scrollWhenStable();
+        stableCount++;
       }
-    }
+      lastScrollHeight = currentScrollHeight;
+
+      if (stableCount >= 4 || attempts >= 60) {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.setTimeout(poll, 50);
+      }
+    };
+
+    requestAnimationFrame(() => requestAnimationFrame(poll));
   };
 
   const handleNavigation = (href: string) => {
-    if (!href.startsWith('#')) {
-      navigate(href);
-      if (href === '/case-studies') {
-        window.scrollTo({ top: 0, behavior: 'auto' });
+    if (href.startsWith('#') || href.startsWith('/#')) {
+      const sectionId = href.startsWith('/#') ? href.slice(2) : href.slice(1);
+
+      if (location.pathname !== '/') {
+        navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
+      } else {
+        scrollToSectionWhenStable(sectionId);
       }
       return;
     }
 
-    const sectionId = href.slice(1);
-
-    // Same scroll mechanism as Navbar - dispatch navForceLoad event and poll for stable height
-    const scrollWhenStable = () => {
-      window.dispatchEvent(new CustomEvent('navForceLoad'));
-
-      let lastScrollHeight = document.body.scrollHeight;
-      let stableCount = 0;
-      let attempts = 0;
-
-      const poll = () => {
-        const currentScrollHeight = document.body.scrollHeight;
-        attempts++;
-
-        if (currentScrollHeight !== lastScrollHeight) {
-          stableCount = 0;
-        } else {
-          stableCount++;
-        }
-        lastScrollHeight = currentScrollHeight;
-
-        if (stableCount >= 4 || attempts >= 60) {
-          const el = document.getElementById(sectionId);
-          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          setTimeout(poll, 50);
-        }
-      };
-
-      requestAnimationFrame(() => requestAnimationFrame(poll));
-    };
-
-    if (location.pathname !== '/') {
-      navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
-    } else {
-      scrollWhenStable();
+    navigate(href);
+    if (href === '/case-studies') {
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
   };
 
@@ -323,27 +278,32 @@ const Footer: React.FC = () => {
             {/* Navigation */}
             <CollapsibleSection title="Navigation" sectionKey="navigation">
               <ul className="grid grid-cols-2 gap-y-5 gap-x-5">
-                {navigation.map((item: NavItem) => (
-                  <li key={item.label}>
-                    <button
-                      onClick={() => {
-                        handleNavigation(item.href);
-                        hapticFeedback.selection();
-                      }}
-                      className="group w-full text-left min-h-[44px]"
-                    >
-                      <span className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300 flex items-center">
-                        <span className="relative flex items-center">
-                          <span className="relative inline-block">
-                            {item.label}
-                            <span className="absolute -bottom-1 left-0 w-0 h-px bg-blue-400 transition-all duration-300 group-hover:w-full" />
+                {navigation.map((item: NavItem) => {
+                  return (
+                    <li key={item.label}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleNavigation(item.href);
+                          hapticFeedback.selection();
+                        }}
+                        className="group w-full text-left min-h-[44px]"
+                        aria-label={`Navigate to ${item.label}`}
+                      >
+                        <span className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300 flex items-center">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-3 group-hover:bg-blue-400 group-hover:scale-125 transition-all duration-300 shrink-0" />
+                          <span className="relative flex items-center">
+                            <span className="relative inline-block">
+                              {item.label}
+                              <span className="absolute -bottom-1 left-0 w-0 h-px bg-blue-400 transition-all duration-300 group-hover:w-full" />
+                            </span>
+                            <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                           </span>
-                          <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                         </span>
-                      </span>
-                    </button>
-                  </li>
-                ))}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </CollapsibleSection>
 
@@ -353,11 +313,13 @@ const Footer: React.FC = () => {
                 {solutions.map((item: SolutionItem) => (
                   <li key={item.label}>
                     <button
+                      type="button"
                       onClick={() => {
-                        handleClick(item.href);
+                        handleNavigation(item.href);
                         hapticFeedback.selection();
                       }}
                       className="flex items-center gap-3 group w-full text-left min-h-[44px]"
+                      aria-label={`Learn more about ${item.label}`}
                     >
                       <GradientIconBox icon={item.icon} gradient={item.gradient} className="group-hover:scale-110" />
                       <span className="text-gray-400 hover:text-blue-400 transition-colors duration-300 flex items-center group">
@@ -418,6 +380,7 @@ const Footer: React.FC = () => {
                     hapticFeedback.light();
                   }}
                   className="text-gray-400 hover:text-white transition-colors duration-300 text-sm capitalize min-h-[44px]"
+                  aria-label={`View ${type === 'terms' ? 'Terms of Service' : `${type} Policy`}`}
                 >
                   {type === 'terms' ? 'Terms of Service' : `${type} Policy`}
                 </button>

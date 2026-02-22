@@ -119,8 +119,6 @@ const CaseStudies: React.FC = () => {
     containerRef.current?.scrollTo({ left: 0, behavior: 'auto' });
   }, [filteredStudies]);
 
-  const totalIndustries = new Set(caseStudies.map((s) => s.industry)).size;
-
   /* ── shared filter chip renderer ── */
   const FilterChips = ({ size = 'sm' }: { size?: 'sm' | 'md' }) =>
     industries.map((industry) => {
@@ -156,6 +154,8 @@ const CaseStudies: React.FC = () => {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
             className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
           >
             {isMenuOpen ? (
@@ -192,6 +192,7 @@ const CaseStudies: React.FC = () => {
               {/* Close Button */}
               <button
                 onClick={() => setIsMenuOpen(false)}
+                aria-label="Close menu"
                 className="absolute top-6 right-6 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
               >
                 <X className="w-6 h-6 text-white" />
@@ -266,6 +267,7 @@ const CaseStudies: React.FC = () => {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
               >
                 <X className="w-4 h-4" />
@@ -295,6 +297,7 @@ const CaseStudies: React.FC = () => {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
+                    aria-label="Clear search"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors z-10"
                   >
                     <X className="w-4 h-4" />

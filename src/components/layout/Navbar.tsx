@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import Logo from '../Logo';
-import { cn } from '../../lib/utils'; // make sure this exists
+import { cn } from '../../lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
@@ -104,16 +104,18 @@ const Navbar = () => {
     const t1 = window.setTimeout(updateActiveFromScroll, 120);
     const t2 = window.setTimeout(updateActiveFromScroll, 400);
 
+    const onNavForceLoad = () => onScrollOrResize();
+
     window.addEventListener('scroll', onScrollOrResize, { passive: true });
     window.addEventListener('resize', onScrollOrResize);
-    window.addEventListener('navForceLoad', onScrollOrResize as EventListener);
+    window.addEventListener('navForceLoad', onNavForceLoad);
 
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
       window.removeEventListener('scroll', onScrollOrResize);
       window.removeEventListener('resize', onScrollOrResize);
-      window.removeEventListener('navForceLoad', onScrollOrResize as EventListener);
+      window.removeEventListener('navForceLoad', onNavForceLoad);
     };
   }, [location.pathname]);
 
@@ -193,6 +195,7 @@ const Navbar = () => {
         {/* Logo */}
         <button
           onClick={() => handleNavigation('#home', 'Home')}
+          aria-label="Go to Home"
           className="flex items-center focus:outline-none"
         >
           <Logo />
@@ -250,6 +253,8 @@ const Navbar = () => {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
           className="lg:hidden p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
         >
           {isMenuOpen ? (
@@ -286,6 +291,7 @@ const Navbar = () => {
                 {/* Close Button */}
                 <button
                   onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
                   className="absolute top-6 right-6 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
                 >
                   <X className="w-6 h-6 text-white" />

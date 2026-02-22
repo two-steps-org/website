@@ -14,6 +14,23 @@ export type AINetworkVisualizationProps = {
   simplified?: boolean;
 };
 
+type NodeProps = {
+  icon: React.ReactElement<{ size?: number }>;
+  title: string;
+  desc: string;
+  style: React.CSSProperties;
+  simplified?: boolean;
+};
+
+type ConnectionProps = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  delay: number;
+  useMobileGradient?: boolean;
+};
+
 const CustomIcon = ({ className }: { className?: string }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -92,8 +109,8 @@ export function AINetworkVisualization({ className, simplified = false }: AINetw
 
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <div className="relative w-28 h-28 flex items-center justify-center">
-            <div className="absolute inset-0 border-2 border-blue-500/20 rounded-full animate-[spin_20s_linear_infinite]" />
-            <div className="absolute inset-3 border border-purple-500/20 rounded-full animate-[spin_15s_linear_infinite_reverse] border-dashed" />
+            <div className="absolute inset-0 border-2 border-blue-500/20 rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-3 border border-purple-500/20 rounded-full opacity-30 group-hover:opacity-80 transition-opacity duration-500" />
             
             <div className="relative z-10 w-20 h-20 bg-gray-900/50 backdrop-blur-lg rounded-full flex items-center justify-center border border-gray-800/50 group cursor-pointer transition-all duration-500 hover:scale-110">
               <CustomIcon className="w-[50px] h-[50px] translate-x-[1px] -translate-y-[4px]" />
@@ -113,9 +130,7 @@ export function AINetworkVisualization({ className, simplified = false }: AINetw
   );
 }
 
-// ... Node and Connection components remain unchanged ...
-
-function Node({ icon, title, desc, style, simplified = false }: any) {
+function Node({ icon, title, desc, style, simplified = false }: NodeProps) {
   return (
     <div className="absolute z-30 -translate-x-1/2 -translate-y-1/2 group" style={style}>
       <div className={cn(
@@ -134,8 +149,19 @@ function Node({ icon, title, desc, style, simplified = false }: any) {
   );
 }
 
-function Connection({ x1, y1, x2, y2, delay, useMobileGradient }: any) {
+function Connection({ x1, y1, x2, y2, delay, useMobileGradient }: ConnectionProps) {
   const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  // Skip animations during prerendering (react-snap)
+  const isPrerender = typeof window === 'undefined';
+  
+  if (isPrerender) {
+    return (
+      <g>
+        <path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={useMobileGradient ? 'url(#line-grad-mobile)' : 'url(#line-grad)'} strokeWidth="2" fill="none" opacity="0.3" />
+      </g>
+    );
+  }
+  
   return (
     <g>
       <path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={useMobileGradient ? 'url(#line-grad-mobile)' : 'url(#line-grad)'} strokeWidth="2" fill="none" opacity="0.3" />

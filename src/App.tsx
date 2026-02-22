@@ -1,8 +1,10 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { LazyMotion, domAnimation } from 'framer-motion';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import BaseLayout from './components/layout/BaseLayout';
+import Head from './components/Head';
 import { lazyWithFallback } from './utils/lazyWithFallback';
 
 const Home = lazyWithFallback(
@@ -19,7 +21,9 @@ const LoadingFallback = () => (
   <div className="min-h-screen bg-black" aria-hidden="true" />
 );
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const location = useLocation();
+
   React.useEffect(() => {
     // Reveal the app as soon as it mounts
     requestAnimationFrame(() => {
@@ -29,7 +33,8 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <>
+      <Head location={location} />
       <ErrorBoundary>
         <LazyMotion features={domAnimation}>
           <Suspense fallback={<LoadingFallback />}>
@@ -42,8 +47,16 @@ const App: React.FC = () => {
           </Suspense>
         </LazyMotion>
       </ErrorBoundary>
-    </Router>
+    </>
   );
 };
+
+const App: React.FC = () => (
+  <HelmetProvider>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <AppContent />
+    </Router>
+  </HelmetProvider>
+);
 
 export default App;
