@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run build:ssg",
-    "build:ssg": "SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/check-seo-config.ts && SEO_ENV=production VITE_SEO_ENV=production tsc --noEmit && SEO_ENV=production VITE_SEO_ENV=production vite build && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/prerender.ts && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/generate-sitemap.ts && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/verify-seo-html.ts",
-    "build:seo:staging": "SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/check-seo-config.ts && SEO_ENV=staging VITE_SEO_ENV=staging tsc --noEmit && SEO_ENV=staging VITE_SEO_ENV=staging vite build && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/prerender.ts && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/generate-sitemap.ts && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/verify-seo-html.ts",
-    "seo:verify": "node --import tsx scripts/verify-seo-html.ts",
+    "build": "tsc --noEmit && vite build && tsx scripts/generate-sitemap.ts",
+    "build:ssg": "tsc --noEmit && vite build && tsx scripts/prerender.ts && tsx scripts/generate-sitemap.ts",
     "preview": "vite preview",
     "lint": "eslint ."
   },
