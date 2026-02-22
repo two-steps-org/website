@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'Icon - Two Steps.png'],
+      includeAssets: ['favicon.ico', 'Icon - Two Steps.png'],
       manifest: {
         name: 'Two Steps AI',
         short_name: 'TwoSteps',
