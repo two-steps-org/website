@@ -34,7 +34,13 @@ export interface SeoRuntimeConfig {
 export function resolveSeoRuntimeConfig(): SeoRuntimeConfig {
   const seoEnv = parseSeoEnv(process.env.SEO_ENV ?? process.env.VITE_SEO_ENV);
   const isProduction = seoEnv === 'production';
-  const rawSiteUrl = (process.env.SITE_URL ?? process.env.VITE_SITE_URL ?? '').trim();
+  const rawSiteUrl = (
+    process.env.SITE_URL ??
+    process.env.VITE_SITE_URL ??
+    process.env.URL ??
+    process.env.DEPLOY_PRIME_URL ??
+    ''
+  ).trim();
 
   if (isProduction && !rawSiteUrl) {
     throw new Error(
@@ -85,4 +91,3 @@ export function assertAbsoluteNonLocalhostUrl(value: string, label: string): voi
     throw new Error(`${label} must not use localhost/loopback. Received: "${value}"`);
   }
 }
-
