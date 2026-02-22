@@ -42,9 +42,13 @@ export function resolveSeoRuntimeConfig(): SeoRuntimeConfig {
     ''
   ).trim();
 
-  if (isProduction && !rawSiteUrl) {
+  if (isProduction && !rawSiteUrl && process.env.NETLIFY === 'true') {
+    console.warn(
+      `SEO config: missing SITE_URL/VITE_SITE_URL/URL/DEPLOY_PRIME_URL, falling back to default ${DEFAULT_SITE_URL}`
+    );
+  } else if (isProduction && !rawSiteUrl) {
     throw new Error(
-      'Missing VITE_SITE_URL/SITE_URL for production SEO build. Example: VITE_SITE_URL=https://twosteps.ai'
+      'Missing SITE_URL/VITE_SITE_URL/URL/DEPLOY_PRIME_URL for production SEO build. Example: VITE_SITE_URL=https://twosteps.ai'
     );
   }
 
