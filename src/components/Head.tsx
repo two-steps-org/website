@@ -1,23 +1,22 @@
 import type { FC } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, type Location as RouterLocation } from 'react-router-dom';
-import { SITE_URL, getRobotsDirective } from '../lib/seoConfig';
 
 interface HeadProps {
   location?: RouterLocation;
 }
 
+const normalizeUrl = (value: string): string => value.replace(/\/+$/, '');
+const runtimeOrigin =
+  typeof window !== 'undefined' && window.location?.origin ? window.location.origin : 'https://example.com';
+const SITE_URL = normalizeUrl(import.meta.env.VITE_SITE_URL ?? runtimeOrigin);
 const SITE_NAME = 'Two Steps AI';
 const SOCIAL_HANDLE = '@two-steps-org';
 const DEFAULT_DESCRIPTION = 'Transforming Business Through AI';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/Icon - Two Steps.png`;
-const normalizePathname = (pathname: string): string => {
-  if (!pathname || pathname === '/') return '/';
-  return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-};
 
 const getPageMetadata = (pathname: string) => {
-  const path = normalizePathname(pathname);
+  const path = pathname === '/' ? '/' : pathname;
 
   const pages: Record<string, { title: string; description: string; type: string }> = {
     '/': {
@@ -38,8 +37,7 @@ const getPageMetadata = (pathname: string) => {
 };
 
 const getJSONLDSchemas = (pathname: string) => {
-  const normalizedPath = normalizePathname(pathname);
-  const pageMetadata = getPageMetadata(normalizedPath);
+  const pageMetadata = getPageMetadata(pathname);
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -72,7 +70,7 @@ const getJSONLDSchemas = (pathname: string) => {
   const webPageSchema = {
     '@context': 'https://schema.org',
     '@type': pageMetadata.type,
-    url: `${SITE_URL}${normalizedPath}`,
+    url: `${SITE_URL}${pathname}`,
     name: pageMetadata.title,
     description: pageMetadata.description,
     inLanguage: 'en-US',
@@ -89,11 +87,9 @@ const getJSONLDSchemas = (pathname: string) => {
 const Head: FC<HeadProps> = ({ location }) => {
   const hookLocation = useLocation();
   const currentLocation = location || hookLocation;
-  const path = normalizePathname(currentLocation.pathname);
-  const { title, description } = getPageMetadata(path);
-  const canonicalUrl = `${SITE_URL}${path}`;
-  const schemas = getJSONLDSchemas(path);
-  const robotsDirective = getRobotsDirective();
+  const { title, description } = getPageMetadata(currentLocation.pathname);
+  const canonicalUrl = `${SITE_URL}${currentLocation.pathname}`;
+  const schemas = getJSONLDSchemas(currentLocation.pathname);
 
   return (
     <Helmet>
@@ -117,18 +113,19 @@ const Head: FC<HeadProps> = ({ location }) => {
       <meta name="twitter:creator" content={SOCIAL_HANDLE} />
 
       <meta name="author" content={SITE_NAME} />
-      <meta name="creator" content={SITE_NAME} />
       <meta name="publisher" content={SITE_NAME} />
       <meta
         name="keywords"
         content="AI, business transformation, automation, artificial intelligence, machine learning"
       />
-      <meta name="robots" content={robotsDirective} />
+      <meta name="robots" content="index,follow" />
 
       {schemas.map((schema, index) => (
-        <script key={index} type="application/ld+json">
-          {JSON.stringify(schema)}
-        </script>
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
       ))}
     </Helmet>
   );

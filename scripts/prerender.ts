@@ -1,15 +1,12 @@
 import { preview } from 'vite';
 import process from 'process';
-import { resolveSeoRuntimeConfig } from './seo-config';
 
 const routes = ['/', '/case-studies'];
 
 async function prerender() {
-  // Validate production SEO inputs before creating prerendered HTML.
-  resolveSeoRuntimeConfig();
   console.log('Starting Vite preview server for prerendering...');
 
-  const previewServer = await preview({ preview: { host: '127.0.0.1', port: 4173 } });
+  const previewServer = await preview({ preview: { port: 4173 } });
 
   let browser: { close: () => Promise<void> } | null = null;
 

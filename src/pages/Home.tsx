@@ -92,21 +92,59 @@ const Home = () => {
         return true;
       };
 
+      // Keep final alignment stable while lazy sections finish expanding using ResizeObserver
+      let stableCount = 0;
+      let attempts = 0;
+      let resizeObserver: ResizeObserver | null = null;
+
+      const settle = () => {
+        jumpToTarget();
+        attempts++;
+
+        if (stableCount >= 3 || attempts >= 40) {
+          // Layout is stable, restore scroll behavior
+          root.style.scrollBehavior = previousScrollBehavior;
+          if (resizeObserver) {
+            resizeObserver.disconnect();
+            resizeObserver = null;
+          }
+        }
+      };
+
+      // Use ResizeObserver to detect when the body height stabilizes
+      resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.contentRect.height > 0) {
+            // Height changed, reset stable count
+            stableCount = 0;
+          } else {
+            // Height stable, increment counter
+            stableCount++;
+          }
+        }
+        settle();
+      });
+
+      // Start observing the body element
+      resizeObserver.observe(document.body);
+
       // Initial jump and setup
       jumpToTarget();
-
-      // Run one more alignment pass shortly after lazy sections mount.
-      const alignTimer = window.setTimeout(() => {
-        jumpToTarget();
-      }, 120);
-
-      // Restore scroll behavior after a short settle window.
+      
+      // Restore scroll behavior after timeout
       const restoreTimer = window.setTimeout(() => {
         root.style.scrollBehavior = previousScrollBehavior;
-      }, 240);
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
+      }, 500);
 
       return () => {
-        window.clearTimeout(alignTimer);
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
         window.clearTimeout(restoreTimer);
       };
     }
@@ -122,6 +160,16 @@ const Home = () => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
+
+    // Prefetch all section chunks so they're already cached when the user
+    // clicks a navbar link. Without this, dynamic imports on slow connections
+    // cause layout shifts that make hash-scroll land on the wrong section.
+    import('../components/Services');
+    import('../components/WhyUs');
+    import('../components/BentoGrid');
+    import('../components/Process');
+    import('../components/Team');
+    import('../components/FAQ');
   }, []);
 
   return (
