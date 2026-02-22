@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { useBreakpoint } from '../../../utils/responsive/hooks';
 import clsx from 'clsx';
 
 interface ModalProps {
@@ -27,9 +26,6 @@ const Modal: React.FC<ModalProps> = ({
   icon,
   scrollbarStyle
 }) => {
-  const breakpoint = useBreakpoint();
-  const isMobile = ['xs', 'sm'].includes(breakpoint);
-  const isTablet = breakpoint === 'md';
   const modalRef = useRef<HTMLDivElement>(null);
   const scrollPosition = useRef(0);
 
@@ -152,6 +148,7 @@ const Modal: React.FC<ModalProps> = ({
                   {showCloseButton && (
                     <m.button
                       onClick={onClose}
+                      aria-label="Close modal"
                       whileHover={{ scale: 1.1, rotate: 90 }}
                       whileTap={{ scale: 0.9 }}
                       className={`p-2 rounded-lg bg-gradient-to-r ${gradient} hover:opacity-90 transition-opacity touch-manipulation`}

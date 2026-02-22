@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
@@ -15,46 +15,16 @@ if (typeof window !== 'undefined') {
       console.log('App ready to work offline.');
     },
   });
-}
-
-/**
- * Handles tasks that should only run once the page is loaded.
- */
-function handlePageLoad(): void {
-  window.scrollTo(0, 0);
-  document.body.style.top = '0';
-
+  
+  // Reveal the app after hydration
   requestAnimationFrame(() => {
-    document.body.classList.replace('loading', 'loaded');
+    document.body.classList.remove('loading');
+    document.body.classList.add('loaded');
   });
 }
 
-/**
- * Schedules non-critical tasks when the browser is idle.
- */
-function scheduleHandlePageLoad(): void {
-  if ('requestIdleCallback' in window) {
-    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(handlePageLoad);
-  } else {
-    setTimeout(handlePageLoad, 200);
-  }
-}
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element with id "root" not found. Please ensure it exists in index.html');
-}
-
-// Disable StrictMode in production for better performance
-const AppWrapper = import.meta.env.PROD ? App : () => (
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-createRoot(rootElement).render(<AppWrapper />);
-
-// Schedule post-load tasks
-if (typeof window !== 'undefined') {
-  scheduleHandlePageLoad();
-}

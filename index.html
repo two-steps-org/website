@@ -6,8 +6,6 @@
     <link rel="preconnect" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://calendly.com">
-    <link rel="preconnect" href="https://assets.calendly.com">
     <link rel="icon" type="image/png" href="/Icon - Two Steps.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
@@ -16,41 +14,43 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="Cache-Control" content="max-age=31536000">
+    <!-- Static meta tags for SEO -->
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="Two Steps AI" />
+    <meta name="keywords" content="AI, business transformation, automation, artificial intelligence, machine learning" />
     <style>
-      /* Initial state - hide everything */
+      /* Fixed CLS issue: Use overlay instead of position changes */
       html {
         background: #000;
-        height: 100%;
       }
       body {
-        opacity: 0;
-        visibility: hidden;
-        height: 100%;
+        background: #000;
+        min-height: 100vh;
+      }
+      /* Loading overlay - doesn't affect layout */
+      #loading-overlay {
         position: fixed;
-        width: 100%;
         top: 0;
         left: 0;
-      }
-      /* Loading state */
-      body.loading {
-        opacity: 0;
-        visibility: hidden;
-      }
-      /* Loaded state */
-      body.loaded {
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
         opacity: 1;
         visibility: visible;
-        position: relative;
-        width: auto;
-        height: auto;
-        top: auto;
-        left: auto;
-        transition: opacity 0.3s ease-out;
+        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+      }
+      body.loaded #loading-overlay {
+        opacity: 0;
+        visibility: hidden;
       }
     </style>
     <title>Two Steps</title>
+    <!-- Placeholder for SSG meta tags -->
+    <!--vite-ssg-head-->
   </head>
   <body class="bg-black loading">
+    <div id="loading-overlay"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
