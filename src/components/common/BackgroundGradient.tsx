@@ -1,4 +1,4 @@
-import React, { memo, Suspense } from 'react';
+import React, { memo, Suspense, useEffect, useState } from 'react';
 
 const ParticleBackground = React.lazy(() => import('../ParticleBackground'));
 
@@ -39,6 +39,36 @@ const GlowEffect: React.FC<GlowEffectProps> = ({
 };
 
 const BackgroundGradient: React.FC<BackgroundGradientProps> = ({ children }) => {
+  const [shouldRenderParticles, setShouldRenderParticles] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isMobile || prefersReducedMotion) return;
+
+    let timeoutId: number | null = null;
+    let idleId: number | null = null;
+
+    const enableParticles = () => setShouldRenderParticles(true);
+
+    if ('requestIdleCallback' in window) {
+      idleId = (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number })
+        .requestIdleCallback(enableParticles, { timeout: 1800 });
+    } else {
+      timeoutId = window.setTimeout(enableParticles, 1200);
+    }
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+      if (idleId !== null && 'cancelIdleCallback' in window) {
+        (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+      }
+    };
+  }, []);
 
   return (
     <div className="relative w-full">
@@ -57,9 +87,11 @@ const BackgroundGradient: React.FC<BackgroundGradientProps> = ({ children }) => 
         />
 
         {/* Glow effects - consistent across all screen sizes */}
-        <Suspense fallback={null}>
-          <ParticleBackground />
-        </Suspense>
+        {shouldRenderParticles ? (
+          <Suspense fallback={null}>
+            <ParticleBackground />
+          </Suspense>
+        ) : null}
         <GlowEffect
           color="blue"
           opacity={0.6}

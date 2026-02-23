@@ -36,6 +36,37 @@ const Navbar = () => {
     }, delay);
   }, []);
 
+  const releaseManualNavWhenSectionReached = useCallback((sectionId: string) => {
+    if (manualNavTimerRef.current) {
+      window.clearTimeout(manualNavTimerRef.current);
+    }
+
+    const startedAt = Date.now();
+    const maxWaitMs = 2200;
+    const targetOffset = 96;
+    const tolerancePx = 28;
+
+    const check = () => {
+      const el = document.getElementById(sectionId);
+      if (!el) {
+        manualNavLockRef.current = false;
+        return;
+      }
+
+      const distance = Math.abs(el.getBoundingClientRect().top - targetOffset);
+      const timedOut = Date.now() - startedAt > maxWaitMs;
+
+      if (distance <= tolerancePx || timedOut) {
+        manualNavLockRef.current = false;
+        return;
+      }
+
+      manualNavTimerRef.current = window.setTimeout(check, 80);
+    };
+
+    manualNavTimerRef.current = window.setTimeout(check, 120);
+  }, []);
+
   useEffect(() => {
     return () => {
       if (manualNavTimerRef.current) {
@@ -142,7 +173,7 @@ const Navbar = () => {
 
       if (location.pathname !== '/') {
         navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
-        releaseManualNav(300);
+        releaseManualNav(1200);
       } else {
         window.dispatchEvent(new CustomEvent('navForceLoad'));
         window.setTimeout(() => {
@@ -150,11 +181,11 @@ const Navbar = () => {
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-          releaseManualNav(700);
+          releaseManualNavWhenSectionReached(sectionId);
         }, 80);
       }
     },
-    [navigate, location.pathname, releaseManualNav],
+    [navigate, location.pathname, releaseManualNav, releaseManualNavWhenSectionReached],
   );
 
   const handleBookCall = useCallback(() => {

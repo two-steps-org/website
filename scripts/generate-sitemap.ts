@@ -63,11 +63,13 @@ function writeRobotsTxt() {
   const distPath = path.join(process.cwd(), 'dist');
   const robotsPath = path.join(distPath, 'robots.txt');
   const crawlDirective = seoConfig.isProduction ? 'Allow: /' : 'Disallow: /';
-  const robotsTxt = `User-agent: *
-${crawlDirective}
-
-Sitemap: ${SITE_URL}/sitemap.xml
-`;
+  const robotsLines = [
+    'User-agent: *',
+    crawlDirective,
+    '',
+    `Sitemap: ${SITE_URL}/sitemap.xml`,
+  ];
+  const robotsTxt = `${robotsLines.join('\n')}\n`;
 
   fs.writeFileSync(robotsPath, robotsTxt, 'utf8');
   console.log(`✓ robots.txt generated at ${robotsPath}`);

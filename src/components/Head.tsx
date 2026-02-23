@@ -8,8 +8,7 @@ interface HeadProps {
 }
 
 const SITE_NAME = 'Two Steps AI';
-const SOCIAL_HANDLE = '@two-steps-org';
-const DEFAULT_DESCRIPTION = 'Transforming Business Through AI';
+const SOCIAL_HANDLE = '@twostepsai';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/Icon - Two Steps.png`;
 const normalizePathname = (pathname: string): string => {
   if (!pathname || pathname === '/') return '/';
@@ -37,54 +36,6 @@ const getPageMetadata = (pathname: string) => {
   return pages[path] || pages['/'];
 };
 
-const getJSONLDSchemas = (pathname: string) => {
-  const normalizedPath = normalizePathname(pathname);
-  const pageMetadata = getPageMetadata(normalizedPath);
-
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: SITE_NAME,
-    url: SITE_URL,
-    logo: `${SITE_URL}/Icon - Two Steps.png`,
-    description: DEFAULT_DESCRIPTION,
-    sameAs: [`https://twitter.com/${SOCIAL_HANDLE.replace('@', '')}`],
-  };
-
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE_NAME,
-    url: SITE_URL,
-    description: DEFAULT_DESCRIPTION,
-    publisher: {
-      '@type': 'Organization',
-      name: SITE_NAME,
-      logo: `${SITE_URL}/Icon - Two Steps.png`,
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${SITE_URL}/?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
-  };
-
-  const webPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': pageMetadata.type,
-    url: `${SITE_URL}${normalizedPath}`,
-    name: pageMetadata.title,
-    description: pageMetadata.description,
-    inLanguage: 'en-US',
-    isPartOf: {
-      '@type': 'WebSite',
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
-  };
-
-  return [organizationSchema, websiteSchema, webPageSchema];
-};
 
 const Head: FC<HeadProps> = ({ location }) => {
   const hookLocation = useLocation();
@@ -92,7 +43,6 @@ const Head: FC<HeadProps> = ({ location }) => {
   const path = normalizePathname(currentLocation.pathname);
   const { title, description } = getPageMetadata(path);
   const canonicalUrl = `${SITE_URL}${path}`;
-  const schemas = getJSONLDSchemas(path);
   const robotsDirective = getRobotsDirective();
 
   return (
@@ -124,12 +74,6 @@ const Head: FC<HeadProps> = ({ location }) => {
         content="AI, business transformation, automation, artificial intelligence, machine learning"
       />
       <meta name="robots" content={robotsDirective} />
-
-      {schemas.map((schema, index) => (
-        <script key={index} type="application/ld+json">
-          {JSON.stringify(schema)}
-        </script>
-      ))}
     </Helmet>
   );
 };

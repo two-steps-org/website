@@ -77,8 +77,8 @@ const contact: ContactItem[] = [
 ];
 
 const social: SocialItem[] = [
-  { icon: Facebook, href: '#', label: 'Facebook', gradient: 'from-blue-500 to-indigo-500' },
-  { icon: XIcon, href: '#', label: 'X (Twitter)', gradient: 'from-purple-500 to-indigo-500' },
+  { icon: Facebook, href: 'https://www.facebook.com/twostepsai', label: 'Facebook', gradient: 'from-blue-500 to-indigo-500' },
+  { icon: XIcon, href: 'https://x.com/twostepsai', label: 'X (Twitter)', gradient: 'from-purple-500 to-indigo-500' },
   { icon: Linkedin, href: 'https://www.linkedin.com/company/two-steps-ai/', label: 'LinkedIn', gradient: 'from-blue-600 to-blue-800' },
   { icon: Instagram, href: 'https://www.instagram.com/twostepsai', label: 'Instagram', gradient: 'from-purple-500 to-pink-500' },
 ];
@@ -221,21 +221,23 @@ const Footer: React.FC = () => {
             </div>
             <div className="flex space-x-3">
               {social.filter((item) => item.href !== '#').map((item: SocialItem) => (
-                <m.a
+                <a
                   key={item.label}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
                   onClick={() => hapticFeedback.selection()}
-                  className={clsx('w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl bg-gradient-to-r p-[1px] group cursor-pointer', item.gradient)}
+                  className={clsx(
+                    'w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl bg-gradient-to-r p-[1px] group cursor-pointer',
+                    'transition-transform duration-300 hover:scale-110 hover:-translate-y-0.5 active:scale-95',
+                    item.gradient
+                  )}
                   aria-label={`Visit our ${item.label} page`}
                 >
                   <div className="w-full h-full rounded-xl bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-all duration-300">
                     <item.icon className="w-5 h-5 text-white" />
                   </div>
-                </m.a>
+                </a>
               ))}
             </div>
             <m.button
