@@ -39,7 +39,9 @@ const CaseStudies: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeIndustry, setActiveIndustry] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showMobileContrastBar, setShowMobileContrastBar] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   useLayoutEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -127,6 +129,67 @@ const CaseStudies: React.FC = () => {
     containerRef.current?.scrollTo({ left: 0, behavior: 'auto' });
   }, [filteredStudies]);
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    if (!window.matchMedia('(max-width: 1023px)').matches) return;
+
+    const body = document.body;
+    const html = document.documentElement;
+
+    const previousBodyOverflow = body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 1023px)').matches) {
+      setShowMobileContrastBar(false);
+      return;
+    }
+
+    const header = headerRef.current;
+    const footer = document.querySelector('footer');
+    if (!header || !footer) return;
+
+    let rafId = 0;
+    const updateContrastState = () => {
+      rafId = 0;
+      const headerRect = header.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      const navBottomAbs = window.scrollY + headerRect.bottom;
+      const footerTopAbs = window.scrollY + footerRect.top;
+      const shouldShow = navBottomAbs >= footerTopAbs && footerRect.bottom > 0;
+      setShowMobileContrastBar((prev) => (prev === shouldShow ? prev : shouldShow));
+    };
+
+    const onScrollOrResize = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(updateContrastState);
+    };
+
+    updateContrastState();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, []);
+
   /* ── shared filter chip renderer ── */
   const FilterChips = ({ size = 'sm' }: { size?: 'sm' | 'md' }) =>
     industries.map((industry) => {
@@ -152,8 +215,11 @@ const CaseStudies: React.FC = () => {
   return (
     <>
       {/* ─── Mobile sticky header ──────────────────────────────── */}
-      <header className="block md:hidden fixed top-4 left-0 right-0 z-50">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between h-16 px-6 sm:px-8">
+      <header ref={headerRef} className="block md:hidden fixed top-4 left-0 right-0 z-50">
+        {showMobileContrastBar && (
+          <div className="absolute inset-x-0 -top-4 h-24 pointer-events-none bg-gradient-to-b from-black/90 via-black/65 to-transparent backdrop-blur-md" />
+        )}
+        <nav className="relative max-w-7xl mx-auto flex items-center justify-between h-16 px-6 sm:px-8">
           {/* Logo */}
           <Link to="/" className="flex items-center focus:outline-none">
             <Logo />
@@ -197,32 +263,64 @@ const CaseStudies: React.FC = () => {
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="fixed inset-y-0 right-0 w-full h-full bg-black p-6 flex flex-col z-50 lg:hidden"
             >
-              {/* Close Button */}
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                aria-label="Close menu"
-                className="absolute top-6 right-6 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
-              >
-                <X className="w-6 h-6 text-white" />
-              </button>
+              <div className="flex items-center justify-between">
+                <a
+                  href="/"
+                  onClick={(event) => handleNavigation('/', event)}
+                  aria-label="Go to Home"
+                  className="flex items-center focus:outline-none"
+                >
+                  <Logo />
+                </a>
+
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Close menu"
+                  className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
 
               {/* Nav Items */}
-              <div className="flex flex-col space-y-4 pt-20 h-full justify-start">
-                {navItems.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.url}
-                    onClick={(event) => handleNavigation(item.url, event)}
-                    className="block text-lg font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] text-gray-400 hover:text-white hover:bg-white/5"
-                  >
-                    {item.name}
-                  </a>
-                ))}
+              <div className="mt-6 flex-1 min-h-0 flex flex-col">
+                <div className="flex flex-col gap-3.5">
+                  {navItems.map((item) => {
+                    const isActive = item.url === '/case-studies';
+                    return (
+                    <a
+                      key={item.name}
+                      href={item.url}
+                      onClick={(event) => handleNavigation(item.url, event)}
+                      className={`group relative block text-base font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
+                        isActive ? 'text-white bg-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="relative inline-flex items-center">
+                        <span className="relative inline-block">
+                          {item.name}
+                          {isActive && (
+                            <span className="absolute left-0 right-0 -bottom-1 h-[2px] bg-blue-500 rounded-full">
+                            </span>
+                          )}
+                        </span>
+                        <ArrowRight
+                          className={`w-4 h-4 ml-2 text-white transform transition-all duration-300 ${
+                            isActive
+                              ? 'opacity-100 translate-x-0'
+                              : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0'
+                          }`}
+                        />
+                      </span>
+                    </a>
+                    );
+                  })}
+                </div>
 
                 <motion.button
                   onClick={handleBookCall}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow hover:shadow-purple-500/25 transition-all min-h-[48px]"
+                  className="mt-6 w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow hover:shadow-purple-500/25 transition-all min-h-[48px]"
                 >
                   <span>Book a Call</span>
                   <ArrowRight className="w-5 h-5" />

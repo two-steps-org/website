@@ -25,6 +25,7 @@ interface ServiceDetails {
 }
 
 interface Service {
+  id: string;
   icon: LucideIcon;
   title: string;
   description: string;
@@ -36,10 +37,11 @@ interface Service {
 
 const services: Service[] = [
   {
+    id: 'ai-chat-agents',
     icon: MessageSquareText,
     title: 'AI Chat Agents',
     description: 'Transform how you engage with customers and streamline operations using smart AI Chat Agents built just for you.',
-    gradient: 'from-amber-500 to-orange-500',
+    gradient: 'from-purple-500 to-pink-500',
     delay: 0,
     details: {
       features: ['Text-based conversational agents', 'Task automation and workflow integration', '24/7 availability', 'Personalized responses and functionality'],
@@ -49,6 +51,7 @@ const services: Service[] = [
     },
   },
   {
+    id: 'ai-voice-agents',
     icon: Mic,
     title: 'AI Voice Agents',
     description: 'Enhance customer experiences with conversational AI Voice Agents that handle calls like a pro.',
@@ -63,10 +66,11 @@ const services: Service[] = [
     },
   },
   {
+    id: 'crm-development',
     icon: LayoutDashboard,
     title: 'CRM Development',
     description: 'Say goodbye to generic CRMs — let us build one perfectly designed for your needs.',
-    gradient: 'from-purple-500 to-pink-500',
+    gradient: 'from-amber-500 to-orange-500',
     delay: 0.2,
     details: {
       features: ['Fully customizable CRM platforms', 'Built-in automation', 'Seamless integration', 'Scalable solutions'],
@@ -76,6 +80,7 @@ const services: Service[] = [
     },
   },
   {
+    id: 'custom-saas-solutions',
     icon: Code2,
     title: 'Custom SaaS Solutions',
     description: 'Bring your vision to life with custom-built software, tailored precisely to your needs.',
@@ -105,6 +110,22 @@ const ServiceSection: React.FC = () => {
     }
   }, []);
 
+  const scrollToServiceById = (serviceId: string) => {
+    if (!scrollRef.current) return;
+    const targetIndex = services.findIndex((service) => service.id === serviceId);
+    if (targetIndex < 0) return;
+
+    const middleSetDomIndex = targetIndex + totalItems;
+    const targetCard = scrollRef.current.querySelector<HTMLElement>(
+      `[data-carousel-index="${middleSetDomIndex}"]`,
+    );
+    if (!targetCard) return;
+
+    const targetLeft = targetCard.offsetLeft - (scrollRef.current.clientWidth - targetCard.clientWidth) / 2;
+    scrollRef.current.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+    setActiveIndex(targetIndex);
+  };
+
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -122,6 +143,20 @@ const ServiceSection: React.FC = () => {
       if (scrollRafRef.current !== null) {
         window.cancelAnimationFrame(scrollRafRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleServicesFocus = (event: Event) => {
+      const customEvent = event as CustomEvent<{ serviceId?: string }>;
+      const serviceId = customEvent.detail?.serviceId;
+      if (!serviceId) return;
+      window.setTimeout(() => scrollToServiceById(serviceId), 60);
+    };
+
+    window.addEventListener('servicesFocus', handleServicesFocus as EventListener);
+    return () => {
+      window.removeEventListener('servicesFocus', handleServicesFocus as EventListener);
     };
   }, []);
 
@@ -263,6 +298,7 @@ const ServiceSection: React.FC = () => {
               {extendedServices.map((service, index) => (
                 <div
                   key={`${service.title}-${index}`}
+                  data-carousel-index={index}
                   className="snap-center shrink-0 w-[280px] xs:w-[300px]"
                 >
                   <div
