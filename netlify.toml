@@ -1,8 +1,7 @@
 [build]
-  command = "pnpm exec playwright install chromium --with-deps && npm run build"
+  command = "pnpm exec playwright install chromium && npm run build"
   publish = "dist"
 
 [build.environment]
   VITE_SITE_URL = "https://twosteps.ai"
   SITE_URL = "https://twosteps.ai"
-
