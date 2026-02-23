@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
     <Section className="relative overflow-hidden min-h-0 lg:min-h-[calc(100vh-80px)] flex items-center justify-center pt-28 pb-12 md:py-28 lg:py-0">
       <div className="grid lg:grid-cols-[1fr,1.1fr] items-center gap-8 lg:gap-8 w-full max-w-7xl mx-auto">
         {/* Left Column */}
-        <div className="z-10 space-y-6 text-center lg:text-left animate-fade-in flex flex-col justify-center h-full">
+        <div className="z-10 space-y-6 text-center lg:text-left flex flex-col justify-center h-full">
           {/* Headline */}
           <h1 className="text-[clamp(2.5rem,6vw,4rem)] font-bold tracking-tight leading-[1.05]">
             <AnimatedGradientText
@@ -66,7 +66,7 @@ const Hero: React.FC = () => {
         </div>
 
         {/* Right Column - AI Network Visualization */}
-        <div className="relative w-full h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center animate-fade-in select-none mt-4 lg:mt-0">
+        <div className="relative w-full h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center select-none mt-4 lg:mt-0">
           <div className="w-full h-full relative flex items-center justify-center p-4 sm:p-0">
             <ErrorBoundary
               fallback={

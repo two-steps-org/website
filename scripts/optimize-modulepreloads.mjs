@@ -19,6 +19,8 @@ const NON_CRITICAL_PRELOAD_PATTERNS = [
   /\/assets\/Section-.*\.js/,
   /\/assets\/hapticFeedback-.*\.js/,
   /\/assets\/useDeviceType-.*\.js/,
+  /\/assets\/animation-vendor-.*\.js/,
+  /\/assets\/icons-vendor-.*\.js/,
 ];
 
 const MODULE_PRELOAD_RE = /<link\s+[^>]*rel="modulepreload"[^>]*href="([^"]+)"[^>]*>/g;
