@@ -16,15 +16,28 @@ const navItems = [
   { name: 'Q&A', url: '/#faq' },
   { name: 'Case Studies', url: '/case-studies' },
 ];
+const NAV_SCROLL_OFFSET_DESKTOP = 96;
+const NAV_SCROLL_OFFSET_MOBILE = 72;
+const normalizePath = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showMobileContrastBar, setShowMobileContrastBar] = useState(false);
   const [activeTab, setActiveTab] = useState(navItems[0].name);
   const manualNavLockRef = useRef(false);
   const manualNavTimerRef = useRef<number | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  const getNavScrollOffset = useCallback(
+    () =>
+      window.matchMedia('(max-width: 1023px)').matches
+        ? NAV_SCROLL_OFFSET_MOBILE
+        : NAV_SCROLL_OFFSET_DESKTOP,
+    [],
+  );
 
   const releaseManualNav = useCallback((delay = 0) => {
     if (manualNavTimerRef.current) {
@@ -43,7 +56,7 @@ const Navbar = () => {
 
     const startedAt = Date.now();
     const maxWaitMs = 2200;
-    const targetOffset = 96;
+    const targetOffset = getNavScrollOffset();
     const tolerancePx = 28;
 
     const check = () => {
@@ -65,7 +78,37 @@ const Navbar = () => {
     };
 
     manualNavTimerRef.current = window.setTimeout(check, 120);
-  }, []);
+  }, [getNavScrollOffset]);
+
+  const scrollToSectionWhenReady = useCallback(
+    (sectionId: string) => {
+      const startedAt = Date.now();
+      const maxWaitMs = 2200;
+
+      const tryScroll = () => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const offset = getNavScrollOffset();
+          const sectionTop = el.getBoundingClientRect().top + window.scrollY;
+          const targetTop = Math.max(0, sectionTop - offset);
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+          releaseManualNavWhenSectionReached(sectionId);
+          return;
+        }
+
+        if (Date.now() - startedAt > maxWaitMs) {
+          manualNavLockRef.current = false;
+          return;
+        }
+
+        window.dispatchEvent(new CustomEvent('navForceLoad'));
+        window.setTimeout(tryScroll, 80);
+      };
+
+      tryScroll();
+    },
+    [getNavScrollOffset, releaseManualNavWhenSectionReached],
+  );
 
   useEffect(() => {
     return () => {
@@ -76,9 +119,71 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    if (location.pathname === '/') return;
+    if (!isMenuOpen) return;
+    if (!window.matchMedia('(max-width: 1023px)').matches) return;
 
-    const matched = navItems.find((item) => item.url === location.pathname);
+    const body = document.body;
+    const html = document.documentElement;
+
+    const previousBodyOverflow = body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 1023px)').matches) {
+      setShowMobileContrastBar(false);
+      return;
+    }
+
+    const header = headerRef.current;
+    const footer = document.querySelector('footer');
+    if (!header || !footer) return;
+
+    let rafId = 0;
+    const updateContrastState = () => {
+      rafId = 0;
+      const headerRect = header.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      const navBottomAbs = window.scrollY + headerRect.bottom;
+      const footerTopAbs = window.scrollY + footerRect.top;
+      const shouldShow = navBottomAbs >= footerTopAbs && footerRect.bottom > 0;
+      setShowMobileContrastBar((prev) => (prev === shouldShow ? prev : shouldShow));
+    };
+
+    const onScrollOrResize = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(updateContrastState);
+    };
+
+    updateContrastState();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (normalizePath(location.pathname) === '/') return;
+
+    const currentPath = normalizePath(location.pathname);
+    const matched = navItems.find((item) => normalizePath(item.url) === currentPath);
     if (matched) {
       setActiveTab(matched.name);
     } else {
@@ -107,7 +212,7 @@ const Navbar = () => {
 
       // Switch at section start: as soon as the section's top crosses the
       // fixed-navbar line, mark it active.
-      const navOffset = 96;
+      const navOffset = getNavScrollOffset();
       const triggerY = window.scrollY + navOffset;
       let active = sections[0];
 
@@ -149,7 +254,7 @@ const Navbar = () => {
       window.removeEventListener('resize', onScrollOrResize);
       window.removeEventListener('navForceLoad', onNavForceLoad);
     };
-  }, [location.pathname]);
+  }, [getNavScrollOffset, location.pathname]);
 
   const handleNavigation = useCallback(
     (url: string, name: string, event?: MouseEvent<HTMLAnchorElement>) => {
@@ -176,16 +281,20 @@ const Navbar = () => {
         releaseManualNav(1200);
       } else {
         window.dispatchEvent(new CustomEvent('navForceLoad'));
-        window.setTimeout(() => {
-          const el = document.getElementById(sectionId);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-          releaseManualNavWhenSectionReached(sectionId);
-        }, 80);
+        if (window.matchMedia('(max-width: 1023px)').matches) {
+          scrollToSectionWhenReady(sectionId);
+        } else {
+          window.setTimeout(() => {
+            const el = document.getElementById(sectionId);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            releaseManualNavWhenSectionReached(sectionId);
+          }, 80);
+        }
       }
     },
-    [navigate, location.pathname, releaseManualNav, releaseManualNavWhenSectionReached],
+    [navigate, location.pathname, releaseManualNav, releaseManualNavWhenSectionReached, scrollToSectionWhenReady],
   );
 
   const handleBookCall = useCallback(() => {
@@ -194,8 +303,11 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className="fixed top-4 left-0 right-0 z-50">
-      <nav className="max-w-7xl mx-auto flex items-center justify-between h-16 lg:h-16 px-6 sm:px-8">
+    <header ref={headerRef} className="fixed top-4 left-0 right-0 z-50">
+      {showMobileContrastBar && (
+        <div className="absolute inset-x-0 -top-4 h-24 lg:hidden pointer-events-none bg-gradient-to-b from-black/90 via-black/65 to-transparent backdrop-blur-md" />
+      )}
+      <nav className="relative max-w-7xl mx-auto flex items-center justify-between h-16 lg:h-16 px-6 sm:px-8">
         {/* Logo */}
         <a
           href="/#home"
@@ -294,41 +406,61 @@ const Navbar = () => {
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 className="fixed inset-y-0 right-0 w-full h-full bg-black p-6 flex flex-col z-50 lg:hidden"
               >
-                {/* Close Button */}
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-label="Close menu"
-                  className="absolute top-6 right-6 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
-                >
-                  <X className="w-6 h-6 text-white" />
-                </button>
+                <div className="flex items-center justify-between">
+                  <a
+                    href="/#home"
+                    onClick={(event) => handleNavigation('/#home', 'Home', event)}
+                    aria-label="Go to Home"
+                    className="flex items-center focus:outline-none"
+                  >
+                    <Logo />
+                  </a>
+
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    aria-label="Close menu"
+                    className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                </div>
 
                 {/* Nav Items */}
-                <div className="flex flex-col space-y-4 pt-20 h-full justify-start">
-                  {navItems.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.url}
-                      onClick={(event) => handleNavigation(item.url, item.name, event)}
-                      className={`block text-lg font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
-                        activeTab === item.name ? 'text-white bg-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      {item.name}
-                      {activeTab === item.name && (
-                        <div className="w-6 h-1 bg-blue-500 rounded-full mt-1">
-                          <div className="absolute w-12 h-6 bg-blue-500/20 rounded-full blur-md -top-2 -left-2" />
-                          <div className="absolute w-8 h-6 bg-blue-500/20 rounded-full blur-md -top-1" />
-                          <div className="absolute w-4 h-4 bg-blue-500/20 rounded-full blur-sm top-0 left-2" />
-                        </div>
-                      )}
-                    </a>
-                  ))}
+                <div className="mt-6 flex-1 min-h-0 flex flex-col">
+                  <div className="flex flex-col gap-3.5">
+                    {navItems.map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.url}
+                        onClick={(event) => handleNavigation(item.url, item.name, event)}
+                        className={`group block text-base font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
+                          activeTab === item.name ? 'text-white bg-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span className="relative inline-flex items-center">
+                          <span className="relative inline-block">
+                            {item.name}
+                            {activeTab === item.name && (
+                              <span className="absolute left-0 right-0 -bottom-1 h-[2px] bg-blue-500 rounded-full">
+                              </span>
+                            )}
+                          </span>
+                          <ArrowRight
+                            className={`w-4 h-4 ml-2 text-white transform transition-all duration-300 ${
+                              activeTab === item.name
+                                ? 'opacity-100 translate-x-0'
+                                : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0'
+                            }`}
+                          />
+                        </span>
+                      </a>
+                    ))}
+                  </div>
 
                   <motion.button
                     onClick={handleBookCall}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow hover:shadow-purple-500/25 transition-all min-h-[48px]"
+                    className="mt-6 w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow hover:shadow-purple-500/25 transition-all min-h-[48px]"
                   >
                     <span>Book a Call</span>
                     <ArrowRight className="w-5 h-5" />

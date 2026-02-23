@@ -36,6 +36,7 @@ interface SolutionItem {
   icon: LucideIcon;
   href: string;
   gradient: string;
+  serviceId: string;
 }
 
 interface ContactItem {
@@ -64,10 +65,10 @@ const navigation: NavItem[] = [
 ];
 
 const solutions: SolutionItem[] = [
-  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/#services', gradient: 'from-purple-500 to-pink-500' },
-  { label: 'AI Voice Agents', icon: Mic, href: '/#services', gradient: 'from-amber-500 to-orange-500' },
-  { label: 'CRM Development', icon: LayoutDashboard, href: '/#services', gradient: 'from-blue-500 to-indigo-500' },
-  { label: 'Custom SaaS', icon: Code2, href: '/#services', gradient: 'from-green-500 to-emerald-500' },
+  { label: 'AI Voice Agents', icon: Mic, href: '/#services', gradient: 'from-blue-500 to-indigo-500', serviceId: 'ai-voice-agents' },
+  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/#services', gradient: 'from-purple-500 to-pink-500', serviceId: 'ai-chat-agents' },
+  { label: 'CRM Development', icon: LayoutDashboard, href: '/#services', gradient: 'from-amber-500 to-orange-500', serviceId: 'crm-development' },
+  { label: 'Custom SaaS', icon: Code2, href: '/#services', gradient: 'from-green-500 to-emerald-500', serviceId: 'custom-saas-solutions' },
 ];
 
 const contact: ContactItem[] = [
@@ -102,6 +103,7 @@ const Footer: React.FC = () => {
     navigation: false,
     solutions: false,
     contact: false,
+    legal: false,
   });
 
   const handleBookCall = () => {
@@ -200,10 +202,35 @@ const Footer: React.FC = () => {
     }
   };
 
+  const handleSolutionNavigation = (item: SolutionItem, event?: MouseEvent<HTMLAnchorElement>) => {
+    if (!isMobile) {
+      handleNavigation(item.href, event);
+      return;
+    }
+
+    event?.preventDefault();
+
+    if (location.pathname !== '/') {
+      navigate('/', {
+        state: {
+          targetSection: 'services',
+          isSectionNav: true,
+          targetService: item.serviceId,
+        },
+      });
+      return;
+    }
+
+    scrollToSection('services');
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('servicesFocus', { detail: { serviceId: item.serviceId } }));
+    }, 220);
+  };
+
   return (
     <footer className="relative mt-auto w-full bg-gradient-to-b from-[#080B1A] to-black touch-manipulation">
       <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-6 items-start">
           
           {/* Company Info */}
           <div className="space-y-6 md:col-span-2 lg:col-span-1">
@@ -256,7 +283,7 @@ const Footer: React.FC = () => {
           </div>
           
           {/* Navigation & Solutions */}
-          <div className="md:col-span-2 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-4 pl-2 lg:pl-4">
+          <div className={`md:col-span-2 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-4 ${isMobile ? '' : 'pl-2 lg:pl-4'}`}>
             {/* Navigation */}
             <CollapsibleSection title="Navigation" sectionKey="navigation">
               <ul className="grid grid-cols-2 gap-y-5 gap-x-5">
@@ -297,7 +324,7 @@ const Footer: React.FC = () => {
                     <a
                       href={item.href}
                       onClick={(event) => {
-                        handleNavigation(item.href, event);
+                        handleSolutionNavigation(item, event);
                         hapticFeedback.selection();
                       }}
                       className="flex items-center gap-3 group w-full text-left min-h-[44px]"
@@ -320,8 +347,8 @@ const Footer: React.FC = () => {
             </CollapsibleSection>
           </div>
 
-          {/* Contact */}
-          <div className="lg:col-span-1 pl-2 lg:pl-4">
+          {/* Contact + Policies */}
+          <div className={isMobile ? 'lg:col-span-1 space-y-6' : 'lg:col-span-1 pl-2 lg:pl-4'}>
             <CollapsibleSection title="Contact Us" sectionKey="contact">
               <ul className="space-y-5">
                 {contact.map((item: ContactItem, index: number) => (
@@ -341,33 +368,63 @@ const Footer: React.FC = () => {
                 ))}
               </ul>
             </CollapsibleSection>
+
+            {isMobile && (
+              <CollapsibleSection title="Policies" sectionKey="legal">
+                <ul className="grid grid-cols-2 gap-y-5 gap-x-5">
+                  {['privacy', 'terms', 'cookies'].map((type) => (
+                    <li key={type}>
+                      <button
+                        onClick={() => {
+                          setSelectedLegal(type);
+                          hapticFeedback.light();
+                        }}
+                        className="group block w-full text-left min-h-[44px]"
+                        aria-label={`View ${type === 'terms' ? 'Terms of Service' : `${type} Policy`}`}
+                      >
+                        <span className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300 flex items-center">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-500 mr-3 group-hover:bg-blue-400 group-hover:scale-125 transition-all duration-300 shrink-0" />
+                          <span className="relative flex items-center">
+                            <span className="relative inline-block">
+                              {type === 'terms' ? 'Terms of Service' : `${type} Policy`}
+                              <span className="absolute -bottom-1 left-0 w-0 h-px bg-blue-400 transition-all duration-300 group-hover:w-full" />
+                            </span>
+                            <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </CollapsibleSection>
+            )}
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 pt-6 border-t border-gray-800/50">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+        <div className="mt-4 md:mt-10 pt-3 md:pt-6 md:border-t md:border-gray-800/50">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-4 text-center md:text-left">
             {/* Copyright */}
             <p className="text-gray-400 text-sm">
               © {new Date().getFullYear()} Two Steps. All Rights Reserved.
             </p>
-
-            {/* Legal Links */}
-            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-              {['privacy', 'terms', 'cookies'].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => {
-                    setSelectedLegal(type);
-                    hapticFeedback.light();
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors duration-300 text-sm capitalize min-h-[44px]"
-                  aria-label={`View ${type === 'terms' ? 'Terms of Service' : `${type} Policy`}`}
-                >
-                  {type === 'terms' ? 'Terms of Service' : `${type} Policy`}
-                </button>
-              ))}
-            </div>
+            {!isMobile && (
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                {['privacy', 'terms', 'cookies'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setSelectedLegal(type);
+                      hapticFeedback.light();
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors duration-300 text-sm capitalize min-h-[44px]"
+                    aria-label={`View ${type === 'terms' ? 'Terms of Service' : `${type} Policy`}`}
+                  >
+                    {type === 'terms' ? 'Terms of Service' : `${type} Policy`}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
