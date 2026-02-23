@@ -1,8 +1,8 @@
-import React from "react";
-import { useRef } from 'react';
-import Footer from './Footer/Footer';
+import React, { Suspense, lazy, useRef } from 'react';
 import Navbar from './Navbar';
 import BackgroundGradient from '../common/BackgroundGradient';
+
+const Footer = lazy(() => import('./Footer/Footer'));
 
 export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -18,7 +18,9 @@ export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }
             {children}
           </main>
 
-          <Footer />
+          <Suspense fallback={<div className="h-24" aria-hidden="true" />}>
+            <Footer />
+          </Suspense>
         </div>
       </BackgroundGradient>
     </div>

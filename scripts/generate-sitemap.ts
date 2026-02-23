@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { resolveSeoRuntimeConfig } from './seo-config';
 
-const SITE_URL = (process.env.SITE_URL ?? process.env.VITE_SITE_URL ?? 'https://example.com').replace(/\/+$/, '');
+const seoConfig = resolveSeoRuntimeConfig();
+const SITE_URL = seoConfig.siteUrl;
 
 interface SitemapUrl {
   loc: string;
@@ -53,8 +55,25 @@ function writeSitemap() {
 
   const sitemapXml = generateSitemapXml(routes);
   fs.writeFileSync(sitemapPath, sitemapXml, 'utf8');
-  
+
   console.log(`✓ Sitemap generated at ${sitemapPath}`);
 }
 
+function writeRobotsTxt() {
+  const distPath = path.join(process.cwd(), 'dist');
+  const robotsPath = path.join(distPath, 'robots.txt');
+  const crawlDirective = seoConfig.isProduction ? 'Allow: /' : 'Disallow: /';
+  const robotsLines = [
+    'User-agent: *',
+    crawlDirective,
+    '',
+    `Sitemap: ${SITE_URL}/sitemap.xml`,
+  ];
+  const robotsTxt = `${robotsLines.join('\n')}\n`;
+
+  fs.writeFileSync(robotsPath, robotsTxt, 'utf8');
+  console.log(`✓ robots.txt generated at ${robotsPath}`);
+}
+
 writeSitemap();
+writeRobotsTxt();

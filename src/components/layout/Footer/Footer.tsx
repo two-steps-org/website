@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, type MouseEvent } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
@@ -54,20 +54,20 @@ interface SocialItem {
 
 // --- Data Arrays ---
 const navigation: NavItem[] = [
-  { label: 'Home', href: '#home' },
-  { label: 'Services', href: '#services' },
-  { label: 'Why Us', href: '#why-us' },
-  { label: 'Process', href: '#process' },
-  { label: 'Team', href: '#team' },
-  { label: 'Q&A', href: '#faq' },
+  { label: 'Home', href: '/#home' },
+  { label: 'Services', href: '/#services' },
+  { label: 'Why Us', href: '/#why-us' },
+  { label: 'Process', href: '/#process' },
+  { label: 'Team', href: '/#team' },
+  { label: 'Q&A', href: '/#faq' },
   { label: 'Case Studies', href: '/case-studies' },
 ];
 
 const solutions: SolutionItem[] = [
-  { label: 'AI Chat Agents', icon: MessageSquareText, href: '#services', gradient: 'from-purple-500 to-pink-500' },
-  { label: 'AI Voice Agents', icon: Mic, href: '#services', gradient: 'from-amber-500 to-orange-500' },
-  { label: 'CRM Development', icon: LayoutDashboard, href: '#services', gradient: 'from-blue-500 to-indigo-500' },
-  { label: 'Custom SaaS', icon: Code2, href: '#services', gradient: 'from-green-500 to-emerald-500' },
+  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/#services', gradient: 'from-purple-500 to-pink-500' },
+  { label: 'AI Voice Agents', icon: Mic, href: '/#services', gradient: 'from-amber-500 to-orange-500' },
+  { label: 'CRM Development', icon: LayoutDashboard, href: '/#services', gradient: 'from-blue-500 to-indigo-500' },
+  { label: 'Custom SaaS', icon: Code2, href: '/#services', gradient: 'from-green-500 to-emerald-500' },
 ];
 
 const contact: ContactItem[] = [
@@ -77,8 +77,8 @@ const contact: ContactItem[] = [
 ];
 
 const social: SocialItem[] = [
-  { icon: Facebook, href: '#', label: 'Facebook', gradient: 'from-blue-500 to-indigo-500' },
-  { icon: XIcon, href: '#', label: 'X (Twitter)', gradient: 'from-purple-500 to-indigo-500' },
+  { icon: Facebook, href: 'https://www.facebook.com/twostepsai', label: 'Facebook', gradient: 'from-blue-500 to-indigo-500' },
+  { icon: XIcon, href: 'https://x.com/twostepsai', label: 'X (Twitter)', gradient: 'from-purple-500 to-indigo-500' },
   { icon: Linkedin, href: 'https://www.linkedin.com/company/two-steps-ai/', label: 'LinkedIn', gradient: 'from-blue-600 to-blue-800' },
   { icon: Instagram, href: 'https://www.instagram.com/twostepsai', label: 'Instagram', gradient: 'from-purple-500 to-pink-500' },
 ];
@@ -172,47 +172,28 @@ const Footer: React.FC = () => {
     );
   };
 
-  const scrollToSectionWhenStable = (sectionId: string) => {
+  const scrollToSection = (sectionId: string) => {
     window.dispatchEvent(new CustomEvent('navForceLoad'));
-
-    let lastScrollHeight = document.body.scrollHeight;
-    let stableCount = 0;
-    let attempts = 0;
-
-    const poll = () => {
-      const currentScrollHeight = document.body.scrollHeight;
-      attempts++;
-
-      if (currentScrollHeight !== lastScrollHeight) {
-        stableCount = 0;
-      } else {
-        stableCount++;
-      }
-      lastScrollHeight = currentScrollHeight;
-
-      if (stableCount >= 4 || attempts >= 60) {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        window.setTimeout(poll, 50);
-      }
-    };
-
-    requestAnimationFrame(() => requestAnimationFrame(poll));
+    window.setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   };
 
-  const handleNavigation = (href: string) => {
-    if (href.startsWith('#') || href.startsWith('/#')) {
+  const handleNavigation = (href: string, event?: MouseEvent<HTMLAnchorElement>) => {
+    if (href.startsWith('/#')) {
+      event?.preventDefault();
       const sectionId = href.startsWith('/#') ? href.slice(2) : href.slice(1);
 
       if (location.pathname !== '/') {
         navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
       } else {
-        scrollToSectionWhenStable(sectionId);
+        scrollToSection(sectionId);
       }
       return;
     }
 
+    event?.preventDefault();
     navigate(href);
     if (href === '/case-studies') {
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -239,23 +220,24 @@ const Footer: React.FC = () => {
               </p>
             </div>
             <div className="flex space-x-3">
-              {social.map((item: SocialItem) => (
-                <m.a
+              {social.filter((item) => item.href !== '#').map((item: SocialItem) => (
+                <a
                   key={item.label}
-                  href={item.href === '#' ? undefined : item.href}
-                  target={item.href === '#' ? undefined : '_blank'}
-                  rel={item.href === '#' ? undefined : 'noopener noreferrer'}
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => hapticFeedback.selection()}
-                  className={clsx('w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl bg-gradient-to-r p-[1px] group cursor-pointer', item.gradient)}
+                  className={clsx(
+                    'w-10 h-10 min-h-[44px] min-w-[44px] rounded-xl bg-gradient-to-r p-[1px] group cursor-pointer',
+                    'transition-transform duration-300 hover:scale-110 hover:-translate-y-0.5 active:scale-95',
+                    item.gradient
+                  )}
                   aria-label={`Visit our ${item.label} page`}
-                  onTouchStart={(e) => item.href === '#' && e.preventDefault()}
                 >
                   <div className="w-full h-full rounded-xl bg-gray-900 hover:bg-gray-800 flex items-center justify-center transition-all duration-300">
                     <item.icon className="w-5 h-5 text-white" />
                   </div>
-                </m.a>
+                </a>
               ))}
             </div>
             <m.button
@@ -281,13 +263,13 @@ const Footer: React.FC = () => {
                 {navigation.map((item: NavItem) => {
                   return (
                     <li key={item.label}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleNavigation(item.href);
+                      <a
+                        href={item.href}
+                        onClick={(event) => {
+                          handleNavigation(item.href, event);
                           hapticFeedback.selection();
                         }}
-                        className="group w-full text-left min-h-[44px]"
+                        className="group block w-full text-left min-h-[44px]"
                         aria-label={`Navigate to ${item.label}`}
                       >
                         <span className="text-gray-400 group-hover:text-blue-400 transition-colors duration-300 flex items-center">
@@ -300,7 +282,7 @@ const Footer: React.FC = () => {
                             <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                           </span>
                         </span>
-                      </button>
+                      </a>
                     </li>
                   );
                 })}
@@ -312,10 +294,10 @@ const Footer: React.FC = () => {
               <ul className="space-y-5">
                 {solutions.map((item: SolutionItem) => (
                   <li key={item.label}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleNavigation(item.href);
+                    <a
+                      href={item.href}
+                      onClick={(event) => {
+                        handleNavigation(item.href, event);
                         hapticFeedback.selection();
                       }}
                       className="flex items-center gap-3 group w-full text-left min-h-[44px]"
@@ -331,7 +313,7 @@ const Footer: React.FC = () => {
                           <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                         </span>
                       </span>
-                    </button>
+                    </a>
                   </li>
                 ))}
               </ul>

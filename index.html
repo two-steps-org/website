@@ -2,55 +2,124 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
-    <link rel="preconnect" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" type="image/png" href="/Icon - Two Steps.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Two Steps AI - Transforming Business Through AI">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="Cache-Control" content="max-age=31536000">
-    <!-- Static meta tags for SEO -->
-    <meta name="robots" content="index,follow" />
-    <meta name="author" content="Two Steps AI" />
-    <meta name="keywords" content="AI, business transformation, automation, artificial intelligence, machine learning" />
     <style>
-      /* Fixed CLS issue: Use overlay instead of position changes */
-      html {
-        background: #000;
-      }
+      html,
       body {
         background: #000;
-        min-height: 100vh;
-      }
-      /* Loading overlay - doesn't affect layout */
-      #loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        z-index: 9999;
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-      }
-      body.loaded #loading-overlay {
-        opacity: 0;
-        visibility: hidden;
+        min-height: 100%;
       }
     </style>
-    <title>Two Steps</title>
+    <title>Two Steps AI</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://twosteps.ai/#organization",
+            "name": "Two Steps AI",
+            "alternateName": "Two Steps",
+            "url": "https://twosteps.ai",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://twosteps.ai/Icon - Two Steps.png",
+              "width": 512,
+              "height": 512
+            },
+            "description": "Two Steps AI builds custom AI solutions — AI Chat Agents, AI Voice Agents, CRM Development, and Custom SaaS — to transform business operations and drive growth.",
+            "slogan": "Always Be Ahead",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Tel Aviv",
+              "addressCountry": "IL"
+            },
+            "contactPoint": [{
+              "@type": "ContactPoint",
+              "telephone": "+972-54-4831148",
+              "contactType": "customer service",
+              "email": "yoni.insell@twosteps.ai",
+              "availableLanguage": ["English", "Hebrew"]
+            }],
+            "sameAs": [
+              "https://www.facebook.com/twostepsai",
+              "https://x.com/twostepsai",
+              "https://www.linkedin.com/company/two-steps-ai/",
+              "https://www.instagram.com/twostepsai"
+            ],
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "AI Services",
+              "itemListElement": [
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Chat Agents", "description": "Transform how you engage with customers and streamline operations using smart AI Chat Agents built just for you.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Voice Agents", "description": "Enhance customer experiences with conversational AI Voice Agents that handle calls like a pro.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CRM Development", "description": "Say goodbye to generic CRMs — let us build one perfectly designed for your needs.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom SaaS Solutions", "description": "Bring your vision to life with custom-built software, tailored precisely to your needs.", "provider": { "@id": "https://twosteps.ai/#organization" } } }
+              ]
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://twosteps.ai/#website",
+            "name": "Two Steps AI",
+            "url": "https://twosteps.ai",
+            "description": "Custom AI solutions — AI Chat Agents, AI Voice Agents, CRM Development, and Custom SaaS.",
+            "publisher": { "@id": "https://twosteps.ai/#organization" }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://twosteps.ai/#webpage",
+            "url": "https://twosteps.ai/",
+            "name": "Two Steps AI — AI Chat Agents, AI Voice Agents, CRM Development, Custom SaaS",
+            "description": "Two Steps AI transforms business through custom AI solutions. We build AI Chat Agents, AI Voice Agents, CRM systems, and Custom SaaS tailored to your business.",
+            "inLanguage": "en-US",
+            "isPartOf": { "@id": "https://twosteps.ai/#website" },
+            "about": { "@id": "https://twosteps.ai/#organization" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://twosteps.ai/#faq",
+            "mainEntity": [
+              { "@type": "Question", "name": "Is my business the right fit for AI solutions?", "acceptedAnswer": { "@type": "Answer", "text": "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI solutions tailored specifically to your business's needs." } },
+              { "@type": "Question", "name": "How do I know which AI solution is right for my business?", "acceptedAnswer": { "@type": "Answer", "text": "You don't need to know—we'll guide you. Our free consultation is designed to uncover your needs and recommend the ideal solution for your business." } },
+              { "@type": "Question", "name": "What industries do you work with?", "acceptedAnswer": { "@type": "Answer", "text": "From retail to healthcare, real estate, and beyond, we deliver AI solutions tailored to diverse industries. If your business has processes, we can automate and optimize them." } },
+              { "@type": "Question", "name": "What makes your team different from other AI agencies?", "acceptedAnswer": { "@type": "Answer", "text": "We don't just build AI—we build relationships. Our team works closely with you to design solutions that align perfectly with your goals." } },
+              { "@type": "Question", "name": "How do you ensure the AI solution will deliver results?", "acceptedAnswer": { "@type": "Answer", "text": "Our solutions are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient." } },
+              { "@type": "Question", "name": "Can AI solutions work with the tools/software I already use?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Our custom AI solutions integrate seamlessly with your existing platforms, whether it's a CRM, email system, or other internal tools." } }
+            ]
+          }
+        ]
+      }
+    </script>
     <!-- Placeholder for SSG meta tags -->
     <!--vite-ssg-head-->
   </head>
-  <body class="bg-black loading">
-    <div id="loading-overlay"></div>
+  <body class="bg-black">
+    <noscript>
+      <main style="color:#fff;max-width:960px;margin:0 auto;padding:48px 20px;font-family:system-ui,sans-serif;line-height:1.5;">
+        <h1 style="margin:0 0 12px;font-size:2rem;">Two Steps AI</h1>
+        <p style="margin:0 0 24px;color:#cbd5e1;">
+          Transforming business through custom AI solutions, automation, and intelligent workflows.
+        </p>
+        <p style="margin:0 0 10px;">Key pages:</p>
+        <ul style="margin:0;padding-left:20px;">
+          <li><a href="/#services" style="color:#60a5fa;">Services</a></li>
+          <li><a href="/#why-us" style="color:#60a5fa;">Why Us</a></li>
+          <li><a href="/#process" style="color:#60a5fa;">Process</a></li>
+          <li><a href="/#team" style="color:#60a5fa;">Team</a></li>
+          <li><a href="/#faq" style="color:#60a5fa;">Q&amp;A</a></li>
+          <li><a href="/case-studies" style="color:#60a5fa;">Case Studies</a></li>
+        </ul>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

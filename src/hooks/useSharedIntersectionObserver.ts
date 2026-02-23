@@ -21,8 +21,9 @@ function getGlobalObserver(): IntersectionObserver {
       },
       {
         root: null,
-        rootMargin: '200px', // Start loading earlier (200px before visible)
-        threshold: 0.1,
+        // Keep lazy chunks off the critical path: load close to viewport.
+        rootMargin: '50px',
+        threshold: 0.01,
       }
     );
   }

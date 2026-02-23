@@ -1,12 +1,29 @@
 import { preview } from 'vite';
 import process from 'process';
+import { spawnSync } from 'node:child_process';
+import { resolveSeoRuntimeConfig } from './seo-config';
 
 const routes = ['/', '/case-studies'];
 
+function installChromiumBrowser(): void {
+  console.log('Playwright Chromium binary missing. Installing browser...');
+  const result = spawnSync('pnpm', ['exec', 'playwright', 'install', 'chromium'], {
+    stdio: 'inherit',
+  });
+
+  if (result.status !== 0) {
+    throw new Error(
+      'Failed to install Playwright Chromium browser. Run `pnpm exec playwright install chromium`.'
+    );
+  }
+}
+
 async function prerender() {
+  // Validate production SEO inputs before creating prerendered HTML.
+  resolveSeoRuntimeConfig();
   console.log('Starting Vite preview server for prerendering...');
 
-  const previewServer = await preview({ preview: { port: 4173 } });
+  const previewServer = await preview({ preview: { host: '127.0.0.1', port: 4173 } });
 
   let browser: { close: () => Promise<void> } | null = null;
 
@@ -23,18 +40,22 @@ async function prerender() {
       browser = await playwright.chromium.launch();
     } catch (launchError) {
       const message = launchError instanceof Error ? launchError.message : String(launchError);
-      const missingLinuxLib =
-        message.includes('error while loading shared libraries') ||
-        message.includes('Executable doesn\'t exist');
+      const missingBrowserExecutable = message.includes('Executable doesn\'t exist');
+      const missingLinuxLib = message.includes('error while loading shared libraries');
 
-      if (missingLinuxLib) {
+      if (missingBrowserExecutable) {
+        installChromiumBrowser();
+        browser = await playwright.chromium.launch();
+      } else if (missingLinuxLib) {
         console.error(
           'Playwright browser is installed but required Linux dependencies are missing.\n' +
             'Run: pnpm exec playwright install-deps chromium'
         );
-      }
 
-      throw launchError;
+        throw launchError;
+      } else {
+        throw launchError;
+      }
     }
     const page = await browser.newPage();
 

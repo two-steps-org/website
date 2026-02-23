@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react';
 import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import Logo from '../Logo';
@@ -8,12 +8,12 @@ import { cn } from '../../lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
-  { name: 'Home', url: '#home' },
-  { name: 'Services', url: '#services' },
-  { name: 'Why Us', url: '#why-us' },
-  { name: 'Process', url: '#process' },
-  { name: 'Team', url: '#team' },
-  { name: 'Q&A', url: '#faq' },
+  { name: 'Home', url: '/#home' },
+  { name: 'Services', url: '/#services' },
+  { name: 'Why Us', url: '/#why-us' },
+  { name: 'Process', url: '/#process' },
+  { name: 'Team', url: '/#team' },
+  { name: 'Q&A', url: '/#faq' },
   { name: 'Case Studies', url: '/case-studies' },
 ];
 
@@ -34,6 +34,37 @@ const Navbar = () => {
     manualNavTimerRef.current = window.setTimeout(() => {
       manualNavLockRef.current = false;
     }, delay);
+  }, []);
+
+  const releaseManualNavWhenSectionReached = useCallback((sectionId: string) => {
+    if (manualNavTimerRef.current) {
+      window.clearTimeout(manualNavTimerRef.current);
+    }
+
+    const startedAt = Date.now();
+    const maxWaitMs = 2200;
+    const targetOffset = 96;
+    const tolerancePx = 28;
+
+    const check = () => {
+      const el = document.getElementById(sectionId);
+      if (!el) {
+        manualNavLockRef.current = false;
+        return;
+      }
+
+      const distance = Math.abs(el.getBoundingClientRect().top - targetOffset);
+      const timedOut = Date.now() - startedAt > maxWaitMs;
+
+      if (distance <= tolerancePx || timedOut) {
+        manualNavLockRef.current = false;
+        return;
+      }
+
+      manualNavTimerRef.current = window.setTimeout(check, 80);
+    };
+
+    manualNavTimerRef.current = window.setTimeout(check, 120);
   }, []);
 
   useEffect(() => {
@@ -64,9 +95,10 @@ const Navbar = () => {
       if (manualNavLockRef.current) return;
 
       const sections = navItems
-        .filter((i) => i.url.startsWith('#'))
+        .filter((i) => i.url.includes('#'))
         .map((i) => {
-          const el = document.getElementById(i.url.slice(1));
+          const sectionId = i.url.split('#')[1];
+          const el = sectionId ? document.getElementById(sectionId) : null;
           return { ...i, element: el };
         })
         .filter((s) => s.element) as Array<{ name: string; url: string; element: HTMLElement }>;
@@ -120,12 +152,13 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const handleNavigation = useCallback(
-    (url: string, name: string) => {
+    (url: string, name: string, event?: MouseEvent<HTMLAnchorElement>) => {
       manualNavLockRef.current = true;
       setActiveTab(name);
       setIsMenuOpen(false);
 
-      if (!url.startsWith('#')) {
+      if (!url.includes('#')) {
+        event?.preventDefault();
         navigate(url);
         if (url === '/case-studies') {
           window.scrollTo({ top: 0, behavior: 'auto' });
@@ -134,54 +167,25 @@ const Navbar = () => {
         return;
       }
 
-      const sectionId = url.slice(1);
-
-      // Force all lazy sections to render immediately (so their real heights
-      // are in the DOM), then poll until the page height stops changing before
-      // doing a single smooth scroll. This prevents the visible "wrong section
-      // first, then jump" caused by placeholder divs being 200px each.
-      const scrollWhenStable = () => {
-        window.dispatchEvent(new CustomEvent('navForceLoad'));
-
-        let lastScrollHeight = document.body.scrollHeight;
-        let stableCount = 0;
-        let attempts = 0;
-
-        const poll = () => {
-          const currentScrollHeight = document.body.scrollHeight;
-          attempts++;
-
-          if (currentScrollHeight !== lastScrollHeight) {
-            stableCount = 0; // sections are still expanding
-          } else {
-            stableCount++;
-          }
-          lastScrollHeight = currentScrollHeight;
-
-          // stableCount >= 4 means 200ms of no layout change → sections settled.
-          // Fall back after 3 seconds (60 × 50ms) so we always scroll eventually.
-          if (stableCount >= 4 || attempts >= 60) {
-            const el = document.getElementById(sectionId);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            releaseManualNav(1200);
-          } else {
-            setTimeout(poll, 50);
-          }
-        };
-
-        // Two rAF passes let React flush the navForceLoad state updates to the DOM
-        // before we start measuring heights.
-        requestAnimationFrame(() => requestAnimationFrame(poll));
-      };
+      event?.preventDefault();
+      const sectionId = url.split('#')[1];
+      if (!sectionId) return;
 
       if (location.pathname !== '/') {
         navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
-        releaseManualNav(300);
+        releaseManualNav(1200);
       } else {
-        scrollWhenStable();
+        window.dispatchEvent(new CustomEvent('navForceLoad'));
+        window.setTimeout(() => {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          releaseManualNavWhenSectionReached(sectionId);
+        }, 80);
       }
     },
-    [navigate, location.pathname, releaseManualNav],
+    [navigate, location.pathname, releaseManualNav, releaseManualNavWhenSectionReached],
   );
 
   const handleBookCall = useCallback(() => {
@@ -193,13 +197,14 @@ const Navbar = () => {
     <header className="fixed top-4 left-0 right-0 z-50">
       <nav className="max-w-7xl mx-auto flex items-center justify-between h-16 lg:h-16 px-6 sm:px-8">
         {/* Logo */}
-        <button
-          onClick={() => handleNavigation('#home', 'Home')}
+        <a
+          href="/#home"
+          onClick={(event) => handleNavigation('/#home', 'Home', event)}
           aria-label="Go to Home"
           className="flex items-center focus:outline-none"
         >
           <Logo />
-        </button>
+        </a>
 
         {/* Desktop Nav */}
         <div className="hidden lg:flex flex-1 justify-center">
@@ -207,11 +212,12 @@ const Navbar = () => {
             {navItems.map((item) => {
               const isActive = activeTab === item.name;
               return (
-                <button
+                <a
                   key={item.name}
-                  onClick={() => handleNavigation(item.url, item.name)}
+                  href={item.url}
+                  onClick={(event) => handleNavigation(item.url, item.name, event)}
                   className={cn(
-                    'relative cursor-pointer text-sm font-semibold px-4 py-2 rounded-full transition-colors min-h-[44px]',
+                    'relative cursor-pointer text-sm font-semibold px-4 py-2 rounded-full transition-colors min-h-[44px] inline-flex items-center',
                     'text-gray-400 hover:text-white',
                     isActive && 'text-white',
                   )}
@@ -231,7 +237,7 @@ const Navbar = () => {
                       </div>
                     </motion.div>
                   )}
-                </button>
+                </a>
               );
             })}
           </div>
@@ -253,7 +259,7 @@ const Navbar = () => {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen}
           className="lg:hidden p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
         >
@@ -300,10 +306,11 @@ const Navbar = () => {
                 {/* Nav Items */}
                 <div className="flex flex-col space-y-4 pt-20 h-full justify-start">
                   {navItems.map((item) => (
-                    <button
+                    <a
                       key={item.name}
-                      onClick={() => handleNavigation(item.url, item.name)}
-                      className={`text-lg font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
+                      href={item.url}
+                      onClick={(event) => handleNavigation(item.url, item.name, event)}
+                      className={`block text-lg font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
                         activeTab === item.name ? 'text-white bg-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
@@ -315,7 +322,7 @@ const Navbar = () => {
                           <div className="absolute w-4 h-4 bg-blue-500/20 rounded-full blur-sm top-0 left-2" />
                         </div>
                       )}
-                    </button>
+                    </a>
                   ))}
 
                   <motion.button

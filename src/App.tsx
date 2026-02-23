@@ -24,14 +24,6 @@ const LoadingFallback = () => (
 const AppContent: React.FC = () => {
   const location = useLocation();
 
-  React.useEffect(() => {
-    // Reveal the app as soon as it mounts
-    requestAnimationFrame(() => {
-      document.body.classList.remove('loading');
-      document.body.classList.add('loaded');
-    });
-  }, []);
-
   return (
     <>
       <Head location={location} />
