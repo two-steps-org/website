@@ -5,7 +5,7 @@ function DemoSites() {
   const demoSiteUrl = import.meta.env.VITE_DEMO_SITE_URL || 'http://localhost:3000';
 
   useEffect(() => {
-    window.location.href = demoSiteUrl;
+     window.location.replace(demoSiteUrl);  
   }, [demoSiteUrl]);
 
   return (
