@@ -19,12 +19,6 @@ const routes: SitemapUrl[] = [
     lastmod: new Date().toISOString(),
     changefreq: 'weekly',
     priority: 1.0
-  },
-  {
-    loc: `${SITE_URL}/case-studies`,
-    lastmod: new Date().toISOString(),
-    changefreq: 'weekly',
-    priority: 0.8
   }
 ];
 

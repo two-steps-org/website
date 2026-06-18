@@ -77,9 +77,9 @@ const Hero: React.FC = () => {
               </span>
             </button>
 
-            <Link to="/case-studies" className="w-full sm:w-auto">
+            <Link to="/demo-sites" className="w-full sm:w-auto">
               <button className="w-full px-8 min-h-[56px] rounded-xl font-bold border border-white/10 text-white hover:border-blue-500/50 hover:bg-blue-500/5 active:scale-95 transition-all duration-300 backdrop-blur-sm">
-                Case Studies
+                Demo Sites
               </button>
             </Link>
           </div>

@@ -4,7 +4,6 @@ import { join } from 'node:path';
 
 const HTML_FILES = [
   join('dist', 'index.html'),
-  join('dist', 'case-studies', 'index.html'),
 ];
 
 // Keep only critical app shell preloads on first response.

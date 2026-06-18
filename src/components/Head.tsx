@@ -25,10 +25,10 @@ const getPageMetadata = (pathname: string) => {
         'Two Steps AI - Transforming Business Through AI. We help businesses leverage artificial intelligence to automate processes, improve efficiency, and drive growth.',
       type: 'WebPage',
     },
-    '/case-studies': {
-      title: 'Case Studies - Two Steps AI',
+    '/demo-sites': {
+      title: 'Demo Sites - Two Steps AI',
       description:
-        'Explore our AI case studies and see how we help businesses transform their operations with cutting-edge artificial intelligence solutions.',
+        'Explore our AI demo sites and see how we help businesses transform their operations with cutting-edge artificial intelligence solutions.',
       type: 'CollectionPage',
     },
   };
