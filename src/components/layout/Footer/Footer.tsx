@@ -61,7 +61,7 @@ const navigation: NavItem[] = [
   { label: 'Process', href: '/#process' },
   { label: 'Team', href: '/#team' },
   { label: 'Q&A', href: '/#faq' },
-  { label: 'Case Studies', href: '/case-studies' },
+  { label: 'Demo Sites', href: '/demo-sites' },
 ];
 
 const solutions: SolutionItem[] = [
@@ -197,7 +197,7 @@ const Footer: React.FC = () => {
 
     event?.preventDefault();
     navigate(href);
-    if (href === '/case-studies') {
+    if (href === '/demo-sites') {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
   };

@@ -12,9 +12,9 @@ const Home = lazyWithFallback(
   'Failed to load home page'
 );
 
-const CaseStudies = lazyWithFallback(
-  () => import('./pages/CaseStudies'),
-  'Failed to load case studies'
+const DemoSites = lazyWithFallback(
+  () => import('./pages/DemoSites'),
+  'Failed to load demo sites'
 );
 
 const LoadingFallback = () => (
@@ -33,7 +33,7 @@ const AppContent: React.FC = () => {
             <BaseLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/case-studies" element={<CaseStudies />} />
+                <Route path="/demo-sites" element={<DemoSites />} />
               </Routes>
             </BaseLayout>
           </Suspense>

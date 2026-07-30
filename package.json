@@ -14,8 +14,7 @@
   },
   "reactSnap": {
     "include": [
-      "/",
-      "/case-studies"
+      "/"
     ],
     "source": "dist",
     "destination": "dist",

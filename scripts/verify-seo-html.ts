@@ -13,7 +13,6 @@ const seoConfig = resolveSeoRuntimeConfig();
 const distRoot = path.join(process.cwd(), 'dist');
 const pages = [
   { file: 'index.html', route: '/' },
-  { file: path.join('case-studies', 'index.html'), route: '/case-studies' },
 ];
 
 function readHtml(file: string): string {
