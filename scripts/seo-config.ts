@@ -1,28 +1,13 @@
 import process from 'process';
-
-export type SeoEnv = 'production' | 'staging' | 'development';
-
-const DEFAULT_SITE_URL = 'https://twosteps.ai';
-const LOCAL_HOST_PATTERN = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i;
-
-const normalizeUrl = (value: string): string => value.replace(/\/+$/, '');
-
-function parseSeoEnv(value?: string): SeoEnv {
-  const normalized = (value ?? '').trim().toLowerCase();
-  if (normalized === 'production' || normalized === 'staging' || normalized === 'development') {
-    return normalized;
-  }
-  return 'production';
-}
-
-function isLocalhostUrl(value: string): boolean {
-  try {
-    const host = new URL(value).hostname;
-    return LOCAL_HOST_PATTERN.test(host);
-  } catch {
-    return false;
-  }
-}
+import {
+  DEFAULT_SITE_URL,
+  getRobotsDirective,
+  isLocalhostUrl,
+  LOCAL_HOST_PATTERN,
+  normalizeUrl,
+  parseSeoEnv,
+  type SeoEnv,
+} from '../src/lib/seoConstants.ts';
 
 export interface SeoRuntimeConfig {
   seoEnv: SeoEnv;
@@ -32,7 +17,7 @@ export interface SeoRuntimeConfig {
 }
 
 export function resolveSeoRuntimeConfig(): SeoRuntimeConfig {
-  const seoEnv = parseSeoEnv(process.env.SEO_ENV ?? process.env.VITE_SEO_ENV);
+  const seoEnv = parseSeoEnv(process.env.SEO_ENV ?? process.env.VITE_SEO_ENV, 'production');
   const isProduction = seoEnv === 'production';
   const rawSiteUrl = (
     process.env.SITE_URL ??
@@ -69,7 +54,7 @@ export function resolveSeoRuntimeConfig(): SeoRuntimeConfig {
     throw new Error(`Invalid production SITE_URL: "${siteUrl}". Localhost URLs are not allowed in production SEO builds.`);
   }
 
-  const robotsDirective = isProduction ? 'index,follow' : 'noindex,nofollow';
+  const robotsDirective = getRobotsDirective(isProduction);
 
   return {
     seoEnv,

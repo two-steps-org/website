@@ -1,228 +1,177 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react';
-import { motion, AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
+import clsx from 'clsx';
 import Logo from '../Logo';
-import { cn } from '../../lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BOOK_CALL_URL, navItems } from '../../data/navItems';
 
-const navItems = [
-  { name: 'Home', url: '/#home' },
-  { name: 'Services', url: '/#services' },
-  { name: 'Why Us', url: '/#why-us' },
-  { name: 'Process', url: '/#process' },
-  { name: 'Team', url: '/#team' },
-  { name: 'Q&A', url: '/#faq' },
-  { name: 'Case Studies', url: '/case-studies' },
-];
 const NAV_SCROLL_OFFSET_DESKTOP = 96;
 const NAV_SCROLL_OFFSET_MOBILE = 72;
 const normalizePath = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
 
+const getNavScrollOffset = () =>
+  window.matchMedia('(max-width: 1023px)').matches
+    ? NAV_SCROLL_OFFSET_MOBILE
+    : NAV_SCROLL_OFFSET_DESKTOP;
+
+const NavbarMobileMenu = ({
+  isMenuOpen, setIsMenuOpen, activeTab, handleNavigation, handleBookCall,
+}: {
+  isMenuOpen: boolean;
+  setIsMenuOpen: (open: boolean) => void;
+  activeTab: string;
+  handleNavigation: (url: string, name: string, event?: MouseEvent<HTMLAnchorElement>) => void;
+  handleBookCall: () => void;
+}) => (
+  <AnimatePresence>
+    {isMenuOpen && (
+      <>
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 bg-bg z-40 lg:hidden"
+          onClick={() => setIsMenuOpen(false)}
+        />
+
+        <m.div
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="fixed inset-y-0 right-0 w-full h-full bg-bg px-6 pb-6 flex flex-col z-50 lg:hidden"
+          style={{
+            paddingTop: 'max(1.5rem, env(safe-area-inset-top))',
+            paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <a
+              href="/#home"
+              onClick={(event) => handleNavigation('/#home', 'Home', event)}
+              aria-label="Go to Home"
+              className="flex items-center focus:outline-none"
+            >
+              <Logo />
+            </a>
+
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              aria-label="Close menu"
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full border border-line-strong text-ink transition-colors hover:bg-surface"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Oversized type, hairline rules — the design's full-screen menu. */}
+          <div className="mt-10 flex-1 min-h-0 flex flex-col justify-between">
+            <ul className="list-none m-0 p-0 flex flex-col">
+              {navItems.map((item) => (
+                <li key={item.name} className="border-b border-line">
+                  <a
+                    href={item.url}
+                    onClick={(event) => handleNavigation(item.url, item.name, event)}
+                    className={clsx(
+                      'block py-5 text-[28px] font-medium tracking-[-0.03em] transition-colors',
+                      activeTab === item.name ? 'text-ink' : 'text-muted hover:text-ink',
+                    )}
+                  >
+                    {item.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={handleBookCall}
+              className="ts-pill mt-8 w-full h-14 text-base"
+            >
+              Book a Call
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </m.div>
+      </>
+    )}
+  </AnimatePresence>
+);
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showMobileContrastBar, setShowMobileContrastBar] = useState(false);
   const [activeTab, setActiveTab] = useState(navItems[0].name);
+  const [isOverLightBand, setIsOverLightBand] = useState(false);
   const manualNavLockRef = useRef(false);
   const manualNavTimerRef = useRef<number | null>(null);
-  const headerRef = useRef<HTMLElement | null>(null);
 
-  const getNavScrollOffset = useCallback(
-    () =>
-      window.matchMedia('(max-width: 1023px)').matches
-        ? NAV_SCROLL_OFFSET_MOBILE
-        : NAV_SCROLL_OFFSET_DESKTOP,
-    [],
-  );
-
-  const releaseManualNav = useCallback((delay = 0) => {
-    if (manualNavTimerRef.current) {
-      window.clearTimeout(manualNavTimerRef.current);
-    }
-
+  const unlockManualNav = useCallback((delay = 600) => {
+    if (manualNavTimerRef.current) window.clearTimeout(manualNavTimerRef.current);
     manualNavTimerRef.current = window.setTimeout(() => {
       manualNavLockRef.current = false;
     }, delay);
   }, []);
 
-  const releaseManualNavWhenSectionReached = useCallback((sectionId: string) => {
-    if (manualNavTimerRef.current) {
-      window.clearTimeout(manualNavTimerRef.current);
-    }
-
+  const scrollToSection = useCallback((sectionId: string) => {
     const startedAt = Date.now();
-    const maxWaitMs = 2200;
-    const targetOffset = getNavScrollOffset();
-    const tolerancePx = 28;
 
-    const check = () => {
+    const attempt = () => {
       const el = document.getElementById(sectionId);
-      if (!el) {
-        manualNavLockRef.current = false;
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY - getNavScrollOffset();
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        unlockManualNav(800);
         return;
       }
-
-      const distance = Math.abs(el.getBoundingClientRect().top - targetOffset);
-      const timedOut = Date.now() - startedAt > maxWaitMs;
-
-      if (distance <= tolerancePx || timedOut) {
-        manualNavLockRef.current = false;
+      if (Date.now() - startedAt < 2200) {
+        window.setTimeout(attempt, 80);
         return;
       }
-
-      manualNavTimerRef.current = window.setTimeout(check, 80);
+      manualNavLockRef.current = false;
     };
 
-    manualNavTimerRef.current = window.setTimeout(check, 120);
-  }, [getNavScrollOffset]);
+    attempt();
+  }, [unlockManualNav]);
 
-  const scrollToSectionWhenReady = useCallback(
-    (sectionId: string) => {
-      const startedAt = Date.now();
-      const maxWaitMs = 2200;
-
-      const tryScroll = () => {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const offset = getNavScrollOffset();
-          const sectionTop = el.getBoundingClientRect().top + window.scrollY;
-          const targetTop = Math.max(0, sectionTop - offset);
-          window.scrollTo({ top: targetTop, behavior: 'smooth' });
-          releaseManualNavWhenSectionReached(sectionId);
-          return;
-        }
-
-        if (Date.now() - startedAt > maxWaitMs) {
-          manualNavLockRef.current = false;
-          return;
-        }
-
-        window.dispatchEvent(new CustomEvent('navForceLoad'));
-        window.setTimeout(tryScroll, 80);
-      };
-
-      tryScroll();
-    },
-    [getNavScrollOffset, releaseManualNavWhenSectionReached],
-  );
-
-  useEffect(() => {
-    return () => {
-      if (manualNavTimerRef.current) {
-        window.clearTimeout(manualNavTimerRef.current);
-      }
-    };
+  useEffect(() => () => {
+    if (manualNavTimerRef.current) window.clearTimeout(manualNavTimerRef.current);
   }, []);
 
   useEffect(() => {
-    if (!isMenuOpen) return;
-    if (!window.matchMedia('(max-width: 1023px)').matches) return;
-
-    const body = document.body;
-    const html = document.documentElement;
-
-    const previousBodyOverflow = body.style.overflow;
-    const previousHtmlOverflow = html.style.overflow;
-    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
-
-    html.style.overflow = 'hidden';
-    html.style.overscrollBehavior = 'none';
-    body.style.overflow = 'hidden';
-
-    return () => {
-      html.style.overflow = previousHtmlOverflow;
-      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
-      body.style.overflow = previousBodyOverflow;
-    };
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    if (!window.matchMedia('(max-width: 1023px)').matches) {
-      setShowMobileContrastBar(false);
-      return;
-    }
-
-    const header = headerRef.current;
-    const footer = document.querySelector('footer');
-    if (!header || !footer) return;
-
-    let rafId = 0;
-    const updateContrastState = () => {
-      rafId = 0;
-      const headerRect = header.getBoundingClientRect();
-      const footerRect = footer.getBoundingClientRect();
-      const navBottomAbs = window.scrollY + headerRect.bottom;
-      const footerTopAbs = window.scrollY + footerRect.top;
-      const shouldShow = navBottomAbs >= footerTopAbs && footerRect.bottom > 0;
-      setShowMobileContrastBar((prev) => (prev === shouldShow ? prev : shouldShow));
-    };
-
-    const onScrollOrResize = () => {
-      if (rafId) return;
-      rafId = window.requestAnimationFrame(updateContrastState);
-    };
-
-    updateContrastState();
-    window.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize);
-
-    return () => {
-      if (rafId) {
-        window.cancelAnimationFrame(rafId);
-      }
-      window.removeEventListener('scroll', onScrollOrResize);
-      window.removeEventListener('resize', onScrollOrResize);
-    };
-  }, [location.pathname]);
-
-  useEffect(() => {
     if (normalizePath(location.pathname) === '/') return;
-
-    const currentPath = normalizePath(location.pathname);
-    const matched = navItems.find((item) => normalizePath(item.url) === currentPath);
-    if (matched) {
-      setActiveTab(matched.name);
-    } else {
-      setActiveTab(navItems[0].name);
-    }
+    const matched = navItems.find((item) => normalizePath(item.url) === normalizePath(location.pathname));
+    setActiveTab(matched?.name ?? navItems[0].name);
   }, [location.pathname]);
 
   useEffect(() => {
     if (location.pathname !== '/') return;
 
     let ticking = false;
-
     const updateActiveFromScroll = () => {
       if (manualNavLockRef.current) return;
 
       const sections = navItems
-        .filter((i) => i.url.includes('#'))
-        .map((i) => {
-          const sectionId = i.url.split('#')[1];
-          const el = sectionId ? document.getElementById(sectionId) : null;
-          return { ...i, element: el };
+        .filter((item) => item.url.includes('#'))
+        .map((item) => {
+          const sectionId = item.url.split('#')[1];
+          const element = sectionId ? document.getElementById(sectionId) : null;
+          return element ? { name: item.name, element } : null;
         })
-        .filter((s) => s.element) as Array<{ name: string; url: string; element: HTMLElement }>;
+        .filter(Boolean) as Array<{ name: string; element: HTMLElement }>;
 
       if (!sections.length) return;
 
-      // Switch at section start: as soon as the section's top crosses the
-      // fixed-navbar line, mark it active.
-      const navOffset = getNavScrollOffset();
-      const triggerY = window.scrollY + navOffset;
+      const triggerY = window.scrollY + getNavScrollOffset();
       let active = sections[0];
-
       for (const section of sections) {
         const sectionTop = section.element.getBoundingClientRect().top + window.scrollY;
-        if (sectionTop <= triggerY) {
-          active = section;
-        } else {
-          break;
-        }
+        if (sectionTop <= triggerY) active = section;
+        else break;
       }
 
       setActiveTab((prev) => (prev === active.name ? prev : active.name));
@@ -238,240 +187,195 @@ const Navbar = () => {
     };
 
     updateActiveFromScroll();
-    const t1 = window.setTimeout(updateActiveFromScroll, 120);
-    const t2 = window.setTimeout(updateActiveFromScroll, 400);
-
-    const onNavForceLoad = () => onScrollOrResize();
-
     window.addEventListener('scroll', onScrollOrResize, { passive: true });
     window.addEventListener('resize', onScrollOrResize);
-    window.addEventListener('navForceLoad', onNavForceLoad);
 
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
       window.removeEventListener('scroll', onScrollOrResize);
       window.removeEventListener('resize', onScrollOrResize);
-      window.removeEventListener('navForceLoad', onNavForceLoad);
     };
-  }, [getNavScrollOffset, location.pathname]);
+  }, [location.pathname]);
 
   const handleNavigation = useCallback(
     (url: string, name: string, event?: MouseEvent<HTMLAnchorElement>) => {
       manualNavLockRef.current = true;
       setActiveTab(name);
       setIsMenuOpen(false);
+      event?.preventDefault();
 
       if (!url.includes('#')) {
-        event?.preventDefault();
         navigate(url);
-        if (url === '/case-studies') {
-          window.scrollTo({ top: 0, behavior: 'auto' });
-        }
-        releaseManualNav(250);
+        if (url === '/case-studies') window.scrollTo({ top: 0, behavior: 'auto' });
+        unlockManualNav(250);
         return;
       }
 
-      event?.preventDefault();
       const sectionId = url.split('#')[1];
       if (!sectionId) return;
 
       if (location.pathname !== '/') {
         navigate('/', { state: { targetSection: sectionId, isSectionNav: true } });
-        releaseManualNav(1200);
-      } else {
-        window.dispatchEvent(new CustomEvent('navForceLoad'));
-        if (window.matchMedia('(max-width: 1023px)').matches) {
-          scrollToSectionWhenReady(sectionId);
-        } else {
-          window.setTimeout(() => {
-            const el = document.getElementById(sectionId);
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            releaseManualNavWhenSectionReached(sectionId);
-          }, 80);
-        }
+        unlockManualNav(1200);
+        return;
       }
+
+      scrollToSection(sectionId);
     },
-    [navigate, location.pathname, releaseManualNav, releaseManualNavWhenSectionReached, scrollToSectionWhenReady],
+    [location.pathname, navigate, scrollToSection, unlockManualNav],
   );
 
+  useEffect(() => {
+    if (!isMenuOpen || !window.matchMedia('(max-width: 1023px)').matches) return;
+
+    const { body, documentElement: html } = document;
+    const previousBodyOverflow = body.style.overflow;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousHtmlOverscrollBehavior = html.style.overscrollBehavior;
+
+    html.style.overflow = 'hidden';
+    html.style.overscrollBehavior = 'none';
+    body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      html.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [isMenuOpen]);
+
   const handleBookCall = useCallback(() => {
-    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
+    window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
     setIsMenuOpen(false);
   }, []);
 
+  // Nav duality: the design flips the pill to its light treatment whenever a
+  // [data-band="light"] section crosses the nav line, so it stays readable over
+  // the #fafafa bands. Mirrors paintNav() in the Claude Design artboard.
+  useEffect(() => {
+    const NAV_LINE = 44;
+    let ticking = false;
+
+    const paintNav = () => {
+      const bands = document.querySelectorAll('[data-band="light"]');
+      let light = false;
+      for (const band of bands) {
+        const rect = band.getBoundingClientRect();
+        if (rect.top <= NAV_LINE && rect.bottom >= NAV_LINE) {
+          light = true;
+          break;
+        }
+      }
+      setIsOverLightBand((prev) => (prev === light ? prev : light));
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        paintNav();
+        ticking = false;
+      });
+    };
+
+    paintNav();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [location.pathname]);
+
   return (
-    <header ref={headerRef} className="fixed top-4 left-0 right-0 z-50">
-      {showMobileContrastBar && (
-        <div className="absolute inset-x-0 -top-4 h-24 lg:hidden pointer-events-none bg-gradient-to-b from-black/90 via-black/65 to-transparent backdrop-blur-md" />
-      )}
-      <nav className="relative max-w-7xl mx-auto flex items-center justify-between h-16 lg:h-16 px-6 sm:px-8">
-        {/* Logo */}
+    <>
+      <header
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center px-mobile pointer-events-none"
+      style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))', paddingBottom: '16px' }}
+    >
+      {/* Centred glass pill. pointer-events are re-enabled on the pill itself so
+          the transparent gutter beside it stays click-through. */}
+      <nav
+        aria-label="Primary"
+        className={clsx(
+          'pointer-events-auto w-full max-w-[920px] h-[60px] flex items-center justify-between gap-6',
+          'rounded-full pl-5 pr-2 shadow-[var(--shadow-sm)] backdrop-blur-[20px]',
+          'transition-[background-color,border-color,color] duration-300',
+          isOverLightBand
+            ? 'bg-[rgba(250,250,250,0.72)] border border-[rgba(0,0,0,0.08)] text-[#0a0a0a]'
+            : 'ts-glass text-ink',
+        )}
+      >
         <a
           href="/#home"
           onClick={(event) => handleNavigation('/#home', 'Home', event)}
           aria-label="Go to Home"
-          className="flex items-center focus:outline-none"
+          className="flex items-center focus:outline-none shrink-0"
         >
-          <Logo />
+          <Logo className="h-6" />
         </a>
 
-        {/* Desktop Nav */}
-        <div className="hidden lg:flex flex-1 justify-center">
-          <div className="flex items-center gap-6 bg-gray-900/50 border border-gray-800/50 backdrop-blur-lg py-2 px-2 rounded-full shadow-lg">
-            {navItems.map((item) => {
-              const isActive = activeTab === item.name;
-              return (
-                <a
-                  key={item.name}
-                  href={item.url}
-                  onClick={(event) => handleNavigation(item.url, item.name, event)}
-                  className={cn(
-                    'relative cursor-pointer text-sm font-semibold px-4 py-2 rounded-full transition-colors min-h-[44px] inline-flex items-center',
-                    'text-gray-400 hover:text-white',
-                    isActive && 'text-white',
-                  )}
-                >
-                  <span className="hidden md:inline">{item.name}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="lamp"
-                      className="absolute inset-0 w-full bg-blue-500/5 rounded-full -z-10"
-                      initial={false}
-                      transition={{ type: 'tween', duration: 0.08, ease: 'easeOut' }}
-                    >
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-500 rounded-t-full">
-                        <div className="absolute w-12 h-6 bg-blue-500/20 rounded-full blur-md -top-2 -left-2" />
-                        <div className="absolute w-8 h-6 bg-blue-500/20 rounded-full blur-md -top-1" />
-                        <div className="absolute w-4 h-4 bg-blue-500/20 rounded-full blur-sm top-0 left-2" />
-                      </div>
-                    </motion.div>
-                  )}
-                </a>
-              );
-            })}
-          </div>
-        </div>
+        <ul className="hidden lg:flex items-center gap-6 list-none m-0 p-0">
+          {navItems.map((item) => (
+            <li key={item.name}>
+              <a
+                href={item.url}
+                onClick={(event) => handleNavigation(item.url, item.name, event)}
+                className={clsx(
+                  'inline-flex items-center min-h-[44px] text-sm font-medium transition-colors',
+                  isOverLightBand
+                    ? activeTab === item.name
+                      ? 'text-[#0a0a0a]'
+                      : 'text-[#6b6b6b] hover:text-[#0a0a0a]'
+                    : activeTab === item.name
+                      ? 'text-ink'
+                      : 'text-muted hover:text-ink',
+                )}
+              >
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
 
-        {/* CTA (Desktop) */}
-        <div className="hidden lg:flex">
-          <motion.button
+        <div className="flex items-center gap-2">
+          <button
             onClick={handleBookCall}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-lg text-sm font-medium shadow hover:shadow-blue-500/25 transition-all flex items-center gap-2"
+            className={clsx(
+              'ts-pill hidden lg:inline-flex h-11 px-[18px] text-sm',
+              isOverLightBand && 'bg-[#0a0a0a] text-white',
+            )}
           >
             Book a Call
-            <ArrowRight className="w-4 h-4" />
-          </motion.button>
+          </button>
+
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMenuOpen}
+            className={clsx(
+              'lg:hidden flex items-center justify-center w-11 h-11 rounded-full border transition-colors',
+              isOverLightBand
+                ? 'border-[rgba(0,0,0,0.16)] text-[#0a0a0a] hover:bg-black/5'
+                : 'border-line-strong text-ink hover:bg-surface',
+            )}
+          >
+            {isMenuOpen ? <X className="w-[18px] h-[18px]" /> : <Menu className="w-[18px] h-[18px]" />}
+          </button>
         </div>
-
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={isMenuOpen}
-          className="lg:hidden p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
-        >
-          {isMenuOpen ? (
-            <X className="w-6 h-6 text-white" />
-          ) : (
-            <Menu className="w-6 h-6 text-white" />
-          )}
-        </button>
       </nav>
+      </header>
 
-      {/* Mobile Menu */}
-      <LazyMotion features={domAnimation}>
-        <AnimatePresence>
-          {isMenuOpen && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="fixed inset-0 bg-black z-40 lg:hidden"
-                onClick={() => setIsMenuOpen(false)}
-              />
-
-              {/* Drawer Panel */}
-              <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="fixed inset-y-0 right-0 w-full h-full bg-black p-6 flex flex-col z-50 lg:hidden"
-              >
-                <div className="flex items-center justify-between">
-                  <a
-                    href="/#home"
-                    onClick={(event) => handleNavigation('/#home', 'Home', event)}
-                    aria-label="Go to Home"
-                    className="flex items-center focus:outline-none"
-                  >
-                    <Logo />
-                  </a>
-
-                  <button
-                    onClick={() => setIsMenuOpen(false)}
-                    aria-label="Close menu"
-                    className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px]"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
-                </div>
-
-                {/* Nav Items */}
-                <div className="mt-6 flex-1 min-h-0 flex flex-col">
-                  <div className="flex flex-col gap-3.5">
-                    {navItems.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.url}
-                        onClick={(event) => handleNavigation(item.url, item.name, event)}
-                        className={`group block text-base font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px] ${
-                          activeTab === item.name ? 'text-white bg-white/5' : 'text-gray-400 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        <span className="relative inline-flex items-center">
-                          <span className="relative inline-block">
-                            {item.name}
-                            {activeTab === item.name && (
-                              <span className="absolute left-0 right-0 -bottom-1 h-[2px] bg-blue-500 rounded-full">
-                              </span>
-                            )}
-                          </span>
-                          <ArrowRight
-                            className={`w-4 h-4 ml-2 text-white transform transition-all duration-300 ${
-                              activeTab === item.name
-                                ? 'opacity-100 translate-x-0'
-                                : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0'
-                            }`}
-                          />
-                        </span>
-                      </a>
-                    ))}
-                  </div>
-
-                  <motion.button
-                    onClick={handleBookCall}
-                    whileTap={{ scale: 0.98 }}
-                    className="mt-6 w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 shadow hover:shadow-purple-500/25 transition-all min-h-[48px]"
-                  >
-                    <span>Book a Call</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </LazyMotion>
-    </header>
+      {/* Sits outside the header: the header is pointer-events-none so the
+          gutter beside the pill stays click-through, and the menu must not
+          inherit that. */}
+      <NavbarMobileMenu
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        activeTab={activeTab}
+        handleNavigation={handleNavigation}
+        handleBookCall={handleBookCall}
+      />
+    </>
   );
 };
 

@@ -4,8 +4,8 @@ import { FileCode, Cloud, Lock } from 'lucide-react';
 import CardContainer from '../shared/CardContainer';
 
 const fileTypes = [
-  { name: 'JSON', icon: FileCode, color: 'text-emerald-400' },
-  { name: 'API', icon: Cloud, color: 'text-blue-400' },
+  { name: 'JSON', icon: FileCode, color: 'text-status-success' },
+  { name: 'API', icon: Cloud, color: 'text-ink' },
 ];
 
 // --- Sub-component: Infinite Scrolling Data Row ---
@@ -16,7 +16,7 @@ const DataStreamRow = ({ y, speed, opacity, content }: { y: string; speed: numbe
       style={{ top: y, opacity }}
     >
       <div
-        className="flex whitespace-nowrap font-mono text-[10px] text-emerald-500/80 select-none animate-marquee"
+        className="flex whitespace-nowrap font-mono text-[10px] text-status-success select-none animate-marquee"
         style={{ animationDuration: `${speed}s` }}
       >
         {/* Render content twice to ensure no gaps during the loop */}
@@ -27,14 +27,14 @@ const DataStreamRow = ({ y, speed, opacity, content }: { y: string; speed: numbe
   );
 };
 
-const DataEncryptionCard: React.FC<{ className?: string }> = ({ className }) => {
+const DataEncryptionCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
   return (
-    <CardContainer className={className}>
+    <CardContainer className={className} index={index}>
       <div className="flex flex-col h-full relative z-10 overflow-hidden">
         
         {/* Header Section */}
         <div className="mb-4">
-          <div className="bento-card-title bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <div className="bento-card-title text-ink">
             Data Encryption
           </div>
         </div>
@@ -46,17 +46,17 @@ const DataEncryptionCard: React.FC<{ className?: string }> = ({ className }) => 
           <div className="flex flex-col gap-3 z-20">
             {fileTypes.map((file, idx) => (
               <m.div
-                key={idx}
+                key={file.name}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.2 }}
-                className="w-12 h-12 bg-gray-950 border border-white/[0.08] rounded-lg flex flex-col items-center justify-center gap-1 relative shadow-lg group"
+                className="w-12 h-12 bg-bg border border-white/[0.08] rounded-lg flex flex-col items-center justify-center gap-1 relative shadow-lg group"
               >
                 {/* Corner Fold */}
                 <div className="absolute -top-[1px] -right-[1px] w-0 h-0 border-l-[8px] border-l-transparent border-b-[8px] border-b-white/[0.08] border-r-[8px] border-r-transparent rounded-br-lg" />
                 
                 <file.icon className={`w-4 h-4 ${file.color} group-hover:scale-110 transition-transform duration-300`} />
-                <span className="text-[7px] font-mono font-semibold text-gray-500 group-hover:text-gray-300 transition-colors">
+                <span className="text-[7px] font-mono font-semibold text-muted group-hover:text-muted transition-colors">
                   {file.name}
                 </span>
               </m.div>
@@ -64,10 +64,10 @@ const DataEncryptionCard: React.FC<{ className?: string }> = ({ className }) => 
           </div>
 
           {/* Center: Encryption Barrier (Vertical Line) */}
-          <div className="h-full w-px bg-gradient-to-b from-transparent via-blue-500/50 to-transparent relative mx-2">
+          <div className="h-full w-px bg-gradient-to-b from-transparent  to-transparent relative mx-2">
             {/* Laser Scanner */}
             <m.div 
-              className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-blue-400 blur-[2px]"
+              className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-ink blur-[2px]"
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             />
@@ -75,21 +75,21 @@ const DataEncryptionCard: React.FC<{ className?: string }> = ({ className }) => 
             {/* Central Lock */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
               <m.div
-                className="w-10 h-10 rounded-full bg-gray-950 border border-blue-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                className="w-10 h-10 rounded-full bg-bg border border-line-strong flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]"
                 animate={{ 
                   boxShadow: ['0 0 15px rgba(59,130,246,0.2)', '0 0 25px rgba(59,130,246,0.5)', '0 0 15px rgba(59,130,246,0.2)'],
                   borderColor: ['rgba(59,130,246,0.3)', 'rgba(59,130,246,0.6)', 'rgba(59,130,246,0.3)'],
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Lock className="w-4 h-4 text-blue-400" />
+                <Lock className="w-4 h-4 text-ink" />
               </m.div>
             </div>
           </div>
 
           {/* Right: Encrypted Data Stream Background */}
-          <div className="flex-1 h-full relative overflow-hidden rounded-lg border border-white/[0.05] bg-gray-950/50 mask-linear-fade">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-900/5 to-emerald-900/20" />
+          <div className="flex-1 h-full relative overflow-hidden rounded-lg border border-white/[0.05] bg-bg/50 mask-linear-fade">
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent  " />
              
              {/* Data Rows */}
              <div className="flex flex-col justify-center h-full gap-4 py-2">

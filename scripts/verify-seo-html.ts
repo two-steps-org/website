@@ -3,6 +3,7 @@ import path from 'path';
 import process from 'process';
 import { JSDOM } from 'jsdom';
 import { assertAbsoluteNonLocalhostUrl, resolveSeoRuntimeConfig } from './seo-config';
+import { distHtmlPath, SITE_ROUTES } from './routes.mjs';
 
 interface CheckResult {
   file: string;
@@ -11,10 +12,10 @@ interface CheckResult {
 
 const seoConfig = resolveSeoRuntimeConfig();
 const distRoot = path.join(process.cwd(), 'dist');
-const pages = [
-  { file: 'index.html', route: '/' },
-  { file: path.join('case-studies', 'index.html'), route: '/case-studies' },
-];
+const pages = SITE_ROUTES.map((route) => ({
+  file: distHtmlPath(route).replace(/^dist\//, ''),
+  route,
+}));
 
 function readHtml(file: string): string {
   const fullPath = path.join(distRoot, file);

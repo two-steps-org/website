@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { resolveSeoRuntimeConfig } from './seo-config';
+import { SITE_ROUTES } from './routes.mjs';
 
 const seoConfig = resolveSeoRuntimeConfig();
 const SITE_URL = seoConfig.siteUrl;
@@ -13,20 +14,12 @@ interface SitemapUrl {
   priority: number;
 }
 
-const routes: SitemapUrl[] = [
-  {
-    loc: `${SITE_URL}/`,
-    lastmod: new Date().toISOString(),
-    changefreq: 'weekly',
-    priority: 1.0
-  },
-  {
-    loc: `${SITE_URL}/case-studies`,
-    lastmod: new Date().toISOString(),
-    changefreq: 'weekly',
-    priority: 0.8
-  }
-];
+const routes: SitemapUrl[] = SITE_ROUTES.map((route, index) => ({
+  loc: route === '/' ? `${SITE_URL}/` : `${SITE_URL}${route}`,
+  lastmod: new Date().toISOString(),
+  changefreq: 'weekly' as const,
+  priority: index === 0 ? 1.0 : 0.8,
+}));
 
 function generateSitemapXml(urls: SitemapUrl[]): string {
   const urlSet = urls

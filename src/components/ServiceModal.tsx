@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, memo } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
@@ -15,6 +15,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import clsx from 'clsx';
+import ModalHeader from './common/Modal/ModalHeader';
 import { hapticFeedback } from '../utils/mobile/hapticFeedback';
 
 interface ServiceModalProps {
@@ -22,7 +23,6 @@ interface ServiceModalProps {
   onClose: () => void;
   service: {
     title: string;
-    gradient: string;
     details: {
       features: string[];
       benefits: string[];
@@ -43,11 +43,6 @@ const icons: Record<string, LucideIcon> = {
 const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, onBookCall }) => {
   const deviceType = useDeviceType();
   const isMobile = deviceType === 'mobile';
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock background scroll while modal is open on all devices
   useEffect(() => {
@@ -65,31 +60,18 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
     }
   }, [isOpen]);
 
-  if (!mounted || !service) return null;
+  if (!service) return null;
 
   const Icon = icons[service.title] || MessageSquareText;
-
-  // Map gradient to scrollbar style
-  const getScrollbarStyle = (gradient?: string) => {
-    if (!gradient) return '';
-    if (gradient.includes('blue')) return 'modal-scrollbar-blue';
-    if (gradient.includes('purple')) return 'modal-scrollbar-purple';
-    if (gradient.includes('green')) return 'modal-scrollbar-green';
-    if (gradient.includes('amber')) return 'modal-scrollbar-amber';
-    if (gradient.includes('orange')) return 'modal-scrollbar-orange';
-    if (gradient.includes('pink')) return 'modal-scrollbar-pink';
-    if (gradient.includes('cyan')) return 'modal-scrollbar-cyan';
-    return '';
-  };
 
   // 2026 Design Refresh for Modal Content - Optimized for Mobile Density
   const Content = (
     <div className="space-y-5">
       {/* Extended Description */}
       {service.details.extendedDescription && (
-        <div className="relative overflow-hidden p-4 rounded-xl bg-gray-900/50 border border-gray-800/50">
-          <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-50", service.gradient)} />
-          <p className="text-gray-300 text-sm leading-relaxed">
+        <div className="relative overflow-hidden p-4 rounded-xl ts-card">
+          <div className="absolute top-0 left-0 w-full h-px bg-line-strong" />
+          <p className="text-muted text-sm leading-relaxed">
             {service.details.extendedDescription}
           </p>
         </div>
@@ -98,17 +80,17 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
       {/* Features Section */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 px-1">
-          <div className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-[0.15em]">What's Included</h4>
+          <div className="w-1 h-1 rounded-full bg-ink" />
+          <h4 className="text-xs font-bold text-muted uppercase tracking-[0.15em]">What's Included</h4>
         </div>
         
         <div className="grid gap-2">
-          {service.details.features.map((feature, idx) => (
-            <div key={idx} className="group flex items-start gap-3 p-3 rounded-xl bg-gray-900/50 border border-gray-800/50 hover:bg-gray-900/60 transition-colors">
-              <div className={clsx("mt-0.5 p-0.5 rounded-full bg-white/5 shrink-0", service.gradient.replace('from-', 'text-').split(' ')[0])}>
+          {service.details.features.map((feature) => (
+            <div key={feature} className="group flex items-start gap-3 p-3 rounded-xl ts-card hover:bg-surface transition-colors">
+              <div className="mt-0.5 p-0.5 rounded-full bg-ink/5 shrink-0 text-ink">
                 <CheckCircle2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-gray-300 text-sm font-medium leading-relaxed">{feature}</span>
+              <span className="text-muted text-sm font-medium leading-relaxed">{feature}</span>
             </div>
           ))}
         </div>
@@ -117,30 +99,30 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
       {/* Benefits Section */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 px-1">
-          <div className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-[0.15em]">Key Benefits</h4>
+          <div className="w-1 h-1 rounded-full bg-ink" />
+          <h4 className="text-xs font-bold text-muted uppercase tracking-[0.15em]">Key Benefits</h4>
         </div>
         
         <div className="grid gap-2">
-          {service.details.benefits.map((benefit, idx) => (
-            <div key={idx} className="group flex items-start gap-3 p-3 rounded-xl bg-gray-900/50 border border-gray-800/50 hover:bg-gray-900/60 transition-colors">
-              <div className={clsx("mt-0.5 p-0.5 rounded-full bg-white/5 shrink-0", service.gradient.replace('from-', 'text-').split(' ')[0])}>
+          {service.details.benefits.map((benefit) => (
+            <div key={benefit} className="group flex items-start gap-3 p-3 rounded-xl ts-card hover:bg-surface transition-colors">
+              <div className="mt-0.5 p-0.5 rounded-full bg-ink/5 shrink-0 text-ink">
                 <CheckCircle2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-gray-300 text-sm font-medium leading-relaxed">{benefit}</span>
+              <span className="text-muted text-sm font-medium leading-relaxed">{benefit}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Use Case Section */}
-      <div className="relative overflow-hidden p-4 rounded-xl bg-gray-900/50 border border-gray-800/50">
-        <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-50", service.gradient)} />
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-          <span className={clsx("w-1 h-1 rounded-full", service.gradient.replace('from-', 'bg-').split(' ')[0])} />
+      <div className="relative overflow-hidden p-4 rounded-xl ts-card">
+        <div className="absolute top-0 left-0 w-full h-px bg-line-strong" />
+        <h4 className="text-xs font-bold text-muted uppercase tracking-widest mb-2 flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-ink" />
           Ideal Solution For
         </h4>
-        <p className="text-gray-300 text-sm leading-relaxed font-medium">
+        <p className="text-muted text-sm leading-relaxed font-medium">
           "{service.details.useCase}"
         </p>
       </div>
@@ -153,16 +135,12 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
             hapticFeedback.success();
           }}
           whileTap={{ scale: 0.98 }}
-          className={clsx(
-            "w-full px-5 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 transition-all active:opacity-90", 
-            "bg-gradient-to-r",
-            service.gradient
-          )}
+          className="ts-pill w-full px-5 py-3.5 text-sm active:opacity-90"
         >
           <span>Consult an Expert</span>
           <ArrowRight className="w-4 h-4" />
         </m.button>
-        <p className="text-center text-xs text-gray-500 mt-2.5 font-medium">
+        <p className="text-center text-xs text-muted mt-2.5 font-medium">
           No commitment required • Free 30-min consultation
         </p>
       </div>
@@ -173,51 +151,34 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
     <div className="space-y-3 pb-1">
       <div
         className={clsx(
-          'relative overflow-hidden rounded-2xl border border-gray-800/60',
-          'bg-gradient-to-b from-gray-900/90 to-black/90 backdrop-blur-xl',
+          'relative overflow-hidden rounded-2xl border border-line',
+          'bg-surface backdrop-blur-xl',
         )}
       >
-        <div className={clsx("absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r opacity-70", service.gradient)} />
+        <div className="absolute top-0 left-0 w-full h-px bg-line-strong" />
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={clsx(
-                'w-10 h-10 rounded-xl bg-gradient-to-r p-[1px] shrink-0',
-                service.gradient,
-              )}
-            >
-              <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-white" />
-              </div>
+            <div className="w-10 h-10 rounded-nested border border-line-strong bg-surface-2 flex items-center justify-center shrink-0">
+              <Icon className="w-5 h-5 text-ink" />
             </div>
-            <h3
-              className={clsx(
-                'text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent truncate',
-                service.gradient,
-              )}
-            >
-              {service.title}
-            </h3>
+            <h3 className="ts-h3 text-ink truncate">{service.title}</h3>
           </div>
 
           <m.button
             onClick={onClose}
             whileTap={{ scale: 0.92 }}
-            className={clsx(
-              'p-2 rounded-lg bg-gradient-to-r transition-opacity shrink-0',
-              service.gradient,
-            )}
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border border-line-strong text-ink hover:bg-ink/10 transition-colors shrink-0"
             aria-label="Close modal"
           >
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-ink" />
           </m.button>
         </div>
       </div>
 
       <div
         className={clsx(
-          'relative overflow-hidden rounded-2xl border border-gray-800/50',
-          'bg-gradient-to-b from-gray-900/80 to-black/80 backdrop-blur-xl p-4',
+          'relative overflow-hidden rounded-2xl border border-line',
+          'bg-surface backdrop-blur-xl p-4',
         )}
       >
         {Content}
@@ -234,7 +195,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
           />
 
           {isMobile ? (
@@ -243,10 +204,7 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
               transition={{ duration: 0.22 }}
-              className={clsx(
-                "relative w-full max-w-md mx-4 max-h-[86dvh] overflow-y-auto",
-                getScrollbarStyle(service.gradient)
-              )}
+              className="relative w-full max-w-md mx-4 max-h-[90dvh] overflow-y-auto custom-scrollbar mobile-safe-px mobile-safe-pb"
             >
               {mobileContent}
             </m.div>
@@ -258,53 +216,15 @@ const ServiceModal: React.FC<ServiceModalProps> = ({ isOpen, onClose, service, o
               transition={{ duration: 0.3 }}
               className={clsx(
                 'relative w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col',
-                'bg-gradient-to-b from-gray-900/95 to-black/95 rounded-2xl',
-                'border border-gray-800/50 backdrop-blur-xl',
+                'bg-surface rounded-card',
+                'border border-line backdrop-blur-xl',
               )}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-5 border-b border-gray-800/50">
-                <div className="flex items-center gap-4">
-                  <div
-                    className={clsx(
-                      'w-12 h-12 rounded-xl bg-gradient-to-r p-[1px]',
-                      service.gradient,
-                    )}
-                  >
-                    <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                  <h3
-                    className={clsx(
-                      'text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent',
-                      service.gradient,
-                    )}
-                  >
-                    {service.title}
-                  </h3>
-                </div>
-                <m.button
-                  onClick={onClose}
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
-                  className={clsx(
-                    'p-2 rounded-lg bg-gradient-to-r hover:opacity-90 transition-opacity',
-                    service.gradient,
-                  )}
-                  aria-label="Close modal"
-                >
-                  <X className="w-5 h-5 text-white" />
-                </m.button>
-              </div>
+              <ModalHeader title={service.title} icon={Icon} onClose={onClose} />
 
               {/* Scrollable Content */}
-              <div
-                className={clsx(
-                  "flex-1 overflow-y-auto p-5",
-                  getScrollbarStyle(service.gradient)
-                )}
-              >
+              <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
                 {Content}
               </div>
             </m.div>

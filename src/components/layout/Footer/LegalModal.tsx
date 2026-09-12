@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, memo, useRef, useState } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
+import { useReducedMotion, m, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { X, Shield, Scale, Cookie, Plus, Minus } from 'lucide-react';
+import ModalHeader from '../../common/Modal/ModalHeader';
+import { Shield, Scale, Cookie, Plus, Minus } from 'lucide-react';
 
 /** Defines the structure of each legal content section. */
 interface LegalSection {
@@ -16,7 +17,6 @@ interface LegalSection {
 interface LegalContentType {
   title: string;
   icon: React.ElementType;
-  gradient: string;
   sections: LegalSection[];
 }
 
@@ -25,7 +25,6 @@ const legalContent: Record<string, LegalContentType> = {
   privacy: {
     title: 'Privacy Policy',
     icon: Shield,
-    gradient: 'from-blue-500 to-indigo-500',
     sections: [
       {
         title: 'Information We Collect',
@@ -101,7 +100,6 @@ const legalContent: Record<string, LegalContentType> = {
   terms: {
     title: 'Terms of Service',
     icon: Scale,
-    gradient: 'from-purple-500 to-pink-500',
     sections: [
       {
         title: 'Overview of Services',
@@ -162,7 +160,6 @@ const legalContent: Record<string, LegalContentType> = {
   cookies: {
     title: 'Cookie Policy',
     icon: Cookie,
-    gradient: 'from-amber-500 to-orange-500',
     sections: [
       {
         title: 'What Are Cookies?',
@@ -241,8 +238,13 @@ interface LegalModalProps {
  * Sections are collapsible; initially collapsed with teasers visible.
  */
 const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
+  return type ? <LegalModalContent key={type} type={type} onClose={onClose} /> : null;
+};
+
+const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
+  const reduceMotion = useReducedMotion();
   const scrollRef = useRef(0);
-  const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({});
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (type) {
@@ -260,13 +262,8 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
     }
   }, [type]);
 
-  // Reset expanded state when modal type changes
-  useEffect(() => {
-    setExpandedSections({});
-  }, [type]);
-
-  const toggleSection = (index: number) => {
-    setExpandedSections((prev) => ({ ...prev, [index]: !prev[index] }));
+  const toggleSection = (sectionKey: string) => {
+    setExpandedSections((prev) => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
   };
 
   if (!type) return null;
@@ -274,7 +271,6 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
   const content = legalContent[type] || {
     title: 'Legal Content Not Found',
     icon: Shield,
-    gradient: 'from-gray-600 to-gray-900',
     sections: [],
   };
   const Icon = content.icon;
@@ -292,7 +288,7 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleBackdropClick}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
           />
 
           <m.div
@@ -301,66 +297,29 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3 }}
             className={clsx(
-              'relative w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col',
-              'bg-gradient-to-b from-gray-900/95 to-black/95 rounded-2xl',
-              'border border-gray-800/50 backdrop-blur-xl',
+              'relative w-full max-w-2xl mx-4 max-h-[90dvh] flex flex-col mobile-safe-px mobile-safe-pb',
+              'bg-surface rounded-card',
+              'border border-line backdrop-blur-xl',
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-gray-800/50">
-              <div className="flex items-center gap-4">
-                <div
-                  className={clsx(
-                    'w-12 h-12 rounded-xl bg-gradient-to-r p-[1px]',
-                    content.gradient,
-                  )}
-                >
-                  <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <h3
-                  className={clsx(
-                    'text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent',
-                    content.gradient,
-                  )}
-                >
-                  {content.title}
-                </h3>
-              </div>
-              <m.button
-                onClick={onClose}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                className={clsx(
-                  'p-2 rounded-lg bg-gradient-to-r hover:opacity-90 transition-opacity',
-                  content.gradient,
-                )}
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5 text-white" />
-              </m.button>
-            </div>
+            <ModalHeader title={content.title} icon={Icon} onClose={onClose} />
 
             {/* Instruction Text */}
-            <p className="px-5 pt-4 text-sm text-gray-400">
+            <p className="px-5 pt-4 text-sm text-muted">
               If you want to read more, click the plus sign for more information on each section.
             </p>
 
             {/* Scrollable Content */}
             <div
-              className={clsx(
-                'flex-1 overflow-y-auto p-5 space-y-4',
-                type === 'privacy' && 'legal-modal-scrollbar-privacy',
-                type === 'terms' && 'legal-modal-scrollbar-terms',
-                type === 'cookies' && 'legal-modal-scrollbar-cookies',
-              )}
+              className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar"
             > {/* Reduced p-6 space-y-4 to p-4 space-y-3 */}
               {content.sections.map((section, index) => {
-                const isExpanded = expandedSections[index] ?? false;
+                const sectionKey = `${type}-${section.title}`;
+                const isExpanded = expandedSections[sectionKey] ?? false;
                 return (
                   <m.div
-                    key={index}
+                    key={sectionKey}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -368,32 +327,28 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                   >
                     <div
                       className={clsx(
-                        'relative overflow-hidden rounded-xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50',
+                        'relative overflow-hidden rounded-xl ts-card backdrop-blur-xl',
                         isExpanded ? 'p-5' : 'p-4',
                       )}
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-lg font-bold mb-1.5 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                          <h4 className="ts-h3 mb-1.5 text-ink">
                             {section.title}
                           </h4>
-                          <p className="text-gray-400 text-sm">{section.teaser}</p>
+                          <p className="text-muted text-sm">{section.teaser}</p>
                         </div>
                         <button
                           type="button"
-                          onClick={() => toggleSection(index)}
-                          className={clsx(
-                            'shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
-                            content.gradient,
-                            'hover:opacity-90',
-                          )}
+                          onClick={() => toggleSection(sectionKey)}
+                          className="shrink-0 min-w-[44px] min-h-[44px] rounded-full border border-line-strong text-ink flex items-center justify-center transition-colors hover:bg-ink/10"
                           aria-label={isExpanded ? `Collapse ${section.title}` : `Expand ${section.title}`}
                           aria-expanded={isExpanded}
                         >
                           {isExpanded ? (
-                            <Minus className="w-5 h-5 text-white" />
+                            <Minus className="w-5 h-5 text-ink" />
                           ) : (
-                            <Plus className="w-5 h-5 text-white" />
+                            <Plus className="w-5 h-5 text-ink" />
                           )}
                         </button>
                       </div>
@@ -401,24 +356,19 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                       <AnimatePresence initial={false}>
                         {isExpanded && (
                           <m.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeInOut' }}
                             className="overflow-hidden"
                           >
-                            <ul className="mt-4 pt-4 border-t border-gray-800/50 space-y-3">
-                              {section.content.map((item, itemIndex) => (
-                                <li key={itemIndex} className="flex items-start">
+                            <ul className="mt-4 pt-4 border-t border-line space-y-3">
+                              {section.content.map((item) => (
+                                <li key={item} className="flex items-start">
                                   <div
-                                    className={clsx(
-                                      'w-1.5 h-1.5 rounded-full mt-2 mr-3 shrink-0',
-                                      type === 'privacy' && 'bg-blue-500',
-                                      type === 'terms' && 'bg-purple-500',
-                                      type === 'cookies' && 'bg-amber-500',
-                                    )}
+                                    className="w-1.5 h-1.5 rounded-full mt-2 mr-3 shrink-0 bg-line-strong"
                                   />
-                                  <p className="text-gray-300 text-sm">{item}</p>
+                                  <p className="text-muted text-sm">{item}</p>
                                 </li>
                               ))}
                             </ul>
@@ -426,13 +376,6 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                         )}
                       </AnimatePresence>
                     </div>
-                    <div
-                      className={clsx(
-                        'absolute -inset-2 bg-gradient-to-r rounded-2xl opacity-0 group-hover:opacity-10',
-                        'blur-xl transition-opacity duration-500 -z-10',
-                        content.gradient,
-                      )}
-                    />
                   </m.div>
                 );
               })}

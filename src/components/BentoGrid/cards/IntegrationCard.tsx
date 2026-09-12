@@ -1,6 +1,6 @@
 import React from 'react';
 import CardContainer from '../shared/CardContainer';
-import { useMarqueeAnimation } from '../../../utils/animations/optimized';
+import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
 
 const logosRow1 = [
   { title: "OpenAI", path: "M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z" },
@@ -26,15 +26,19 @@ const logosRow2 = [
 
 const categories = ['CRM', 'Payments', 'AI / LLM', 'Messaging', 'E-commerce', 'DevOps', 'Databases', 'Automation'];
 
-const IntegrationCard: React.FC<{ className?: string }> = ({ className }) => {
-  const enableMarquee = useMarqueeAnimation();
+const IntegrationCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
+  const deviceType = useDeviceType();
+  const enableMarquee =
+    deviceType !== 'mobile' &&
+    (typeof window === 'undefined' ||
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   return (
-    <CardContainer className={className}>
+    <CardContainer className={className} index={index}>
       <div className="flex flex-col h-full items-center justify-center text-center min-h-0 overflow-hidden">
         {/* Header */}
         <div className="mb-4 relative z-10">
-          <h3 className="bento-card-title bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-1">
+          <h3 className="bento-card-title text-ink mb-1">
             We connect to everything
           </h3>
         </div>
@@ -43,7 +47,7 @@ const IntegrationCard: React.FC<{ className?: string }> = ({ className }) => {
         <div className="flex-1 flex flex-col items-center justify-center w-full min-h-0 gap-6 relative">
 
           {/* Background Glow */}
-          <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute inset-0 bg-ink/5 blur-3xl rounded-full pointer-events-none" />
 
           {/* Marquee Container */}
           <div className="flex flex-col gap-4 w-full relative z-10 mask-linear-fade">
@@ -51,18 +55,18 @@ const IntegrationCard: React.FC<{ className?: string }> = ({ className }) => {
             {/* Row 1: Left */}
             <div className="flex overflow-hidden w-full relative">
               <div className={`flex gap-3 whitespace-nowrap ${enableMarquee ? 'animate-marquee' : ''}`}>
-                {[...logosRow1, ...logosRow1].map((logo, idx) => (
-                  <LogoNode key={`${logo.title}-${idx}`} title={logo.title} path={logo.path} />
-                ))}
+                {['original', 'repeat'].flatMap((copy) => logosRow1.map((logo) => (
+                  <LogoNode key={`${copy}-${logo.title}`} title={logo.title} path={logo.path} />
+                )))}
               </div>
             </div>
 
             {/* Row 2: Right (Reverse) */}
             <div className="flex overflow-hidden w-full relative">
               <div className={`flex gap-3 whitespace-nowrap ${enableMarquee ? 'animate-marquee-reverse' : ''}`}>
-                {[...logosRow2, ...logosRow2].map((logo, idx) => (
-                  <LogoNode key={`${logo.title}-${idx}`} title={logo.title} path={logo.path} />
-                ))}
+                {['original', 'repeat'].flatMap((copy) => logosRow2.map((logo) => (
+                  <LogoNode key={`${copy}-${logo.title}`} title={logo.title} path={logo.path} />
+                )))}
               </div>
             </div>
           </div>
@@ -70,7 +74,7 @@ const IntegrationCard: React.FC<{ className?: string }> = ({ className }) => {
           {/* Categories */}
           <div className="flex flex-wrap justify-center gap-2 px-6 relative z-10">
             {categories.map((tag) => (
-              <span key={tag} className="px-2 py-1 rounded-md bg-white/[0.03] border border-white/[0.05] text-[9px] font-mono text-gray-400 hover:bg-white/[0.06] hover:text-gray-300 transition-colors cursor-default">
+              <span key={tag} className="px-2 py-1 rounded-md bg-white/[0.03] border border-white/[0.05] text-[9px] font-mono text-muted hover:bg-white/[0.06] hover:text-muted transition-colors cursor-default">
                 {tag}
               </span>
             ))}
@@ -83,10 +87,10 @@ const IntegrationCard: React.FC<{ className?: string }> = ({ className }) => {
 
 const LogoNode = ({ title, path }: { title: string; path: string }) => (
   <div 
-    className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center flex-shrink-0 hover:bg-white/[0.08] hover:border-white/[0.1] transition-all duration-300 group cursor-default"
+    className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center flex-shrink-0 hover:bg-white/[0.08] hover:border-white/[0.1] transition-colors duration-300 group cursor-default"
     title={title}
   >
-    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-gray-500 group-hover:fill-white transition-colors duration-300">
+    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[var(--muted)] group-hover:fill-white transition-colors duration-300">
       <path d={path} />
     </svg>
   </div>

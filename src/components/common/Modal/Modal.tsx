@@ -1,19 +1,26 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import clsx from 'clsx';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '5xl';
   showCloseButton?: boolean;
-  gradient?: string;
   icon?: React.ReactNode;
-  scrollbarStyle?: string;
 }
+
+const maxWidthClasses = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
+};
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -22,9 +29,7 @@ const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'lg',
   showCloseButton = true,
-  gradient = 'from-blue-500 to-purple-500',
   icon,
-  scrollbarStyle
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const scrollPosition = useRef(0);
@@ -69,41 +74,25 @@ const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
-  // Memoized click outside handler
-  const handleClickOutside = useCallback(
-    (e: React.MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  const maxWidthClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    '2xl': 'max-w-2xl'
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center"
-          onClick={handleClickOutside}
         >
           {/* Backdrop */}
-          <m.div
+          <m.button
+            type="button"
+            aria-label="Close modal backdrop"
+            onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-bg/70 backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ink"
           />
 
           {/* Modal Container */}
-          <div className="w-full h-full flex items-center justify-center p-4 xs:p-5 sm:p-6">
+          <div className="pointer-events-none w-full h-full flex items-center justify-center p-4 mobile-safe-px mobile-safe-pb mobile-safe-pt">
             <m.div
               ref={modalRef}
               tabIndex={-1}
@@ -115,12 +104,12 @@ const Modal: React.FC<ModalProps> = ({
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3 }}
               className={`
-                relative w-full 
+                pointer-events-auto relative w-full
                 ${maxWidthClasses[maxWidth]} 
-                max-h-[90vh] flex flex-col
-                bg-gradient-to-b from-gray-900/95 to-black/95 
-                rounded-2xl
-                border border-gray-800/50 
+                max-h-[90dvh] flex flex-col
+                bg-surface 
+                rounded-card
+                border border-line 
                 backdrop-blur-xl 
                 overflow-hidden
                 will-change-transform
@@ -129,17 +118,15 @@ const Modal: React.FC<ModalProps> = ({
             >
               {/* Header */}
               {(title || showCloseButton) && (
-                <div className="sticky top-0 z-20 flex items-center justify-between p-5 border-b border-gray-800/50 bg-inherit">
+                <div className="sticky top-0 z-20 flex items-center justify-between p-5 border-b border-line bg-inherit">
                   {title && (
                     <div className="flex items-center gap-4">
                       {icon && (
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gradient} p-[1px]`}>
-                          <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                            {icon}
-                          </div>
+                        <div className="w-12 h-12 rounded-nested border border-line-strong bg-surface-2 flex items-center justify-center text-ink shrink-0">
+                          {icon}
                         </div>
                       )}
-                      <h3 id="modal-title" className={`text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent line-clamp-1`}>
+                      <h3 id="modal-title" className="ts-h3 text-ink line-clamp-2">
                         {title}
                       </h3>
                     </div>
@@ -151,19 +138,16 @@ const Modal: React.FC<ModalProps> = ({
                       aria-label="Close modal"
                       whileHover={{ scale: 1.1, rotate: 90 }}
                       whileTap={{ scale: 0.9 }}
-                      className={`p-2 rounded-lg bg-gradient-to-r ${gradient} hover:opacity-90 transition-opacity touch-manipulation`}
+                      className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border border-line-strong text-ink hover:bg-ink/10 transition-colors touch-manipulation shrink-0"
                     >
-                      <X className="w-5 h-5 text-white" />
+                      <X className="w-5 h-5 text-ink" />
                     </m.button>
                   )}
                 </div>
               )}
 
               {/* Modal Content */}
-              <div className={clsx(
-                'flex-1 overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch',
-                scrollbarStyle ? scrollbarStyle : 'custom-scrollbar'
-              )}>
+              <div className="flex-1 overflow-y-auto overscroll-contain custom-scrollbar">
                 {children}
               </div>
             </m.div>

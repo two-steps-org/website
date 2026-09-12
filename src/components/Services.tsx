@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, memo, useRef, useEffect } from 'react';
+import React, { useState, memo, useRef, useEffect, useCallback } from 'react';
 import { m } from 'framer-motion';
 import clsx from 'clsx';
 import {
@@ -8,7 +8,7 @@ import {
   Mic,
   LayoutDashboard,
   Code2,
-  Briefcase,
+
   LucideIcon,
   ChevronLeft,
   ChevronRight,
@@ -16,6 +16,8 @@ import {
 import Section from './common/Section';
 import ServiceModal from './ServiceModal';
 import { hapticFeedback } from '../utils/mobile/hapticFeedback';
+import SplitText from './common/SplitText';
+import { pop, reveal, scaleIn, STAGGER } from '../utils/motion';
 
 interface ServiceDetails {
   features: string[];
@@ -29,7 +31,6 @@ interface Service {
   icon: LucideIcon;
   title: string;
   description: string;
-  gradient: string;
   delay: number;
   featured?: boolean;
   details: ServiceDetails;
@@ -41,7 +42,6 @@ const services: Service[] = [
     icon: MessageSquareText,
     title: 'AI Chat Agents',
     description: 'Transform how you engage with customers and streamline operations using smart AI Chat Agents built just for you.',
-    gradient: 'from-purple-500 to-pink-500',
     delay: 0,
     details: {
       features: ['Text-based conversational agents', 'Task automation and workflow integration', '24/7 availability', 'Personalized responses and functionality'],
@@ -55,7 +55,6 @@ const services: Service[] = [
     icon: Mic,
     title: 'AI Voice Agents',
     description: 'Enhance customer experiences with conversational AI Voice Agents that handle calls like a pro.',
-    gradient: 'from-blue-500 to-indigo-500',
     delay: 0.1,
     featured: true,
     details: {
@@ -70,7 +69,6 @@ const services: Service[] = [
     icon: LayoutDashboard,
     title: 'CRM Development',
     description: 'Say goodbye to generic CRMs — let us build one perfectly designed for your needs.',
-    gradient: 'from-amber-500 to-orange-500',
     delay: 0.2,
     details: {
       features: ['Fully customizable CRM platforms', 'Built-in automation', 'Seamless integration', 'Scalable solutions'],
@@ -84,7 +82,6 @@ const services: Service[] = [
     icon: Code2,
     title: 'Custom SaaS Solutions',
     description: 'Bring your vision to life with custom-built software, tailored precisely to your needs.',
-    gradient: 'from-green-500 to-emerald-500',
     delay: 0.3,
     details: {
       features: ['Custom software solutions', 'Robust architecture', 'API integration', 'Unique requirements'],
@@ -94,6 +91,14 @@ const services: Service[] = [
   },
 ];
 
+const extendedServices = ['before', 'main', 'after'].flatMap((copy) =>
+  services.map((service) => ({ service, copy })),
+);
+
+const handleBookCall = () => {
+  window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank', 'noopener');
+};
+
 const ServiceSection: React.FC = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -101,7 +106,6 @@ const ServiceSection: React.FC = () => {
   const scrollRafRef = useRef<number | null>(null);
   
   const totalItems = services.length;
-  const extendedServices = [...services, ...services, ...services];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -110,7 +114,7 @@ const ServiceSection: React.FC = () => {
     }
   }, []);
 
-  const scrollToServiceById = (serviceId: string) => {
+  const scrollToServiceById = useCallback((serviceId: string) => {
     if (!scrollRef.current) return;
     const targetIndex = services.findIndex((service) => service.id === serviceId);
     if (targetIndex < 0) return;
@@ -124,7 +128,7 @@ const ServiceSection: React.FC = () => {
     const targetLeft = targetCard.offsetLeft - (scrollRef.current.clientWidth - targetCard.clientWidth) / 2;
     scrollRef.current.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
     setActiveIndex(targetIndex);
-  };
+  }, [totalItems]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -154,11 +158,11 @@ const ServiceSection: React.FC = () => {
       window.setTimeout(() => scrollToServiceById(serviceId), 60);
     };
 
-    window.addEventListener('servicesFocus', handleServicesFocus as EventListener);
+    window.addEventListener('servicesFocus', handleServicesFocus);
     return () => {
-      window.removeEventListener('servicesFocus', handleServicesFocus as EventListener);
+      window.removeEventListener('servicesFocus', handleServicesFocus);
     };
-  }, []);
+  }, [scrollToServiceById]);
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -191,32 +195,13 @@ const ServiceSection: React.FC = () => {
     });
   };
 
-  const handleBookCall = () => {
-    window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank');
-  };
-
   return (
-    <Section className="py-6 sm:py-12 md:py-16 lg:py-24" id="services">
+    <Section className="py-6 md:py-16 lg:py-24" id="services">
       <div className="relative">
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8 sm:mb-20 lg:mb-24">
-          <div className="inline-flex mb-6 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] transition-all duration-300 mx-auto">
-            <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-2">
-              <Briefcase className="w-4 h-4 animate-pulse" />
-              OUR SERVICES
-            </span>
-          </div>
+        <div className="relative max-w-6xl mx-auto px-4 lg:px-8 text-center mb-8 md:mb-20 lg:mb-24">
+          <m.p {...reveal()} className="ts-eyebrow mb-4">OUR SERVICES</m.p>
 
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight"
-          >
-            <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              Automate Roles, Not Just Tasks
-            </span>
-          </m.h2>
+          <SplitText as="h2" delay={0.1} className="ts-h2 text-ink" text="Automate Roles, Not Just Tasks" />
         </div>
 
         {/* Desktop Grid */}
@@ -226,34 +211,31 @@ const ServiceSection: React.FC = () => {
             return (
               <m.div
                 key={service.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: service.delay }}
+                {...scaleIn((service.featured ? services.length : services.indexOf(service)) * STAGGER)}
                 className={clsx("group relative", service.featured && "lg:-mt-14 z-10")}
               >
                 <div
                   className={clsx(
-                    "relative h-full rounded-2xl overflow-hidden transition-all duration-500",
+                    "relative h-full rounded-2xl overflow-hidden transition-colors duration-500",
                     service.featured
-                      ? "p-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl shadow-blue-500/20 backdrop-blur-xl"
-                      : "bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30"
+                      ? "border border-line-strong backdrop-blur-xl"
+                      : "ts-card backdrop-blur-xl hover:border-line-strong"
                   )}
                 >
-                  <div className={clsx("h-full p-6 md:p-8 flex flex-col", service.featured && "rounded-2xl bg-gray-900/95")}>
+                  <div className={clsx("h-full p-6 md:p-8 flex flex-col", service.featured && "rounded-2xl bg-surface")}>
                     <div className="mb-4 md:mb-6">
-                      <div className={clsx(`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-r ${service.gradient} p-[1px] group-hover:scale-110 transition-transform duration-300`)}>
-                        <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center">
-                          <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                      <m.div {...pop(services.indexOf(service), 0.3)} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-line-strong group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-full h-full rounded-xl bg-surface flex items-center justify-center">
+                          <Icon className="w-4 h-4 md:w-5 md:h-5 text-ink" />
                         </div>
-                      </div>
+                      </m.div>
                     </div>
 
-                    <h3 className={clsx(`text-lg md:text-xl font-bold mb-3 md:mb-4 bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`)}>
+                    <h3 className="ts-h3 mb-3 md:mb-4 text-ink">
                       {service.title}
                     </h3>
 
-                    <p className="text-gray-400 mb-6 md:mb-8 leading-relaxed flex-grow text-[13px] md:text-[15px]">{service.description}</p>
+                    <p className="text-muted mb-6 md:mb-8 leading-relaxed flex-grow text-[13px] md:text-[15px]">{service.description}</p>
 
                     <div className="flex justify-center">
                       <m.button
@@ -262,10 +244,10 @@ const ServiceSection: React.FC = () => {
                         whileTap={{ scale: 0.95 }}
                         className="group/btn text-xs md:text-sm font-medium tracking-wide relative flex items-center justify-center"
                       >
-                        <span className={`bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 absolute whitespace-nowrap`}>
+                        <span className={`text-ink opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 absolute whitespace-nowrap`}>
                           Discover More
                         </span>
-                        <span className="text-white/70 group-hover/btn:opacity-0 transition-opacity duration-300 whitespace-nowrap">
+                        <span className="text-muted group-hover/btn:opacity-0 transition-opacity duration-300 whitespace-nowrap">
                           Discover More
                         </span>
                       </m.button>
@@ -273,73 +255,76 @@ const ServiceSection: React.FC = () => {
 
                     {service.featured && (
                       <div className="absolute top-4 right-4">
-                        <div className="px-3 md:px-4 py-1.5 rounded-full text-[9px] md:text-[10px] uppercase tracking-wider font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg">
+                        <div className="px-3 md:px-4 py-1.5 rounded-full text-[9px] md:text-[10px] uppercase tracking-wider font-bold bg-accent text-accent-fg">
                           Popular
                         </div>
                       </div>
                     )}
                   </div>
                 </div>
-                <div className={clsx(`absolute -inset-2 bg-gradient-to-r ${service.gradient} rounded-3xl opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 -z-10`)} />
               </m.div>
             );
           })}
         </div>
 
         {/* Mobile View Wrapper */}
-        <div className="block md:hidden">
+        <m.div {...reveal(0.12)} className="block md:hidden">
           <div className="relative">
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 px-10 scrollbar-hide"
-              style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+              className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 scrollbar-hide"
+              style={{ paddingLeft: '9vw', paddingRight: '9vw', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
             >
-              {extendedServices.map((service, index) => (
+              {extendedServices.map(({ service, copy }, index) => (
                 <div
-                  key={`${service.title}-${index}`}
+                  key={`${copy}-${service.id}`}
                   data-carousel-index={index}
-                  className="snap-center shrink-0 w-[280px] xs:w-[300px]"
+                  className="snap-center shrink-0 w-[82vw]"
                 >
                   <div
-                    onClick={() => setSelectedService(service)}
                     className={clsx(
-                      "relative h-full min-h-[320px] flex flex-col overflow-hidden rounded-3xl transition-all duration-300 group cursor-pointer touch-manipulation",
+                      "relative h-full min-h-[320px] flex flex-col overflow-hidden rounded-3xl transition-colors duration-300 group cursor-pointer touch-manipulation",
                       service.featured
-                        ? "p-[1px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-2xl shadow-blue-500/20"
-                        : "bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 hover:border-blue-500/30 hover:bg-gray-900/60"
+                        ? "border border-line-strong"
+                        : "ts-card backdrop-blur-xl hover:border-line-strong hover:bg-surface"
                     )}
                   >
                     <div className={clsx(
                       "relative z-10 flex flex-col h-full p-6",
-                      service.featured && "rounded-[calc(1.5rem-1px)] bg-gray-900/95"
+                      service.featured && "rounded-[calc(1.5rem-1px)] bg-surface"
                     )}>
                       <div className="mb-5 flex justify-between items-start">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${service.gradient} p-[1px] shadow-lg shadow-blue-500/10`}>
-                          <div className="w-full h-full rounded-2xl bg-gray-950 flex items-center justify-center">
-                            <service.icon className="w-5 h-5 text-white" />
+                        <div className={`w-12 h-12 rounded-2xl border border-line-strong shadow-lg`}>
+                          <div className="w-full h-full rounded-2xl bg-bg flex items-center justify-center">
+                            <service.icon className="w-5 h-5 text-ink" />
                           </div>
                         </div>
                         
                         {service.featured && (
-                          <div className="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/20">
+                          <div className="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold bg-accent text-accent-fg">
                             Popular
                           </div>
                         )}
                       </div>
 
-                      <h3 className={`text-xl font-bold mb-3 bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent`}>
+                      <h3 className="ts-h3 mb-3 text-ink">
                         {service.title}
                       </h3>
 
-                      <p className="text-gray-400 text-base leading-relaxed mb-6 flex-grow">
+                      <p className="text-muted text-base leading-relaxed mb-6 flex-grow">
                         {service.description}
                       </p>
 
                       <div className="mt-auto">
-                        <div className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-center text-sm font-medium text-white group-hover:bg-white/10 transition-colors">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedService(service)}
+                          aria-label={`Discover more about ${service.title}`}
+                          className="w-full py-3 rounded-xl bg-ink/5 border border-line text-center text-sm font-medium text-ink group-hover:bg-ink/10 transition-colors after:absolute after:inset-0 after:rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                        >
                           Discover More
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -353,19 +338,19 @@ const ServiceSection: React.FC = () => {
                 <m.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => scroll('left')}
-                  className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                  className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </m.button>
                 
                 <div className="flex gap-2">
-                  {services.map((_, i) => (
+                  {services.map((service, i) => (
                     <div
-                      key={i}
+                      key={service.id}
                       className={clsx(
-                        "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                        activeIndex === i ? "bg-blue-500 w-3" : "bg-gray-700"
+                        "w-1.5 h-1.5 rounded-full transition-[width,background-color] duration-300",
+                        activeIndex === i ? "bg-ink w-3" : "bg-line-strong"
                       )}
                     />
                   ))}
@@ -374,7 +359,7 @@ const ServiceSection: React.FC = () => {
                 <m.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => scroll('right')}
-                  className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                  className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -382,7 +367,7 @@ const ServiceSection: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </m.div>
       </div>
 
       <ServiceModal

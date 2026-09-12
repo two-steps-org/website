@@ -47,13 +47,13 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
           <div className="text-center max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-            <p className="text-gray-400 mb-6">
+            <h2 className="ts-h3 mb-4">Something went wrong</h2>
+            <p className="text-muted mb-6">
               We apologize for the inconvenience. Please try refreshing the page.
             </p>
             <button
               onClick={this.handleRetry}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg font-medium hover:opacity-90 transition-opacity min-h-[44px]"
+              className="px-6 py-3 bg-accent text-accent-fg rounded-lg font-medium hover:opacity-90 transition-opacity min-h-[44px]"
             >
               Try Again
             </button>

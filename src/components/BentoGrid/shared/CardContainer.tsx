@@ -1,22 +1,33 @@
 import React from 'react';
 import { m } from 'framer-motion';
 import clsx from 'clsx';
-import type { CardContainerProps } from '../types';
+import { scaleItem } from '../../../utils/motion';
+
+interface CardContainerProps {
+  children: React.ReactNode;
+  className?: string;
+  gradient?: string;
+  onMouseMove?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  style?: React.CSSProperties;
+  /** Position in the bento grid, used to stagger the reveal. */
+  index?: number;
+}
 
 const CardContainer: React.FC<CardContainerProps> = ({
   children,
   className,
   onMouseMove,
   style,
+  index = 0,
 }) => {
   return (
     <m.div
       className={clsx(
         'group relative overflow-hidden',
-        'bg-gray-900/50 backdrop-blur-xl',
-        'border border-gray-800/50',
-        'transition-all duration-[600ms]',
-        'hover:bg-gray-900/80 hover:border-blue-500/30',
+        'bg-surface/50 backdrop-blur-xl',
+        'border border-line/50',
+        'transition-all',
+        'hover:bg-surface/80 hover:border-line-strong',
         'hover:-translate-y-0.5',
         'hover:shadow-[0_28px_60px_-18px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.05)]',
         'cursor-default touch-manipulation',
@@ -27,12 +38,10 @@ const CardContainer: React.FC<CardContainerProps> = ({
       style={{
         ...style,
         borderRadius: '20px',
+        transitionDuration: '600ms',
         transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
       } as React.CSSProperties}
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      {...scaleItem(index)}
     >
       {/* Top border gradient */}
       <div

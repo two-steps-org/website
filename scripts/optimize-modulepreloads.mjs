@@ -1,11 +1,8 @@
 /* global console */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { DIST_HTML_PATHS } from './routes.mjs';
 
-const HTML_FILES = [
-  join('dist', 'index.html'),
-  join('dist', 'case-studies', 'index.html'),
-];
+const HTML_FILES = DIST_HTML_PATHS;
 
 // Keep only critical app shell preloads on first response.
 const NON_CRITICAL_PRELOAD_PATTERNS = [
@@ -19,7 +16,6 @@ const NON_CRITICAL_PRELOAD_PATTERNS = [
   /\/assets\/Section-.*\.js/,
   /\/assets\/hapticFeedback-.*\.js/,
   /\/assets\/useDeviceType-.*\.js/,
-  /\/assets\/animation-vendor-.*\.js/,
   /\/assets\/icons-vendor-.*\.js/,
 ];
 

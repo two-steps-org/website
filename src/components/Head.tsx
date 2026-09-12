@@ -1,7 +1,13 @@
 import type { FC } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { CASE_STUDY_META } from './CaseStudies/seoMeta';
 import { useLocation, type Location as RouterLocation } from 'react-router-dom';
-import { SITE_URL, getRobotsDirective } from '../lib/seoConfig';
+import {
+  DEFAULT_SITE_URL,
+  getRobotsDirective,
+  normalizeUrl,
+  parseSeoEnv,
+} from '../lib/seoConstants';
 
 interface HeadProps {
   location?: RouterLocation;
@@ -9,7 +15,14 @@ interface HeadProps {
 
 const SITE_NAME = 'Two Steps AI';
 const SOCIAL_HANDLE = '@twostepsai';
+const SEO_ENV = parseSeoEnv(
+  import.meta.env.VITE_SEO_ENV,
+  import.meta.env.MODE === 'production' ? 'production' : 'development',
+);
+const IS_PRODUCTION_SEO = SEO_ENV === 'production';
+const SITE_URL = normalizeUrl(import.meta.env.VITE_SITE_URL?.trim() || DEFAULT_SITE_URL);
 const DEFAULT_OG_IMAGE = `${SITE_URL}/Icon - Two Steps.png`;
+
 const normalizePathname = (pathname: string): string => {
   if (!pathname || pathname === '/') return '/';
   return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
@@ -33,9 +46,20 @@ const getPageMetadata = (pathname: string) => {
     },
   };
 
+  const caseStudyMatch = /^\/case-studies\/(.+)$/.exec(path);
+  if (caseStudyMatch) {
+    const study = CASE_STUDY_META[caseStudyMatch[1]];
+    if (study) {
+      return {
+        title: `${study.title} - Two Steps AI`,
+        description: study.description,
+        type: 'WebPage',
+      };
+    }
+  }
+
   return pages[path] || pages['/'];
 };
-
 
 const Head: FC<HeadProps> = ({ location }) => {
   const hookLocation = useLocation();
@@ -43,7 +67,7 @@ const Head: FC<HeadProps> = ({ location }) => {
   const path = normalizePathname(currentLocation.pathname);
   const { title, description } = getPageMetadata(path);
   const canonicalUrl = `${SITE_URL}${path}`;
-  const robotsDirective = getRobotsDirective();
+  const robotsDirective = getRobotsDirective(IS_PRODUCTION_SEO);
 
   return (
     <Helmet>

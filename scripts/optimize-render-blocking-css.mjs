@@ -1,11 +1,8 @@
 /* global console */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { DIST_HTML_PATHS } from './routes.mjs';
 
-const HTML_FILES = [
-  join('dist', 'index.html'),
-  join('dist', 'case-studies', 'index.html'),
-];
+const HTML_FILES = DIST_HTML_PATHS;
 
 const STYLESHEET_LINK_RE =
   /<link\s+([^>]*?)rel="stylesheet"([^>]*?)href="([^"]+\.css)"([^>]*?)>/g;

@@ -1,3 +1,5 @@
+import tailwindcssAnimate from 'tailwindcss-animate';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -6,6 +8,31 @@ export default {
   },
   theme: {
     extend: {
+      // Two Steps 2026 design tokens — values live as CSS vars in index.css so the
+      // whole palette swaps by flipping [data-theme] on the root.
+      colors: {
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        'surface-2': 'var(--surface-2)',
+        ink: 'var(--text)',
+        muted: 'var(--muted)',
+        accent: 'var(--accent)',
+        'accent-fg': 'var(--accent-fg)',
+        line: 'var(--border)',
+        'line-strong': 'var(--border-strong)',
+        'status-success': 'var(--status-success)',
+        'status-warning': 'var(--status-warning)',
+        'status-error': 'var(--status-error)',
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        tight: ['Inter Tight', 'Inter', 'ui-sans-serif', 'sans-serif'],
+        serif: ['Instrument Serif', 'Georgia', 'serif'],
+      },
+      borderRadius: {
+        card: '20px',
+        nested: '12px',
+      },
       screens: {
         xs: '320px',
         sm: '375px',
@@ -149,6 +176,7 @@ export default {
         emphasized: 'cubic-bezier(0.2, 0, 0, 1)',
         decelerate: 'cubic-bezier(0, 0, 0.2, 1)',
         accelerate: 'cubic-bezier(0.4, 0, 1, 1)',
+        smooth: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
       willChange: {
         transform: 'transform',
@@ -158,6 +186,7 @@ export default {
     },
   },
   plugins: [
+    tailwindcssAnimate,
     function ({ addBase }) {
       addBase({
         html: {
@@ -165,10 +194,9 @@ export default {
           'text-size-adjust': '100%',
         },
         '@media (prefers-reduced-motion: reduce)': {
-          '*': {
+          '*, *::before, *::after': {
             'animation-duration': '0.01ms !important',
             'animation-iteration-count': '1 !important',
-            'transition-duration': '0.01ms !important',
             'scroll-behavior': 'auto !important',
           },
         },

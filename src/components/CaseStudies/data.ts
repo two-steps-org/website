@@ -5,12 +5,13 @@ import { CaseStudy } from './types';
 // Data is frozen to prevent accidental mutations.
 export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   {
+    slug: 'task-automation-google-calendar',
     title: 'Task Automation via Google Calendar API',
     client: 'Internal Team',
     industry: 'Professional Services',
     deployedPlatform: 'Telegram',
     icon: Calendar,
-    gradient: 'from-blue-500 to-indigo-500',
+    tone: 'ember',
     metrics: {
       'Productivity Improvement': '+70%',
       'Error Reduction': '-95%',
@@ -68,12 +69,13 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
     ],
   },
   {
+    slug: 'ai-chat-agent-barber',
     title: 'AI Chat Agent for a Home-Based Barber',
     client: 'Independent Barber',
     industry: 'Personal Services',
     deployedPlatform: 'Instagram',
     icon: Scissors,
-    gradient: 'from-purple-500 to-pink-500',
+    tone: 'ocean',
     metrics: {
       'Manual Scheduling Time Saved': '80%',
       'Repeat Appointments': '+25%',
@@ -131,12 +133,13 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
     ],
   },
   {
+    slug: 'ai-sdr-call-agent',
     title: 'AI SDR Call Agent for a Leads Manager',
     client: 'Leads Manager',
     industry: 'Sales and Marketing',
     deployedPlatform: 'Work Phone',
     icon: PhoneCall,
-    gradient: 'from-amber-500 to-orange-500',
+    tone: 'sand',
     metrics: {
       'Lead Qualification Accuracy': '+30%',
       'Human Agent Workload': '-50%',
@@ -194,12 +197,13 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
     ],
   },
   {
+    slug: 'custom-saas-logistics',
     title: 'Custom SaaS for a Logistics Firm',
     client: 'Logistics Company',
     industry: 'Logistics and Supply Chain',
     deployedPlatform: 'Custom Software',
     icon: Truck,
-    gradient: 'from-green-500 to-emerald-500',
+    tone: 'moss',
     metrics: {
       'Delivery Time': '-30%',
       'Labor Costs': '-40%',
@@ -264,12 +268,13 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
     ],
   },
   {
+    slug: 'crm-accounting-firm',
     title: 'CRM Build for an Accounting Firm',
     client: 'Accounting Firm',
     industry: 'Financial Services',
     deployedPlatform: 'GoHighLevel',
     icon: Calculator,
-    gradient: 'from-orange-500 to-orange-500',
+    tone: 'ember',
     metrics: {
       'Client Retention': '+15%',
       'Administrative Work': '-30%',

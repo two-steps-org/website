@@ -1,21 +1,14 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { LazyMotion, domAnimation } from 'framer-motion';
+import { LazyMotion, MotionConfig, domMax } from 'framer-motion';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import BaseLayout from './components/layout/BaseLayout';
 import Head from './components/Head';
-import { lazyWithFallback } from './utils/lazyWithFallback';
 
-const Home = lazyWithFallback(
-  () => import('./pages/Home'),
-  'Failed to load home page'
-);
-
-const CaseStudies = lazyWithFallback(
-  () => import('./pages/CaseStudies'),
-  'Failed to load case studies'
-);
+const Home = lazy(() => import('./pages/Home'));
+const CaseStudies = lazy(() => import('./pages/CaseStudies'));
+const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-black" aria-hidden="true" />
@@ -28,15 +21,18 @@ const AppContent: React.FC = () => {
     <>
       <Head location={location} />
       <ErrorBoundary>
-        <LazyMotion features={domAnimation}>
-          <Suspense fallback={<LoadingFallback />}>
-            <BaseLayout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/case-studies" element={<CaseStudies />} />
-              </Routes>
-            </BaseLayout>
-          </Suspense>
+        <LazyMotion features={domMax} strict>
+          <MotionConfig reducedMotion="user">
+            <Suspense fallback={<LoadingFallback />}>
+              <BaseLayout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/case-studies" element={<CaseStudies />} />
+                  <Route path="/case-studies/:slug" element={<CaseStudyDetail />} />
+                </Routes>
+              </BaseLayout>
+            </Suspense>
+          </MotionConfig>
         </LazyMotion>
       </ErrorBoundary>
     </>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getDeviceType, type DeviceType } from '../device';
 
 export function useDeviceType() {
-  const [deviceType, setDeviceType] = useState<DeviceType>(getDeviceType());
+  const [deviceType, setDeviceType] = useState<DeviceType>(() => getDeviceType());
 
   useEffect(() => {
     let timeoutId: number;

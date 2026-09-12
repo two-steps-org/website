@@ -1,78 +1,32 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import ErrorBoundary from '../components/common/ErrorBoundary';
-import { lazyWithFallback } from '../utils/lazyWithFallback';
-import { useSharedIntersectionObserver } from '../hooks/useSharedIntersectionObserver';
-
-const Hero = lazyWithFallback(() => import('../components/Hero'), 'Failed to load Hero');
-const Services = lazyWithFallback(() => import('../components/Services'), 'Failed to load Services');
-const BentoGridSection = lazyWithFallback(() => import('../components/BentoGrid'), 'Failed to load Showcase');
-const WhyUs = lazyWithFallback(() => import('../components/WhyUs'), 'Failed to load Why Us');
-const Process = lazyWithFallback(() => import('../components/Process'), 'Failed to load Process');
-const Team = lazyWithFallback(() => import('../components/Team'), 'Failed to load Team');
-const FAQ = lazyWithFallback(() => import('../components/FAQ'), 'Failed to load FAQ');
-
-const SectionLoadingFallback = () => (
-  <div className="min-h-[200px]" aria-hidden="true" />
-);
+import Hero from '../components/Hero';
+import ProofStrip from '../components/ProofStrip';
+import WorkRail from '../components/WorkRail';
+import Testimonials from '../components/Testimonials';
+import Services from '../components/Services';
+import BentoGrid from '../components/BentoGrid/BentoGrid';
+import WhyUs from '../components/WhyUs';
+import Process from '../components/Process';
+import Team from '../components/Team';
+import FAQ from '../components/FAQ';
 
 const SectionErrorFallback = ({ error }: { error: Error }) => (
   <div className="min-h-[200px] flex items-center justify-center p-4">
     <div className="text-center">
-      <p className="text-gray-400 text-sm">{error.message}</p>
+      <p className="text-muted text-sm">{error.message}</p>
     </div>
   </div>
 );
-
-// Lazy section with intersection observer
-const LazySection: React.FC<{
-  id?: string;
-  children: React.ReactNode;
-  className?: string;
-  forceLoadAll?: boolean;
-}> = ({ id, children, className = '', forceLoadAll = false }) => {
-  const [sectionRef, isIntersecting] = useSharedIntersectionObserver({
-    triggerOnce: true,
-    initialVisible: false
-  });
-  const [shouldLoad, setShouldLoad] = useState(forceLoadAll);
-
-  useEffect(() => {
-    if (forceLoadAll) {
-      setShouldLoad(true);
-    }
-  }, [forceLoadAll]);
-
-  useEffect(() => {
-    if (isIntersecting) {
-      setShouldLoad(true);
-    }
-  }, [isIntersecting]);
-
-  // Force-load this section immediately when navbar navigates to any hash section.
-  // Without this, lazy placeholders (200px tall) cause layout shift after scroll,
-  // making the first navbar click land on the wrong section.
-  useEffect(() => {
-    const handleForceLoad = () => setShouldLoad(true);
-    window.addEventListener('navForceLoad', handleForceLoad);
-    return () => window.removeEventListener('navForceLoad', handleForceLoad);
-  }, []);
-
-  return (
-    <div {...(id && { id })} ref={sectionRef} className={className}>
-      {shouldLoad ? children : <SectionLoadingFallback />}
-    </div>
-  );
-};
 
 const Home = () => {
   const location = useLocation();
   const hasConsumedSectionNav = useRef(false);
   const navState = (location.state as { targetSection?: string; isSectionNav?: boolean } | null) ?? null;
   const targetSection = navState?.isSectionNav ? navState.targetSection ?? null : null;
-  const forceLoadAll = Boolean(targetSection);
 
   useLayoutEffect(() => {
     if (targetSection) {
@@ -81,9 +35,7 @@ const Home = () => {
       const root = document.documentElement;
       const previousScrollBehavior = root.style.scrollBehavior;
 
-      // Ensure target sections mount immediately, then jump before paint.
       root.style.scrollBehavior = 'auto';
-      window.dispatchEvent(new CustomEvent('navForceLoad'));
 
       const jumpToTarget = () => {
         const el = document.getElementById(sectionId);
@@ -92,15 +44,9 @@ const Home = () => {
         return true;
       };
 
-      // Initial jump and setup
       jumpToTarget();
 
-      // Run one more alignment pass shortly after lazy sections mount.
-      const alignTimer = window.setTimeout(() => {
-        jumpToTarget();
-      }, 120);
-
-      // Restore scroll behavior after a short settle window.
+      const alignTimer = window.setTimeout(jumpToTarget, 120);
       const restoreTimer = window.setTimeout(() => {
         root.style.scrollBehavior = previousScrollBehavior;
       }, 240);
@@ -111,8 +57,6 @@ const Home = () => {
       };
     }
 
-    // After consuming section-nav state, avoid resetting to top on the follow-up
-    // render where location.state is cleared/replaced by the router.
     if (!hasConsumedSectionNav.current) {
       window.scrollTo(0, 0);
     }
@@ -126,49 +70,28 @@ const Home = () => {
 
   return (
     <ErrorBoundary FallbackComponent={SectionErrorFallback}>
-      {/* Hero loads immediately */}
       <section id="home">
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <Hero />
-        </React.Suspense>
+        <Hero />
       </section>
 
-      {/* Other sections lazy load */}
-      <LazySection forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <Services />
-        </React.Suspense>
-      </LazySection>
+      <ProofStrip />
 
-      <LazySection forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <WhyUs />
-        </React.Suspense>
-      </LazySection>
+      <Services />
 
-      <LazySection id="showcase" className="hidden md:block" forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <BentoGridSection />
-        </React.Suspense>
-      </LazySection>
+      <WorkRail />
+      <Testimonials />
 
-      <LazySection forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <Process />
-        </React.Suspense>
-      </LazySection>
+      <WhyUs />
 
-      <LazySection forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <Team />
-        </React.Suspense>
-      </LazySection>
+      <section id="showcase" className="hidden md:block relative w-full py-12 md:py-24 flex flex-col justify-center overflow-hidden">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <BentoGrid />
+        </div>
+      </section>
 
-      <LazySection forceLoadAll={forceLoadAll}>
-        <React.Suspense fallback={<SectionLoadingFallback />}>
-          <FAQ />
-        </React.Suspense>
-      </LazySection>
+      <Process />
+      <Team />
+      <FAQ />
     </ErrorBoundary>
   );
 };

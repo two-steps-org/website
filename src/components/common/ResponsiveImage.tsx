@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '../../lib/utils';
+import clsx from 'clsx';
 
 interface ResponsiveImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'width' | 'height'> {
   src: string;
@@ -11,6 +11,22 @@ interface ResponsiveImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageEle
   width?: number;
   height?: number;
 }
+
+// Map aspect ratio to Tailwind classes
+const aspectClasses = {
+  square: 'aspect-square',
+  video: 'aspect-video',
+  portrait: 'aspect-portrait',
+  auto: '',
+};
+
+// Default dimensions based on aspect ratio to prevent CLS
+const defaultDimensions = {
+  square: { width: 800, height: 800 },
+  video: { width: 1280, height: 720 },
+  portrait: { width: 720, height: 1280 },
+  auto: { width: 800, height: 600 },
+};
 
 /**
  * ResponsiveImage Component
@@ -31,30 +47,14 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   height,
   ...props
 }) => {
-  // Map aspect ratio to tailwind classes and default dimensions
-  const aspectClasses = {
-    square: 'aspect-square',
-    video: 'aspect-video',
-    portrait: 'aspect-portrait',
-    auto: '',
-  };
-
-  // Default dimensions based on aspect ratio to prevent CLS
-  const defaultDimensions = {
-    square: { width: 800, height: 800 },
-    video: { width: 1280, height: 720 },
-    portrait: { width: 720, height: 1280 },
-    auto: { width: 800, height: 600 },
-  };
-
   const imgWidth = width ?? defaultDimensions[aspectRatio].width;
   const imgHeight = height ?? defaultDimensions[aspectRatio].height;
 
   return (
-    <div className={cn(
-      'relative overflow-hidden w-full h-full', 
-      aspectClasses[aspectRatio], 
-      containerClassName
+    <div className={clsx(
+      'relative overflow-hidden w-full h-full',
+      aspectClasses[aspectRatio],
+      containerClassName,
     )}>
       <img
         src={src}
@@ -63,11 +63,11 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
         decoding={decoding}
         width={imgWidth}
         height={imgHeight}
-        className={cn(
+        className={clsx(
           'w-full h-full',
           objectFit === 'cover' && 'object-cover',
           objectFit === 'contain' && 'object-contain',
-          className
+          className,
         )}
         {...props}
       />

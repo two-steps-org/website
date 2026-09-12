@@ -1,17 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { m } from 'framer-motion';
-import { Linkedin, Instagram, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Linkedin, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
 import Section from './common/Section';
 import ResponsiveImage from './common/ResponsiveImage';
 import { hapticFeedback } from '../utils/mobile/hapticFeedback';
 import clsx from 'clsx';
+import SplitText from './common/SplitText';
+import { pop, reveal, scaleItem, settle } from '../utils/motion';
 
 const team = [
   {
     name: 'Jonathan Insell',
     role: 'CEO & Founder',
     image: '/Yoni.jpg',
-    gradient: 'from-blue-500 to-indigo-500',
     social: {
       linkedin: 'https://www.linkedin.com/in/jonathan-charles-insell/',
       instagram: 'https://www.instagram.com/twostepsai/',
@@ -21,7 +22,6 @@ const team = [
     name: 'Shay Bushary',
     role: 'Head Developer',
     image: '/Shay.jpeg',
-    gradient: 'from-purple-500 to-pink-500',
     social: {
       linkedin: 'https://www.linkedin.com/in/shaybushary/',
       instagram: 'https://www.instagram.com/twostepsai/',
@@ -31,7 +31,6 @@ const team = [
     name: 'Ziv Edri',
     role: 'CFO',
     image: '/Ziv.jpeg',
-    gradient: 'from-amber-500 to-orange-500',
     social: {
       linkedin: 'https://www.linkedin.com/in/ziv-edri/',
       instagram: 'https://www.instagram.com/twostepsai/',
@@ -41,7 +40,6 @@ const team = [
     name: 'Tal Sumroy',
     role: 'Head of Marketing',
     image: '/Tal.jpeg',
-    gradient: 'from-green-500 to-emerald-500',
     social: {
       linkedin: 'https://www.linkedin.com/in/tal-sumroy/',
       instagram: 'https://www.instagram.com/twostepsai/',
@@ -49,13 +47,16 @@ const team = [
   },
 ];
 
+const extendedTeam = ['before', 'main', 'after'].flatMap((copy) =>
+  team.map((member) => ({ member, copy })),
+);
+
 const Team: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollRafRef = useRef<number | null>(null);
   
   const totalItems = team.length;
-  const extendedTeam = [...team, ...team, ...team];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -116,70 +117,61 @@ const Team: React.FC = () => {
   };
 
   return (
-    <Section className="relative py-6 sm:py-12 md:py-16 lg:py-24" id="team">
-      <div className="relative text-center mb-8 sm:mb-16">
-        <div className="inline-flex mb-4 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent rounded-full backdrop-blur-sm border border-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:border-blue-500/20 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all duration-300 mx-auto">
-          <span className="text-blue-400 text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
-            <Users className="w-4 h-4 animate-[pulse_2s_ease-in-out_infinite]" />
-            The Team
-          </span>
-        </div>
-        <m.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6"
-        >
-          <span className="bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-            We Are Ready To Provide Solutions
-          </span>
-        </m.h2>
+    <Section className="relative py-6 md:py-16 lg:py-24" id="team">
+      <div className="relative text-center mb-8 md:mb-16">
+        <m.p {...reveal()} className="ts-eyebrow mb-4">
+          The Team
+        </m.p>
+        <SplitText as="h2" delay={0.1} className="ts-h2 text-ink mb-6" text="We Are Ready To Provide Solutions" />
       </div>
 
       <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
         {team.map((member, index) => (
           <m.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}
+            key={member.name}
+            {...scaleItem(index)}
             className="group relative"
           >
-            <div className="relative bg-gray-900/50 backdrop-blur-xl rounded-2xl overflow-hidden">
+            <div className="relative ts-card backdrop-blur-xl rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1">
               <div className="relative h-[350px] overflow-hidden">
-                <ResponsiveImage
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 brightness-90 group-hover:brightness-100 group-hover:contrast-125"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+                {/* The frame is clipped, so the photo settling from a zoom reads
+                    as the portrait coming into focus. */}
+                <m.div {...settle(index * 0.06)} className="w-full h-full">
+                  <ResponsiveImage
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover transition-[transform,filter] duration-700 group-hover:scale-110 brightness-90 group-hover:brightness-100 group-hover:contrast-125"
+                  />
+                </m.div>
+                <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/30 to-transparent" />
               </div>
               <div className="relative p-6 -mt-16">
-                <h3 className="text-2xl font-bold text-white mb-2 mt-4">{member.name}</h3>
+                <h3 className="ts-h3 text-ink mb-2 mt-4">{member.name}</h3>
                 <p
-                  className={`text-transparent bg-clip-text bg-gradient-to-r ${member.gradient} font-medium mb-4`}
+                  className={`text-muted font-medium mb-4`}
                 >
                   {member.role}
                 </p>
                 <div className="flex space-x-3">
                   <m.a
+                    {...pop(0, 0.35 + index * 0.06)}
                     href={member.social.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ y: -2 }}
-                    className={`p-2 rounded-xl bg-gradient-to-r ${member.gradient} bg-opacity-50 hover:bg-opacity-75 transition-all`}
+                    className={`p-2 rounded-xl border border-line-strong bg-ink/5 text-ink hover:bg-ink/10 transition-colors`}
                   >
-                    <Linkedin className="w-5 h-5 text-white" />
+                    <Linkedin className="w-5 h-5 text-ink" />
                   </m.a>
                   <m.a
+                    {...pop(1, 0.35 + index * 0.06)}
                     href={member.social.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ y: -2 }}
-                    className={`p-2 rounded-xl bg-gradient-to-r ${member.gradient} bg-opacity-50 hover:bg-opacity-75 transition-all`}
+                    className={`p-2 rounded-xl border border-line-strong bg-ink/5 text-ink hover:bg-ink/10 transition-colors`}
                   >
-                    <Instagram className="w-5 h-5 text-white" />
+                    <Instagram className="w-5 h-5 text-ink" />
                   </m.a>
                 </div>
               </div>
@@ -188,18 +180,18 @@ const Team: React.FC = () => {
         ))}
       </div>
 
-      <div className="block md:hidden">
+      <m.div {...reveal(0.12)} className="block md:hidden">
         <div className="relative">
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 px-10 scrollbar-hide"
-            style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
+            className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 scrollbar-hide"
+            style={{ paddingLeft: '9vw', paddingRight: '9vw', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
           >
-            {extendedTeam.map((member, index) => (
-              <div key={`${member.name}-${index}`} className="snap-center shrink-0 w-[280px] xs:w-[300px]">
+            {extendedTeam.map(({ member, copy }) => (
+              <div key={`${copy}-${member.name}`} className="snap-center shrink-0 w-[82vw]">
                 <div
-                  className="group relative h-full overflow-hidden rounded-3xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 transition-all duration-300 touch-manipulation"
+                  className="group relative h-full overflow-hidden rounded-3xl ts-card backdrop-blur-xl touch-manipulation"
                 >
                   <div className="relative w-full aspect-[4/5] overflow-hidden">
                     <ResponsiveImage
@@ -207,10 +199,10 @@ const Team: React.FC = () => {
                       alt={member.name}
                       className="w-full h-full object-cover transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-bold text-white mb-1">{member.name}</h3>
-                      <p className={`text-base font-semibold bg-gradient-to-r ${member.gradient} bg-clip-text text-transparent mb-4`}>
+                      <h3 className="ts-h3 text-ink mb-1">{member.name}</h3>
+                      <p className={`text-base font-semibold text-ink mb-4`}>
                         {member.role}
                       </p>
                       <div className="flex space-x-3">
@@ -218,21 +210,21 @@ const Team: React.FC = () => {
                           href={member.social.linkedin}
                           whileTap={{ scale: 0.95 }}
                           onTapStart={() => hapticFeedback.selection()}
-                          className={`p-2 rounded-xl bg-gradient-to-r ${member.gradient} bg-opacity-50 border border-white/10 touch-manipulation`}
+                          className={`p-2 rounded-xl border border-line-strong bg-ink/5 text-ink border border-line touch-manipulation`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <Linkedin className="w-4 h-4 text-white" />
+                          <Linkedin className="w-4 h-4 text-ink" />
                         </m.a>
                         <m.a
                           href={member.social.instagram}
                           whileTap={{ scale: 0.95 }}
                           onTapStart={() => hapticFeedback.selection()}
-                          className={`p-2 rounded-xl bg-gradient-to-r ${member.gradient} bg-opacity-50 border border-white/10 touch-manipulation`}
+                          className={`p-2 rounded-xl border border-line-strong bg-ink/5 text-ink border border-line touch-manipulation`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          <Instagram className="w-4 h-4 text-white" />
+                          <Instagram className="w-4 h-4 text-ink" />
                         </m.a>
                       </div>
                     </div>
@@ -247,18 +239,18 @@ const Team: React.FC = () => {
               <m.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => scroll('left')}
-                className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
                 aria-label="Scroll left"
               >
                 <ChevronLeft className="w-5 h-5" />
               </m.button>
               <div className="flex gap-2">
-                {team.map((_, i) => (
+                {team.map((member, i) => (
                   <div
-                    key={i}
+                    key={member.name}
                     className={clsx(
-                      "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                      activeIndex === i ? "bg-blue-500 w-3" : "bg-gray-700"
+                      "w-1.5 h-1.5 rounded-full transition-[width,background-color] duration-300",
+                      activeIndex === i ? "bg-ink w-3" : "bg-line-strong"
                     )}
                   />
                 ))}
@@ -266,7 +258,7 @@ const Team: React.FC = () => {
               <m.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => scroll('right')}
-                className="p-3 rounded-2xl bg-gray-900/50 backdrop-blur-xl border border-gray-800/50 text-white/50 hover:text-white transition-colors"
+                className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
                 aria-label="Scroll right"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -274,7 +266,7 @@ const Team: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </m.div>
     </Section>
   );
 };

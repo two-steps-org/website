@@ -25,7 +25,7 @@ const BaseSection = forwardRef<HTMLElement, SectionProps>(
           className,
         )}
       >
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 xl:px-12">
+        <div className="relative z-10 w-full max-w-7xl mx-auto mobile-safe-px md:px-8 lg:px-8 xl:px-12">
           {children}
         </div>
       </section>

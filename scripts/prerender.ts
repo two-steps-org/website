@@ -3,7 +3,9 @@ import process from 'process';
 import { spawnSync } from 'node:child_process';
 import { resolveSeoRuntimeConfig } from './seo-config';
 
-const routes = ['/', '/case-studies'];
+import { SITE_ROUTES } from './routes.mjs';
+
+const routes = SITE_ROUTES;
 
 function installChromiumBrowser(): void {
   console.log('Playwright Chromium binary missing. Installing browser...');
