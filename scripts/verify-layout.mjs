@@ -49,6 +49,10 @@ try {
     }
     console.log(`${viewport.width}px rhythm: ${rhythm.length} sections at ${rhythm[0].pad}`);
 
+    // N2 — nothing in the nav is marked current while the hero is on screen.
+    assert.equal(await page.locator('header [aria-current]').count(), 0, `${viewport.width}px: no nav link may be active on the hero`);
+    if (!mobile) assert.equal(await page.locator('header nav a:visible').count(), 5, 'desktop nav is the logo plus four links');
+
     // N1 — capsule: off over the hero, on past it, and never in the way of clicks.
     const capsule = page.locator('[data-nav-capsule]');
     assert.equal(await capsule.evaluate((el) => getComputedStyle(el).opacity), '0', `${viewport.width}px: capsule must be hidden over the hero`);

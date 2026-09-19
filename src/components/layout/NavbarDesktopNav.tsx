@@ -31,7 +31,7 @@ export const NavbarDesktopNav = ({
               ),
         )}
       >
-        {navItems.map((item) => {
+        {navItems.filter((item) => item.desktop !== false).map((item) => {
           const isActive = activeTab === item.name;
           return (
             <a

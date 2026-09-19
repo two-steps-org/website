@@ -22,7 +22,8 @@ export function useNavbar() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPastHero, setIsPastHero] = useState(false);
-  const [activeTab, setActiveTab] = useState(navItems[0].name);
+  // '' = nothing lit: on the hero, or in a section the desktop pill doesn't list.
+  const [activeTab, setActiveTab] = useState('');
   const [isOverLightBand, setIsOverLightBand] = useState(false);
   const manualNavLockRef = useRef(false);
   const manualNavTimerRef = useRef<number | null>(null);
@@ -69,7 +70,7 @@ export function useNavbar() {
   useEffect(() => {
     if (normalizePath(location.pathname) === '/') return;
     const matched = navItems.find((item) => normalizePath(item.url) === normalizePath(location.pathname));
-    setActiveTab(matched?.name ?? navItems[0].name);
+    setActiveTab(matched?.name ?? '');
   }, [location.pathname]);
 
   useEffect(() => {
@@ -91,14 +92,15 @@ export function useNavbar() {
       if (!sections.length) return;
 
       const triggerY = window.scrollY + getNavScrollOffset();
-      let active = sections[0];
+      let active: (typeof sections)[number] | null = null;
       for (const section of sections) {
         const sectionTop = section.element.getBoundingClientRect().top + window.scrollY;
         if (sectionTop <= triggerY) active = section;
         else break;
       }
 
-      setActiveTab((prev) => (prev === active.name ? prev : active.name));
+      const name = active?.name ?? '';
+      setActiveTab((prev) => (prev === name ? prev : name));
     };
 
     const onScrollOrResize = () => {
