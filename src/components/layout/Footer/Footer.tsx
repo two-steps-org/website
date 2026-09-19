@@ -4,7 +4,6 @@ import React, { useState, type MouseEvent } from 'react';
 import { useReducedMotionQuery } from '../../../utils/scroll';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LegalModal from './LegalModal';
-import SplitText from '../../common/SplitText';
 import Scrub from '../../common/Scrub';
 import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
 import { hapticFeedback } from '../../../utils/mobile/hapticFeedback';
@@ -97,16 +96,6 @@ const Footer: React.FC = () => {
   return (
     <footer className="relative mt-auto w-full bg-transparent border-t border-line touch-manipulation">
       <div className="ts-container relative py-10 md:py-12">
-        <Scrub effect="signature" endAtBottom className="mb-12 md:mb-16">
-          <SplitText
-            as="p"
-            delay={0.05}
-            stagger={0.05}
-            className="ts-display text-ink text-[clamp(32px,4.6vw,64px)] max-w-[16ch] m-0"
-            segments={[{ text: 'Your business, two steps' }, { text: 'ahead.', className: 'sig' }]}
-          />
-        </Scrub>
-
         <Scrub effect="signature" endAtBottom contentClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-6 items-start">
           <FooterBrandColumn onBookCall={handleBookCall} />
           <FooterLinksGrid

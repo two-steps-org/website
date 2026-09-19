@@ -7,6 +7,7 @@ import Hero from '../components/Hero';
 import ProofStrip from '../components/ProofStrip';
 import WorkRail from '../components/WorkRail';
 import Testimonials from '../components/Testimonials';
+import CtaBand from '../components/CtaBand';
 import Services from '../components/Services';
 import WhyUs from '../components/WhyUs';
 import Process from '../components/Process';
@@ -78,6 +79,7 @@ const Home = () => {
 
       <WorkRail />
       <Testimonials />
+      <CtaBand />
 
       <WhyUs />
 
