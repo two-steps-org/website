@@ -18,6 +18,8 @@ mobile menu — with the N2 structure only: four desktop links, no Home, nothing
 lit on the hero, shared container. The logo/CTA overlap with page content on
 scroll is accepted as part of that look.
 
+**Next: Phase 2 — real pages behind the nav links (section 7).** Not started.
+
 Scope: navbar and page layout only. **Copy is a separate pass after this one** —
 section 6 lists what that pass should pick up.
 
@@ -294,3 +296,143 @@ Spotted during the study; not addressed here.
 - A lede for each section, which unlocks the two-column header deferred in L3.
 - Why Us step visuals, if 4b was cut.
 - Nav labels (N2) and the CTA band headline (L5) get their final wording here.
+
+## 7. Phase 2 — real pages behind the nav links
+
+Added 2026-09-19 after studying every idealink.tech page. Phase 1 kept the site
+as one long page plus case studies; this phase gives each nav link its own page
+with its own content, and turns the home page into the front door.
+
+### 7.1 What idealink does
+
+- Every nav link is a page: `/our-services`, `/our-work` (+ `/case-study/...`),
+  `/about-us`, `/ai-audit`, `/contact-us`.
+- The home page is a teaser. Each section there ends in a button to the full page.
+- Every page ends the same way: call-to-action banner → contact → footer. No dead ends.
+- ~25 narrow landing pages hang off the footer for search traffic
+  (`/ai-automation-agency`, `/ai-consulting`, ...). Not nav items.
+
+### 7.2 Our page map
+
+| Route | Status | Content |
+|---|---|---|
+| `/` | Slim down | See 7.4 |
+| `/services` | **New** | All four services as full rows, then Process, then CTA |
+| `/services/:slug` (×4) | **New** | One service in depth — replaces the pop-up |
+| `/case-studies`, `/case-studies/:slug` | Exists | Add "related service" link and the shared ending |
+| `/about` | **New** | Why Us, Process, Team in full |
+
+Slugs reuse the ids already in the code: `ai-chat-agents`, `ai-voice-agents`,
+`crm-development`, `custom-saas-solutions`.
+
+**Not in this phase, on purpose**
+
+- **`/contact`.** "Book a Call" already opens Calendly directly, which is a
+  shorter path than a page with a form. Add when there is a reason to collect
+  leads that are not ready for a call.
+- **A lead-magnet tool** (their AI Audit). It is a product to design, not a page
+  to lay out. Worth its own plan.
+- **Search landing pages.** They only pay off with distinct, real content per
+  page. Revisit once the four service pages rank.
+
+### 7.3 What goes on each page, and where it comes from
+
+**`/services/:slug`** — one service.
+
+| Block | Source |
+|---|---|
+| Header: eyebrow, service name, one-line promise | `title`, `description` — exists |
+| What it is | `extendedDescription` — exists for 3 of 4; **write one for Custom SaaS** |
+| The service's bento card, large | Existing card from `BentoGrid/cards` — this is where the live, animated version belongs |
+| What you get / What it changes | `features`, `benefits` — exist (4 each) |
+| Who it is for | `useCase` — exists |
+| Related work | The case studies for this service (mapping below) |
+| Shared ending | `CtaBand` |
+
+Case study → service mapping (new `service` field on each case study):
+`task-automation-google-calendar` and `ai-chat-agent-barber` → chat agents;
+`ai-sdr-call-agent` → voice agents; `custom-saas-logistics` → custom SaaS;
+`crm-accounting-firm` → CRM. Every service has at least one.
+
+**`/services`** — the four services as alternating rows (card one side, name +
+description + three features + "Explore" link the other), then `Process` moved
+here from home, then `CtaBand`.
+
+**`/about`** — header (new copy), then `WhyUs` with its pinned scroll scene
+intact, then `Team`, then `CtaBand`. These components move as they are.
+
+### 7.4 What the home page keeps
+
+Hero → Proof → Services (bento; cards now link to pages) → Work rail →
+Testimonials → CTA band → **About teaser (new, short)** → FAQ → Footer.
+
+Leaves home: pinned Why Us, Process, Team. Desktop length drops from ~12,000px
+to roughly 7,000px — the same order as wonderful.ai.
+
+The About teaser is one section: a one-line statement, three of the six Why Us
+points as a row, the four team portraits small, and a "More about us" button.
+
+### 7.5 Navigation
+
+Desktop pill: **Services · Case Studies · About · Q&A**. Look unchanged (see the
+navbar note at the top of this file) — structure only.
+
+- Three real page links plus `/#faq`. A page link lights up on its own page and
+  on its children (`/services/ai-voice-agents` lights Services).
+- The `desktop: false` flag and the Process / Team entries go away; the mobile
+  menu shows the same four links.
+- Hero chips, bento cards and the footer "Solutions" links all point at
+  `/services/:slug`.
+
+### 7.6 Code changes
+
+- **Move** the `services` array out of `Services.tsx` into `src/data/services.ts`
+  so the section, the two new pages and the footer read one list.
+- **New** `src/pages/Services.tsx`, `ServiceDetail.tsx`, `About.tsx`; three
+  routes in `App.tsx`.
+- **`scripts/routes.mjs`**: add the six routes to `SITE_ROUTES`. Prerender, the
+  sitemap and the SEO HTML check all read that one list, so they follow.
+- **`Head.tsx`**: a title and description per new route.
+- **Delete** `ServiceModal.tsx`, the `servicesFocus` custom event, and the
+  footer/home code that navigates to home and then fires it (~60 lines).
+- **Old anchors.** `/#why-us`, `/#process`, `/#team` stop existing on home.
+  `Home.tsx` already reads the hash; map those three to `/about#...` and
+  `/services#process` so old links and bookmarks still land.
+- Every page uses `.ts-container` / `.ts-section` and ends with `CtaBand`.
+
+### 7.7 Copy this phase needs
+
+Short list — most content already exists.
+
+- A headline and one-line promise for `/services` and for `/about`.
+- `extendedDescription` for Custom SaaS.
+- The About teaser statement on home.
+- SEO title + description for six routes.
+- Final nav labels.
+
+Written page by page as each is built, as part of the copy pass (section 6).
+
+### 7.8 Order of work
+
+| Step | What | Visible result |
+|---|---|---|
+| 1 | Extract `services.ts`; add `service` to case studies | None (refactor) |
+| 2 | `/services/:slug` ×4, linked from bento cards, chips, footer; delete the pop-up | Clicking a service opens a page |
+| 3 | `/services` index with Process | Nav "Services" is a page |
+| 4 | `/about` with Why Us + Team | Nav "About" is a page |
+| 5 | Home slim-down + About teaser + old-anchor mapping | Home is a front door |
+| 6 | Nav to four page links; routes, Head, sitemap | Everything reachable and indexed |
+
+Review in the browser after each step.
+
+### 7.9 Checks
+
+- `verify-layout.mjs` runs its grid and rhythm checks on `/services`, one
+  service page and `/about` as well as home.
+- New check: every route in `SITE_ROUTES` contains the CTA band and is linked
+  from at least one other page (no dead ends, no orphans).
+- `pnpm run build` passes — this covers prerender, sitemap and SEO HTML for the
+  new routes, and the performance budget (new pages are lazy routes, so the home
+  preload budget should not move).
+- The Why Us scroll-scene check moves with the component: it must pass on `/about`.
+
