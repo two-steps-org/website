@@ -52,10 +52,10 @@ const CaseStudies: React.FC = () => {
       <main className="flex-1 relative w-full min-h-screen">
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <section
-          className="mobile-safe-px md:px-6 pb-16"
+          className="pb-16"
           style={{ paddingTop: 'calc(var(--header-height) + 4rem)' }}
         >
-          <div className="max-w-[1240px] mx-auto flex flex-col gap-6">
+          <div className="ts-container flex flex-col gap-6">
             <m.p {...enter(0)} className="ts-eyebrow">
               Selected work
             </m.p>
@@ -74,8 +74,8 @@ const CaseStudies: React.FC = () => {
         </section>
 
         {/* ── Entries: image and text swap sides down the list ────────────── */}
-        <section className="mobile-safe-px md:px-6 pb-24 border-t border-line">
-          <div className="max-w-[1240px] mx-auto flex flex-col">
+        <section className="pb-24 border-t border-line">
+          <div className="ts-container flex flex-col">
             {caseStudies.map((study, index) => {
               const imageFirst = index % 2 === 0;
               const revealX = imageFirst ? -48 : 48;

@@ -10,7 +10,7 @@ import Parallax from '../common/Parallax';
 import Scrub from '../common/Scrub';
 import { blurIn, draw, drawY, enter, enterItem, pop, reveal, revealItem, scaleItem, slide, slideItem, stamp } from '../../utils/motion';
 
-const SECTION = 'max-w-[1240px] mx-auto mobile-safe-px md:px-6';
+const SECTION = 'ts-container';
 
 const SectionHead: React.FC<{ label: string; heading: string }> = ({ label, heading }) => (
   <div className="flex flex-col gap-3">
@@ -33,7 +33,7 @@ interface CaseStudyDetailHeroProps {
 export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps) {
   return (
     <section
-      className="relative isolate overflow-hidden flex flex-col justify-end min-h-[min(88vh,900px)] pb-[clamp(64px,14vh,120px)] mobile-safe-px md:px-6"
+      className="relative isolate overflow-hidden flex flex-col justify-end min-h-[min(88vh,900px)] pb-[clamp(64px,14vh,120px)]"
       style={{ paddingTop: 'calc(var(--header-height) + 4rem)' }}
     >
       <div aria-hidden="true" className="absolute inset-0 -z-10">
@@ -55,7 +55,7 @@ export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps)
         />
       </div>
 
-      <div className="max-w-[1240px] w-full mx-auto flex flex-col gap-[clamp(24px,4vw,44px)]">
+      <div className="ts-container flex flex-col gap-[clamp(24px,4vw,44px)]">
         <m.nav {...enter(0)} aria-label="Breadcrumb" className="flex items-center gap-2.5 text-sm text-muted">
           <Link to="/" className="hover:text-ink transition-colors">
             Home
