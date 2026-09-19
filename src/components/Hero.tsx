@@ -57,12 +57,14 @@ const Hero: React.FC = () => {
   return (
     <Section ref={heroRef}
       data-layout="free"
-      className="relative flex min-h-0 items-center justify-center overflow-hidden pt-36 pb-12 md:py-28 lg:min-h-[calc(100vh-80px)] lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20"
+      className="relative flex min-h-0 items-center justify-center overflow-hidden pt-[calc(var(--header-height)+1.5rem)] pb-12 md:pb-28 lg:min-h-[calc(100vh-80px)] lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20"
     >
       <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
         <div
           data-scroll-hero="copy"
-          className="z-10 flex h-full flex-col justify-center space-y-6 text-center lg:justify-start lg:text-left"
+          // Stacked layouts: the copy owns the first viewport, whatever its
+          // height, so the network starts below the fold instead of being cut by it.
+          className="z-10 flex h-full flex-col justify-center space-y-6 text-center max-lg:min-h-[calc(100svh-var(--header-height)-1.5rem)] max-lg:pb-6 lg:justify-start lg:text-left"
         >
           <SplitText
             as="h1"

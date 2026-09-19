@@ -69,6 +69,27 @@ try {
     console.log(`${viewport.width}px nav: capsule threshold and click-through ok`);
     await page.close();
   }
+  // L7 — the first viewport, whatever its height, holds the hero's ask and
+  // none of the network diagram.
+  for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 844 }, { width: 430, height: 932 }]) {
+    const page = await browser.newPage({ viewport, isMobile: true, hasTouch: true });
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(800);
+    const { cta, scene } = await page.evaluate(() => ({
+      cta: document.querySelector('#home button.ts-pill').getBoundingClientRect().bottom,
+      // Layout top in document space: the parallax transform must not count.
+      scene: (() => {
+        let y = 0;
+        for (let node = document.querySelector('[data-scroll-hero="scene"]'); node; node = node.offsetParent) y += node.offsetTop;
+        return y;
+      })(),
+    }));
+    assert.ok(cta <= viewport.height, `${viewport.width}x${viewport.height}: Book a Call ends at ${Math.round(cta)}px, below the fold`);
+    assert.ok(scene >= viewport.height - 1, `${viewport.width}x${viewport.height}: network starts at ${scene}px, inside the first viewport`);
+    await page.screenshot({ path: `/tmp/layout-hero-${viewport.width}.png` });
+    console.log(`${viewport.width}x${viewport.height} hero: ask ends at ${Math.round(cta)}px, network starts at ${scene}px`);
+    await page.close();
+  }
   console.log('layout ok');
 } finally {
   await browser.close();
