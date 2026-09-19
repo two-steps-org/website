@@ -60,6 +60,10 @@ async function prerender() {
       }
     }
     const page = await browser.newPage();
+    // Capture the page at rest: the scroll-driven sections render their static
+    // fallback layouts under reduced motion, so no mid-scroll transform or
+    // unplayed entrance gets baked into the HTML.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
 
     const fs = await import('fs');
     const path = await import('path');
@@ -71,6 +75,10 @@ async function prerender() {
       await page.goto(url, { waitUntil: 'networkidle' });
       await page.waitForTimeout(2000);
 
+      // Crawlers get the markup; visitors must not see it flash before React
+      // replaces it (createRoot, not hydration). index.html hides a marked
+      // root and main.tsx clears the mark before the first render.
+      await page.evaluate(() => document.getElementById('root')?.setAttribute('data-prerender', ''));
       const html = await page.content();
       const fileName = route === '/' ? 'index.html' : `${route.replace(/^\//, '')}/index.html`;
       const filePath = path.join('./dist', fileName);

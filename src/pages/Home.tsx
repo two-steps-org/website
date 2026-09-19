@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useLayoutEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import Hero from '../components/Hero';
 import ProofStrip from '../components/ProofStrip';
 import WorkRail from '../components/WorkRail';
 import Testimonials from '../components/Testimonials';
 import Services from '../components/Services';
-import BentoGrid from '../components/BentoGrid/BentoGrid';
 import WhyUs from '../components/WhyUs';
 import Process from '../components/Process';
 import Team from '../components/Team';
@@ -24,12 +23,15 @@ const SectionErrorFallback = ({ error }: { error: Error }) => (
 
 const Home = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const hasConsumedSectionNav = useRef(false);
   const navState = (location.state as { targetSection?: string; isSectionNav?: boolean } | null) ?? null;
-  const targetSection = navState?.isSectionNav ? navState.targetSection ?? null : null;
+  // Section to land on: in-app nav passes it as state, a deep link as the hash.
+  const targetSection =
+    (navState?.isSectionNav ? navState.targetSection : null) ?? (location.hash.slice(1) || null);
 
   useLayoutEffect(() => {
-    if (targetSection) {
+    if (targetSection && targetSection !== 'home') {
       hasConsumedSectionNav.current = true;
       const sectionId = targetSection;
       const root = document.documentElement;
@@ -49,6 +51,8 @@ const Home = () => {
       const alignTimer = window.setTimeout(jumpToTarget, 120);
       const restoreTimer = window.setTimeout(() => {
         root.style.scrollBehavior = previousScrollBehavior;
+        // Landed: drop the state and the hash so neither can re-anchor later.
+        navigate(location.pathname + location.search, { replace: true, state: null });
       }, 240);
 
       return () => {
@@ -60,13 +64,7 @@ const Home = () => {
     if (!hasConsumedSectionNav.current) {
       window.scrollTo(0, 0);
     }
-  }, [targetSection]);
-
-  useEffect(() => {
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-  }, []);
+  }, [targetSection, navigate, location.pathname, location.search]);
 
   return (
     <ErrorBoundary FallbackComponent={SectionErrorFallback}>
@@ -82,12 +80,6 @@ const Home = () => {
       <Testimonials />
 
       <WhyUs />
-
-      <section id="showcase" className="hidden md:block relative w-full py-12 md:py-24 flex flex-col justify-center overflow-hidden">
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <BentoGrid />
-        </div>
-      </section>
 
       <Process />
       <Team />

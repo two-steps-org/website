@@ -6,45 +6,47 @@
   "scripts": {
     "dev": "vite",
     "build": "pnpm run build:ssg",
-    "build:ssg": "SEO_ENV=production VITE_SEO_ENV=production tsc --noEmit && SEO_ENV=production VITE_SEO_ENV=production vite build && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/prerender.ts && node scripts/optimize-render-blocking-css.mjs && node scripts/optimize-modulepreloads.mjs && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/generate-sitemap.ts && SEO_ENV=production VITE_SEO_ENV=production node --import tsx scripts/verify-seo-html.ts && node scripts/check-performance-budget.mjs",
-    "build:seo:staging": "SEO_ENV=staging VITE_SEO_ENV=staging tsc --noEmit && SEO_ENV=staging VITE_SEO_ENV=staging vite build && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/prerender.ts && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/generate-sitemap.ts && SEO_ENV=staging VITE_SEO_ENV=staging node --import tsx scripts/verify-seo-html.ts",
+    "build:ssg": "export SEO_ENV=production VITE_SEO_ENV=production; tsc --noEmit && vite build && node --import tsx scripts/prerender.ts && node scripts/optimize-modulepreloads.mjs && node --import tsx scripts/generate-sitemap.ts && node --import tsx scripts/verify-seo-html.ts && node scripts/check-performance-budget.mjs",
+    "build:seo:staging": "export SEO_ENV=staging VITE_SEO_ENV=staging; tsc --noEmit && vite build && node --import tsx scripts/prerender.ts && node --import tsx scripts/generate-sitemap.ts && node --import tsx scripts/verify-seo-html.ts",
     "seo:verify": "node --import tsx scripts/verify-seo-html.ts",
     "preview": "vite preview",
     "lint": "eslint ."
   },
   "dependencies": {
     "clsx": "^2.1.1",
-    "framer-motion": "^11.18.2",
-    "lucide-react": "^0.344.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "framer-motion": "^12.43.0",
+    "lucide-react": "^1.47.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-helmet-async": "^2.0.5",
-    "react-router-dom": "^6.30.3",
+    "react-router-dom": "^7.18.4",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^24.10.13",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
     "@vitejs/plugin-react-swc": "^4.2.3",
-    "autoprefixer": "^10.4.24",
     "eslint": "^9.39.3",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^15.15.0",
     "jsdom": "^27.4.0",
     "playwright": "^1.58.2",
-    "postcss": "^8.5.6",
     "rollup-plugin-visualizer": "^5.14.0",
-    "tailwindcss": "^3.4.19",
+    "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-compression": "^0.5.1"
+    "vite": "^8.3.0",
+    "vite-plugin-compression2": "^2.5.3"
   },
-  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc"
+  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
+  "pnpm": {
+    "minimumReleaseAge": 0
+  }
 }

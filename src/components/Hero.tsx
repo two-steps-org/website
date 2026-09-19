@@ -1,15 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { AINetworkVisualization } from './ui/AINetworkVisualization';
 import Section from './common/Section';
+import Parallax from './common/Parallax';
 import ErrorBoundary from './common/ErrorBoundary';
 import SplitText from './common/SplitText';
-import Parallax from './common/Parallax';
 import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
 import { BOOK_CALL_URL } from '../data/navItems';
-import { enter, enterPop, enterScale } from '../utils/motion';
+import { useReducedMotionQuery } from '../utils/scroll';
+import { EASE_OUT, enterScale, mainThread } from '../utils/motion';
 
 /** The four things we build, shown as glass chips under the CTAs. */
 const CAPABILITY_CHIPS = [
@@ -20,52 +21,52 @@ const CAPABILITY_CHIPS = [
 ] as const;
 
 const Hero: React.FC = () => {
+  const heroRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotionQuery();
+  const [fontsReady, setFontsReady] = useState(false);
+  useEffect(() => {
+    let active = true;
+    // Hold every entrance until the hero's own typefaces are in. On a cold
+    // load `fonts.ready` resolves before the faces even start downloading
+    // (nothing is loading yet), so it must be the explicit loads that gate:
+    // otherwise the swap reflows the copy while everything is mid-flight.
+    // Capped so a blocked font CDN cannot leave the hero invisible.
+    const faces = ['300 1em "Inter Tight"', '1em Inter', 'italic 1em "Instrument Serif"'];
+    Promise.race([
+      Promise.all(faces.map(face => document.fonts.load(face))).then(() => document.fonts.ready),
+      new Promise(resolve => setTimeout(resolve, 1200)),
+    ]).then(() => {
+      if (active) setFontsReady(true);
+    });
+    return () => { active = false; };
+  }, []);
+  const ready = reduce || fontsReady;
+  const entrance = (delay: number, horizontal = false) => ({
+    ...mainThread,
+    initial: reduce ? false as const : { opacity: 0, transform: horizontal ? 'translateX(-16px)' : 'translateY(12px)' },
+    // Motion cannot interpolate to 'none'; it would snap instead of easing.
+    animate: ready ? { opacity: 1, transform: horizontal ? 'translateX(0px)' : 'translateY(0px)' } : undefined,
+    transition: { type: 'tween' as const, duration: reduce ? 0 : 0.4, ease: EASE_OUT, delay: reduce ? 0 : delay },
+  });
   const deviceType = useDeviceType();
   const isMobile = deviceType === 'mobile';
-  const [showMobileVisualization, setShowMobileVisualization] = useState(!isMobile);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setShowMobileVisualization(true);
-      return;
-    }
-
-    const REVEAL_SCROLL_Y = 120;
-    const revealOnScroll = () => {
-      setShowMobileVisualization(window.scrollY > REVEAL_SCROLL_Y);
-    };
-
-    revealOnScroll();
-    window.addEventListener('scroll', revealOnScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', revealOnScroll);
-    };
-  }, [isMobile]);
-
   const handleBookCall = useCallback(() => {
     window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
   }, []);
 
-  // Choreography, on load: eyebrow → headline words rise out of their mask →
-  // body → CTAs spring → chips slide in from the left → the visualization
-  // powers on, then parallaxes as you scroll away. The whole composition
-  // settles inside ~0.9s and the headline is visibly forming by ~150ms — a
-  // blank hero for even half a second reads as broken.
   return (
-    <Section className="relative overflow-hidden min-h-0 lg:min-h-[calc(100vh-80px)] flex items-center justify-center pt-36 pb-12 md:py-28 lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20">
-      <div className="grid lg:grid-cols-[1fr,1.1fr] items-center gap-8 lg:gap-8 w-full max-w-7xl mx-auto">
-        {/* Left Column */}
-        <div className="z-10 space-y-6 text-center lg:text-left flex flex-col justify-center h-full">
-          <m.p {...enter(0)} className="ts-eyebrow">
-            Custom Software &amp; AI Studio
-          </m.p>
-
-          {/* "Ahead" is one of the three serif-italic signature words allowed
-              site-wide (the other is "vision", in the closing CTA). */}
+    <Section ref={heroRef}
+      className="relative flex min-h-0 items-center justify-center overflow-hidden pt-36 pb-12 md:py-28 lg:min-h-[calc(100vh-80px)] lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20"
+    >
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
+        <div
+          data-scroll-hero="copy"
+          className="z-10 flex h-full flex-col justify-center space-y-6 text-center lg:justify-start lg:text-left"
+        >
           <SplitText
             as="h1"
             mode="enter"
+            ready={fontsReady}
             delay={0.05}
             stagger={0.035}
             className="ts-display -ml-[0.04em]"
@@ -76,38 +77,39 @@ const Hero: React.FC = () => {
             ]}
           />
 
-          <m.p {...enter(0.3)} className="ts-body max-w-2xl mx-auto lg:mx-0">
+          <m.p {...entrance(0.25)} className="ts-body mx-auto max-w-2xl lg:mx-0">
             At Two Steps, our process is simple: you bring the vision, we bring it to life.
             We craft custom AI solutions, turning complex challenges into seamless automation.
           </m.p>
 
-          <div className="flex flex-col md:flex-row gap-3 pt-2 justify-center lg:justify-start w-full md:w-auto">
-            <m.button
-              {...enterPop(0, 0.4)}
-              onClick={handleBookCall}
-              className="ts-pill h-14 px-7 text-base w-full md:w-auto"
-            >
-              Book a Call
-              <ArrowRight className="w-4 h-4" />
-            </m.button>
+          <div className="flex w-full flex-col justify-center gap-3 pt-2 md:w-auto md:flex-row md:items-center lg:justify-start">
+            <m.div {...entrance(0.35)} className="w-full md:w-auto">
+              <button
+                type="button"
+                onClick={handleBookCall}
+                className="ts-pill h-14 w-full px-7 text-base md:w-auto"
+              >
+                Book a Call
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </m.div>
 
-            <m.div {...enterPop(1, 0.4)} className="w-full md:w-auto">
-              <Link to="/case-studies" className="block w-full md:w-auto">
-                <button className="ts-pill-ghost h-14 px-7 text-base w-full md:w-auto">
-                  Case Studies
-                </button>
+            <m.div {...entrance(0.35)} className="w-full md:w-auto">
+              <Link
+                to="/case-studies"
+                className="ts-pill-ghost h-14 w-full px-7 text-base md:w-auto"
+              >
+                Case Studies
               </Link>
             </m.div>
           </div>
 
-          <ul className="flex flex-wrap gap-2 justify-center lg:justify-start list-none m-0 p-0 pt-2">
-            {CAPABILITY_CHIPS.map((chip, i) => (
+          <ul className="m-0 flex list-none flex-wrap justify-center gap-2 p-0 pt-2 lg:justify-start">
+            {CAPABILITY_CHIPS.map((chip, index) => (
               <m.li
                 key={chip}
-                initial={{ opacity: 0, transform: 'translateX(-24px)' }}
-                animate={{ opacity: 1, transform: 'translateX(0px)' }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 + i * 0.05 }}
-                className="ts-glass inline-flex items-center h-9 px-3.5 rounded-full text-[13px] font-medium text-ink"
+                {...entrance(0.45 + index * 0.05, true)}
+                className="ts-glass inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-medium text-ink"
               >
                 {chip}
               </m.li>
@@ -115,26 +117,22 @@ const Hero: React.FC = () => {
           </ul>
         </div>
 
-        {/* Right Column - AI Network Visualization */}
         <Parallax distance={90} className="relative w-full">
           <m.div
-            {...enterScale(0.2)}
-            className={`relative w-full h-[320px] md:h-[500px] lg:h-[600px] mt-4 lg:mt-0 flex items-center justify-center select-none ${
-              isMobile && !showMobileVisualization ? 'opacity-0 pointer-events-none' : ''
-            }`}
+            data-scroll-hero="scene"
+            {...(reduce ? mainThread : enterScale(0.2))}
+            className="relative mt-4 flex h-[320px] w-full select-none items-center justify-center md:h-[500px] lg:mt-0 lg:h-[600px]"
           >
-            <div className="w-full h-full relative flex items-center justify-center p-4">
-              {(!isMobile || showMobileVisualization) && (
-                <ErrorBoundary
-                  fallback={
-                    <div className="ts-card w-full h-full flex items-center justify-center">
-                      <p className="text-muted">Visualization unavailable</p>
-                    </div>
-                  }
-                >
-                  <AINetworkVisualization simplified={isMobile} />
-                </ErrorBoundary>
-              )}
+            <div className="relative flex h-full w-full items-center justify-center p-4 lg:p-0">
+              <ErrorBoundary
+                fallback={
+                  <div className="flex h-full w-full items-center justify-center ts-card">
+                    <p className="text-muted">Visualization unavailable</p>
+                  </div>
+                }
+              >
+                <AINetworkVisualization simplified={isMobile} />
+              </ErrorBoundary>
             </div>
           </m.div>
         </Parallax>

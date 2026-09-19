@@ -1,82 +1,108 @@
-import React from 'react';
-import { m, useReducedMotion } from 'framer-motion';
-import { maskParent, maskWord } from '../../utils/motion';
+import React, { useContext, useRef } from 'react';
+import { m, useTransform, type MotionValue } from 'framer-motion';
+import { mainThread, maskParent, maskWord } from '../../utils/motion';
+import { ScrollProgressContext, useReducedMotionQuery, useSectionProgress } from '../../utils/scroll';
 
-/** A run of words that share styling — lets a headline mix a serif word in. */
 export interface TextSegment {
   text: string;
   className?: string;
-  /** Force a line break before this segment. */
   breakBefore?: boolean;
 }
 
 interface SplitTextProps {
-  /** Plain string, split on spaces. */
   text?: string;
-  /** Mixed-style alternative to `text`. */
   segments?: TextSegment[];
   as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
   className?: string;
-  /** Seconds between words. */
   stagger?: number;
-  /** Seconds before the first word. */
   delay?: number;
-  /** `enter` animates on mount (above the fold); `reveal` waits for scroll. */
-  mode?: 'enter' | 'reveal';
+  mode?: 'enter' | 'reveal' | 'static';
+  /** Hold an entrance until its layout is ready, such as after fonts load. */
+  ready?: boolean;
 }
 
-/**
- * Headline reveal: each word rises out of its own clipped line, staggered.
- *
- * The clip is what sells it — words appear to come up from behind an
- * invisible edge rather than fading in place. Each word carries its own
- * trailing space inside the clip so line-wrapping is unaffected.
- */
-const SplitText: React.FC<SplitTextProps> = ({
-  text,
-  segments,
-  as = 'h2',
-  className,
-  stagger = 0.035,
-  delay = 0,
-  mode = 'reveal',
-}) => {
-  const Tag = m[as];
-  const reduce = useReducedMotion();
-  const runs: TextSegment[] = segments ?? [{ text: text ?? '' }];
-  const label = runs.map((r) => r.text).join(' ');
-  const trigger =
-    mode === 'enter'
-      ? { animate: 'show' as const }
-      : { whileInView: 'show' as const, viewport: { once: true, margin: '0px 0px -12% 0px' } };
+type Word = { id: string; text: string; className?: string; breakBefore?: boolean };
+const ScrollWord = ({ word, index, total, progress }: { word: Word; index: number; total: number; progress: MotionValue<number> }) => {
+  const start = (index / Math.max(total, 1)) * 0.35;
+  const wordProgress = useTransform(progress, [start, start + 0.65], [0, 1]);
+  const transform = useTransform(wordProgress, value => `translateY(${(1 - value) * 105}%)`);
+  const opacity = useTransform(wordProgress, [0, 1], [0.15, 1]);
+  return <m.span className={`inline-block ${word.className ?? ''}`} style={{ transform, opacity }}>{word.text}</m.span>;
+};
 
-  // Reduced motion: no "hidden" start state, so the words are simply there.
-  const motionProps = reduce
-    ? { initial: false as const }
-    : { variants: maskParent(stagger, delay), initial: 'hidden' as const, ...trigger };
+const maskClass = 'inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em]';
 
+type HeadingProps = SplitTextProps & { words: Word[]; label: string };
+
+function HeadingWords({ as = 'h2', className, words, label, progress, anchorRef }: HeadingProps & { progress: MotionValue<number>; anchorRef?: React.Ref<HTMLHeadingElement> }) {
+  const Tag = as;
   return (
-    <Tag className={className} {...motionProps} aria-label={label}>
-      {runs.map((run, r) => {
-        const words = run.text.split(' ').filter(Boolean);
-        return (
-          <React.Fragment key={`${run.text}-${r}`}>
-            {run.breakBefore && <br />}
-            {words.map((word, i) => (
-              <span
-                key={`${word}-${i}`}
-                className="inline-block overflow-hidden align-bottom pb-[0.08em] -mb-[0.08em]"
-                aria-hidden="true"
-              >
-                <m.span className={`inline-block ${run.className ?? ''}`} variants={maskWord}>
-                  {word}
-                  {i < words.length - 1 || r < runs.length - 1 ? ' ' : ''}
-                </m.span>
-              </span>
-            ))}
+    <Tag ref={anchorRef} className={className} aria-label={label}>
+      {words.map((word, index) => (
+        <React.Fragment key={word.id}>
+          {word.breakBefore && <br />}
+          <span className={maskClass} aria-hidden="true">
+            <ScrollWord word={word} index={index} total={words.length} progress={progress} />
+          </span>
+        </React.Fragment>
+      ))}
+    </Tag>
+  );
+}
+
+function StandaloneScrollHeading(props: HeadingProps) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const progress = useSectionProgress(ref, ['start 0.94', 'start 0.34']);
+  return <HeadingWords {...props} anchorRef={ref} progress={progress} />;
+}
+
+function ScrollHeading(props: HeadingProps) {
+  const shared = useContext(ScrollProgressContext);
+  return shared ? <HeadingWords {...props} progress={shared} /> : <StandaloneScrollHeading {...props} />;
+}
+
+/** Optional entrances and scroll-driven word masks, with a stationary mode. */
+const SplitText: React.FC<SplitTextProps> = ({ text, segments, as = 'h2', className, stagger = 0.035, delay = 0, mode = 'reveal', ready = true }) => {
+  const reduce = useReducedMotionQuery();
+  const runs = segments ?? [{ text: text ?? '' }];
+  const label = runs.map(run => run.text).join(' ');
+  const words = runs.flatMap((run, runIndex) => {
+    const parts = run.text.split(' ').filter(Boolean);
+    return parts.map((word, index) => ({
+      id: `${runIndex}-${index}-${word}`,
+      text: word + (index < parts.length - 1 || runIndex < runs.length - 1 ? '\u00a0' : ''),
+      className: run.className,
+      breakBefore: index === 0 && run.breakBefore,
+    }));
+  });
+  if (mode === 'static') {
+    const Tag = as;
+    return (
+      <Tag className={className} aria-label={label}>
+        {words.map((word) => (
+          <React.Fragment key={word.id}>
+            {word.breakBefore && <br />}
+            <span className={maskClass} aria-hidden="true">
+              <span className={`inline-block ${word.className ?? ''}`}>{word.text}</span>
+            </span>
           </React.Fragment>
-        );
-      })}
+        ))}
+      </Tag>
+    );
+  }
+  if (!reduce && mode === 'reveal') return <ScrollHeading as={as} className={className} words={words} label={label} />;
+
+  const Tag = m[as];
+  return (
+    <Tag className={className} aria-label={label} initial={reduce ? false : 'hidden'} animate={reduce || ready ? 'show' : 'hidden'} variants={maskParent(reduce ? 0 : stagger, reduce ? 0 : delay)}>
+      {words.map((word) => (
+        <React.Fragment key={word.id}>
+          {word.breakBefore && <br />}
+          <span className={maskClass} aria-hidden="true">
+            <m.span {...mainThread} className={`inline-block ${word.className ?? ''}`} variants={reduce ? undefined : maskWord}>{word.text}</m.span>
+          </span>
+        </React.Fragment>
+      ))}
     </Tag>
   );
 };

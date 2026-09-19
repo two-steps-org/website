@@ -1,18 +1,23 @@
 import React from 'react';
+import { useReducedMotionQuery } from '../../../utils/scroll';
 import CardContainer from '../shared/CardContainer';
+import { useInView } from '../../../utils/useInView';
 import { LiveMetricPanel, MetricCodePreviewPanel } from './EncryptionMetricPanels';
 import { useEncryptionMetricCycle } from './useEncryptionMetricCycle';
 
-const EncryptionCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
-  const { label, value, isSyncing, activeField, delta, streamLabel } = useEncryptionMetricCycle();
+const EncryptionCard: React.FC<{ className?: string; title?: string }> = ({
+  className,
+  title = 'Encryption Telemetry',
+}) => {
+  const { ref, inView } = useInView();
+  const reduce = useReducedMotionQuery();
+  const { label, value, isSyncing, activeField, delta, streamLabel } = useEncryptionMetricCycle(inView && !reduce);
 
   return (
-    <CardContainer className={className} index={index}>
-      <div className="relative flex h-full flex-col overflow-hidden">
+    <CardContainer className={className}>
+      <div ref={ref} className="relative flex h-full flex-col overflow-hidden">
         <div className="relative z-10 mb-4">
-          <div className="bento-card-title text-ink">
-            Encryption Telemetry
-          </div>
+          <h3 className="bento-card-title text-ink m-0">{title}</h3>
         </div>
 
         <div className="relative z-10 mb-2 flex gap-4">

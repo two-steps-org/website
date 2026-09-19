@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useEffectEvent, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { fade, modalPanel } from '../../../utils/motion';
 
 interface ModalProps {
   isOpen: boolean;
@@ -55,17 +56,19 @@ const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
+  const onEscapeClose = useEffectEvent(onClose);
+
   // Close modal on Escape key press
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onEscapeClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   // Auto-focus modal when opened
   useEffect(() => {
@@ -85,9 +88,7 @@ const Modal: React.FC<ModalProps> = ({
             type="button"
             aria-label="Close modal backdrop"
             onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            {...fade}
             className="absolute inset-0 bg-bg/70 backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-ink"
           />
 
@@ -99,18 +100,12 @@ const Modal: React.FC<ModalProps> = ({
               role="dialog"
               aria-modal="true"
               aria-labelledby={title ? "modal-title" : undefined}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3 }}
+              {...modalPanel}
               className={`
                 pointer-events-auto relative w-full
-                ${maxWidthClasses[maxWidth]} 
+                ${maxWidthClasses[maxWidth]}
                 max-h-[90dvh] flex flex-col
-                bg-surface 
-                rounded-card
-                border border-line 
-                backdrop-blur-xl 
+                ts-modal-shell
                 overflow-hidden
                 will-change-transform
                 touch-manipulation
@@ -133,15 +128,14 @@ const Modal: React.FC<ModalProps> = ({
                   )}
                   
                   {showCloseButton && (
-                    <m.button
+                    <button
+                      type="button"
                       onClick={onClose}
                       aria-label="Close modal"
-                      whileHover={{ scale: 1.1, rotate: 90 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border border-line-strong text-ink hover:bg-ink/10 transition-colors touch-manipulation shrink-0"
+                      className="ts-icon-btn flex min-h-[44px] min-w-[44px] shrink-0 touch-manipulation items-center justify-center rounded-full border border-line-strong text-ink hover:bg-ink/10"
                     >
                       <X className="w-5 h-5 text-ink" />
-                    </m.button>
+                    </button>
                   )}
                 </div>
               )}

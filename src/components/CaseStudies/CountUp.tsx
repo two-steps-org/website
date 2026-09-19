@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { prefersReducedMotion } from '../../utils/motionPreference';
 
 interface CountUpProps {
   value: number;
@@ -9,11 +10,6 @@ interface CountUpProps {
 }
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
  * Counts from zero to `value` on mount.

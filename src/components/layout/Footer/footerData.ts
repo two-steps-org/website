@@ -1,17 +1,14 @@
 import {
-  Facebook,
-  Linkedin,
-  Instagram,
   MessageSquareText,
   Mic,
   LayoutDashboard,
   Code2,
-  X as XIcon,
   Mail,
   MapPin,
   Phone,
   LucideIcon,
 } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, XBrand, type BrandIcon } from '../../icons/brand-icons';
 
 export interface NavItem {
   label: string;
@@ -32,7 +29,7 @@ export interface ContactItem {
 }
 
 export interface SocialItem {
-  icon: LucideIcon;
+  icon: BrandIcon;
   href: string;
   label: string;
 }
@@ -62,7 +59,7 @@ export const contact: ContactItem[] = [
 
 export const social: SocialItem[] = [
   { icon: Facebook, href: 'https://www.facebook.com/twostepsai', label: 'Facebook' },
-  { icon: XIcon, href: 'https://x.com/twostepsai', label: 'X (Twitter)' },
+  { icon: XBrand, href: 'https://x.com/twostepsai', label: 'X (Twitter)' },
   { icon: Linkedin, href: 'https://www.linkedin.com/company/two-steps-ai/', label: 'LinkedIn' },
   { icon: Instagram, href: 'https://www.instagram.com/twostepsai', label: 'Instagram' },
 ];

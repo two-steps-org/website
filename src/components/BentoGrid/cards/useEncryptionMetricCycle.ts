@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type MetricMode = 'revenue' | 'users';
 type ActiveField = 'label' | 'value' | null;
@@ -18,31 +18,38 @@ const METRICS: Record<MetricMode, { label: string; value: string; delta: string;
   },
 };
 
-export function useEncryptionMetricCycle() {
+export function useEncryptionMetricCycle(enabled = true) {
   const [mode, setMode] = useState<MetricMode>('revenue');
+  const modeRef = useRef<MetricMode>('revenue');
   const [label, setLabel] = useState(METRICS.revenue.label);
   const [value, setValue] = useState(METRICS.revenue.value);
   const [isSyncing, setIsSyncing] = useState(false);
   const [activeField, setActiveField] = useState<ActiveField>(null);
 
   useEffect(() => {
-    let nextMode: MetricMode = 'users';
+    setIsSyncing(false);
+    setActiveField(null);
+    if (!enabled) return;
+
+    let labelTimer: number | undefined;
+    let valueTimer: number | undefined;
 
     const applyMetric = () => {
       setIsSyncing(true);
       setActiveField('label');
 
-      window.setTimeout(() => {
-        const metric = METRICS[nextMode];
-        setMode(nextMode);
-        setLabel(metric.label);
+      labelTimer = window.setTimeout(() => {
         setActiveField('value');
 
-        window.setTimeout(() => {
+        valueTimer = window.setTimeout(() => {
+          const nextMode = modeRef.current === 'revenue' ? 'users' : 'revenue';
+          const metric = METRICS[nextMode];
+          modeRef.current = nextMode;
+          setMode(nextMode);
+          setLabel(metric.label);
           setValue(metric.value);
           setIsSyncing(false);
           setActiveField(null);
-          nextMode = nextMode === 'revenue' ? 'users' : 'revenue';
         }, 150);
       }, 150);
     };
@@ -53,8 +60,10 @@ export function useEncryptionMetricCycle() {
     return () => {
       window.clearTimeout(startTimer);
       window.clearInterval(interval);
+      window.clearTimeout(labelTimer);
+      window.clearTimeout(valueTimer);
     };
-  }, []);
+  }, [enabled]);
 
   const metric = METRICS[mode];
 

@@ -52,8 +52,9 @@ class ErrorBoundary extends Component<Props, State> {
               We apologize for the inconvenience. Please try refreshing the page.
             </p>
             <button
+              type="button"
               onClick={this.handleRetry}
-              className="px-6 py-3 bg-accent text-accent-fg rounded-lg font-medium hover:opacity-90 transition-opacity min-h-[44px]"
+              className="ts-pill min-h-[44px] px-6 py-3"
             >
               Try Again
             </button>

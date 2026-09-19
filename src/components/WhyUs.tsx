@@ -1,238 +1,333 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { m } from 'framer-motion';
-import {
-  Target,
-  Puzzle,
-  Brain,
-  Rocket,
-  ShieldCheck,
-  HeartHandshake,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import Section from './common/Section';
-import { hapticFeedback } from '../utils/mobile/hapticFeedback';
-import clsx from 'clsx';
-import SplitText from './common/SplitText';
-import { pop, reveal, scaleIn, STAGGER } from '../utils/motion';
+'use client';
 
-const features = [
+import React, { useState } from 'react';
+import clsx from 'clsx';
+import {
+  m,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion';
+import Section from './common/Section';
+import SplitText from './common/SplitText';
+import Scrub from './common/Scrub';
+import { useReducedMotionQuery } from '../utils/scroll';
+
+const slides = [
   {
-    icon: Target,
-    title: 'Built for Your Business',
+    number: '01',
+    headline: 'Built for Your Business',
     description:
       'Our AI solutions are custom-built to fit your goals, industry, and challenges—because your business deserves more than one-size-fits-all.',
   },
   {
-    icon: Puzzle,
-    title: 'Effortless Integration',
+    number: '02',
+    headline: 'Effortless Integration',
     description:
       'Seamlessly connect our AI solutions with your existing tools and workflows, ensuring zero downtime and immediate results.',
   },
   {
-    icon: Brain,
-    title: 'Intelligence You Can Trust',
+    number: '03',
+    headline: 'Intelligence You Can Trust',
     description:
       'Our AI agents are designed with precision, delivering reliable, consistent results that you can count on.',
   },
   {
-    icon: Rocket,
-    title: 'Evolving with Your Needs',
+    number: '04',
+    headline: 'Evolving with Your Needs',
     description:
       "Our solutions grow with you, adapting to your business's evolution so you're always ready for what's next.",
   },
   {
-    icon: ShieldCheck,
-    title: 'Security at the Core',
+    number: '05',
+    headline: 'Security at the Core',
     description:
       'Every AI solution we build is designed with advanced data protection, keeping your operations secure at every step.',
   },
   {
-    icon: HeartHandshake,
-    title: 'Expertise You Can Rely On',
+    number: '06',
+    headline: 'Expertise You Can Rely On',
     description:
       'Our team of specialists works closely with you, from concept to delivery, to ensure your AI vision becomes a reality.',
   },
-];
+] as const;
 
-const extendedFeatures = ['before', 'main', 'after'].flatMap((copy) =>
-  features.map((feature) => ({ feature, copy })),
+const SLIDE_COUNT = slides.length;
+const HOLD = 0.86;
+const FLIP = 1 - HOLD;
+const HALF = 0.5;
+const FLIP_DEG = 38;
+const PERSPECTIVE = 1400;
+/** Site ease-out: cubic-bezier(0.23, 1, 0.32, 1) approximated for scroll sampling. */
+const easeOut = (t: number) => 1 - (1 - Math.min(1, Math.max(0, t))) ** 3;
+
+type FlipState = {
+  opacity: number;
+  rotateX: number;
+  scale: number;
+  y: number;
+  z: number;
+};
+
+const hidden: FlipState = { opacity: 0, rotateX: FLIP_DEG, scale: 0.97, y: 16, z: 0 };
+
+const slideAt = (sp: number) => {
+  const current = Math.min(Math.floor(sp), SLIDE_COUNT - 1);
+  return { current, step: sp - current };
+};
+
+/** Index shown in the rail — updates after the outgoing slide has left. */
+const visibleIndex = (sp: number) => {
+  const { current, step } = slideAt(sp);
+  if (step >= HOLD + FLIP * HALF) return Math.min(current + 1, SLIDE_COUNT - 1);
+  return current;
+};
+
+/** Hold one readable slide, then a sequential flip. Never two headlines at once. */
+const slideFlipState = (sp: number, index: number): FlipState => {
+  const { current, step } = slideAt(sp);
+
+  if (index < current || index > current + 1) return hidden;
+  if (step < HOLD) {
+    return index === current
+      ? { opacity: 1, rotateX: 0, scale: 1, y: 0, z: 1 }
+      : hidden;
+  }
+
+  const t = (step - HOLD) / FLIP;
+
+  if (index === current) {
+    if (t >= HALF) return hidden;
+    const p = easeOut(t / HALF);
+    return {
+      opacity: 1 - p,
+      rotateX: -p * FLIP_DEG,
+      scale: 1 - p * 0.03,
+      y: -p * 20,
+      z: 2,
+    };
+  }
+
+  if (current >= SLIDE_COUNT - 1 || t < HALF) return hidden;
+  const p = easeOut((t - HALF) / HALF);
+  return {
+    opacity: p,
+    rotateX: (1 - p) * FLIP_DEG,
+    scale: 0.97 + p * 0.03,
+    y: (1 - p) * 20,
+    z: 2,
+  };
+};
+
+const WhySlideBody: React.FC<{ slide: (typeof slides)[number] }> = ({ slide }) => (
+  <div className="flex w-full max-w-[52rem] items-center gap-[clamp(20px,3.5vw,36px)]">
+    <span
+      aria-hidden="true"
+      className="font-tight w-[2.2ch] shrink-0 select-none text-right text-[clamp(64px,8.5vw,120px)] font-light leading-none tracking-[-0.05em] text-muted/22"
+    >
+      {slide.number}
+    </span>
+    <div className="h-[clamp(72px,12vh,140px)] w-px shrink-0 bg-line" aria-hidden="true" />
+    <div className="flex min-w-0 flex-col justify-center py-2">
+      <h2 className="ts-display m-0 mb-5 max-w-[14ch] text-ink">{slide.headline}</h2>
+      <p className="ts-body m-0 max-w-[38ch]">{slide.description}</p>
+    </div>
+  </div>
 );
 
-const WhyUs: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollRafRef = useRef<number | null>(null);
-  
-  const totalItems = features.length;
+const WhySlide: React.FC<{ slide: (typeof slides)[number]; compact?: boolean }> = ({
+  slide,
+  compact,
+}) => (
+  <article className={clsx('flex w-full items-center', compact ? 'py-10' : 'h-full')}>
+    <WhySlideBody slide={slide} />
+  </article>
+);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      const { scrollWidth } = scrollRef.current;
-      scrollRef.current.scrollLeft = scrollWidth / 3;
-    }
-  }, []);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      // Scroll by roughly one card width + gap
-      const scrollAmount = clientWidth - 40;
-      const targetScroll = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
-      
-      scrollRef.current.scrollTo({ left: targetScroll, behavior: 'smooth' });
-      hapticFeedback.selection();
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (scrollRafRef.current !== null) {
-        window.cancelAnimationFrame(scrollRafRef.current);
-      }
-    };
-  }, []);
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    if (scrollRafRef.current !== null) return;
-
-    scrollRafRef.current = window.requestAnimationFrame(() => {
-      scrollRafRef.current = null;
-      const el = scrollRef.current;
-      if (!el) return;
-
-      const { scrollLeft, scrollWidth, clientWidth } = el;
-      const singleSetWidth = scrollWidth / 3;
-      if (!singleSetWidth) return;
-
-      // Seamless jump logic - jump when nearing edges to avoid "hitting a wall"
-      let normalizedScrollLeft = scrollLeft;
-      if (scrollLeft < 20) {
-        normalizedScrollLeft = scrollLeft + singleSetWidth;
-        el.scrollLeft = normalizedScrollLeft;
-      } else if (scrollLeft > scrollWidth - clientWidth - 20) {
-        normalizedScrollLeft = scrollLeft - singleSetWidth;
-        el.scrollLeft = normalizedScrollLeft;
-      }
-
-      const relativeScroll = normalizedScrollLeft % singleSetWidth;
-      const itemWidth = singleSetWidth / totalItems;
-      const nextIndex = Math.round(relativeScroll / itemWidth) % totalItems;
-      setActiveIndex((prev) => (prev === nextIndex ? prev : nextIndex));
-    });
-  };
+const FlipSlide: React.FC<{
+  slide: (typeof slides)[number];
+  index: number;
+  progress: MotionValue<number>;
+}> = ({ slide, index, progress }) => {
+  const transform = useTransform(progress, (sp) => {
+    const { rotateX, scale, y } = slideFlipState(sp, index);
+    return `perspective(${PERSPECTIVE}px) translateY(${y}px) rotateX(${rotateX}deg) scale(${scale})`;
+  });
+  const opacity = useTransform(progress, (sp) => slideFlipState(sp, index).opacity);
+  const zIndex = useTransform(progress, (sp) => slideFlipState(sp, index).z);
 
   return (
-    <Section className="py-6 md:py-16 lg:py-24 relative" id="why-us">
-      <div className="relative text-center mb-8 md:mb-16">
-        <m.p {...reveal()} className="ts-eyebrow mb-4">
-          WHY US?
-        </m.p>
-        <SplitText as="h2" delay={0.1} className="ts-h2 text-ink" text="What Sets Us Apart" />
-      </div>
+    <m.div
+      className="pointer-events-none absolute inset-0 flex items-center"
+      style={{
+        transform,
+        opacity,
+        zIndex,
+        transformOrigin: '50% 42%',
+      }}
+    >
+      <WhySlideBody slide={slide} />
+    </m.div>
+  );
+};
 
-      <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
-        {features.map((feature, index) => (
-          <m.div
-            key={feature.title}
-            // Diagonal sweep: delay grows with row + column, so the grid fills
-            // from the top-left corner to the bottom-right.
-            {...scaleIn((Math.floor(index / 3) + (index % 3)) * STAGGER)}
-            className="group relative"
-          >
-            <div className="relative overflow-hidden rounded-2xl ts-card backdrop-blur-xl p-5 md:p-6 transition-[border-color,transform] duration-300 hover:border-line-strong hover:-translate-y-1">
-              <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                <m.div
-                  {...pop(index, 0.25)}
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-line-strong shrink-0 group-hover:scale-110 transition-transform duration-300"
-                >
-                  <div className="w-full h-full rounded-xl bg-surface flex items-center justify-center">
-                    <feature.icon className="w-5 h-5 md:w-6 md:h-6 text-ink" />
-                  </div>
-                </m.div>
-                <h3
-                  className="ts-h3 text-ink"
-                >
-                  {feature.title}
-                </h3>
-              </div>
-              <p className="text-muted text-sm md:text-base leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          </m.div>
-        ))}
-      </div>
+const FlipStage: React.FC<{ progress: MotionValue<number> }> = ({ progress }) => (
+  <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden" data-why-us-stage>
+    {slides.map((slide, index) => (
+      <FlipSlide key={slide.number} slide={slide} index={index} progress={progress} />
+    ))}
+  </div>
+);
 
-      <m.div {...reveal(0.12)} className="block md:hidden">
-        <div className="relative">
-          <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="flex overflow-x-auto snap-x snap-proximity gap-4 pb-4 scrollbar-hide"
-            style={{ paddingLeft: '9vw', paddingRight: '9vw', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
-          >
-            {extendedFeatures.map(({ feature, copy }) => (
-              <div key={`${copy}-${feature.title}`} className="snap-center shrink-0 w-[82vw]">
-                <div
-                  className="relative h-full min-h-[280px] flex flex-col overflow-hidden rounded-3xl ts-card backdrop-blur-xl p-6 group touch-manipulation"
-                >
-                  <div className={`absolute inset-0 hidden`} />
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className={`w-12 h-12 rounded-2xl border border-line-strong shadow-lg shrink-0`}>
-                        <div className="w-full h-full rounded-2xl bg-bg flex items-center justify-center">
-                          <feature.icon className="w-5 h-5 text-ink" />
-                        </div>
-                      </div>
-                      <h3 className="ts-h3 text-ink">
-                        {feature.title}
-                      </h3>
-                    </div>
-                    <p className="text-muted text-base leading-relaxed flex-grow">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
+const SectionHeader: React.FC<{ className?: string; align?: 'left' | 'center' }> = ({
+  className,
+  align = 'left',
+}) => (
+  <Scrub y={24} className={clsx(align === 'center' ? 'text-center' : 'text-left', className)}>
+    <p className="ts-eyebrow mb-3">Why us</p>
+    <SplitText
+      as="h2"
+      delay={0.1}
+      className={clsx('ts-h2 m-0 text-ink', align === 'center' && 'mx-auto')}
+      text="What Sets Us Apart"
+    />
+  </Scrub>
+);
+
+const ActiveSlideAnnouncer: React.FC<{ active: MotionValue<number> }> = ({ active }) => {
+  const [announcement, setAnnouncement] = useState(`${slides[0].number}. ${slides[0].headline}`);
+  useMotionValueEvent(active, 'change', (i) => {
+    const slide = slides[Math.round(i)];
+    if (slide) setAnnouncement(`${slide.number}. ${slide.headline}`);
+  });
+  return (
+    <p className="sr-only" aria-live="polite">
+      {announcement}
+    </p>
+  );
+};
+
+const IndexMark: React.FC<{ index: number; active: MotionValue<number> }> = ({ index, active }) => {
+  const opacity = useTransform(active, (i) => (Math.round(i) === index ? 1 : 0.28));
+  const transform = useTransform(active, (i) =>
+    Math.round(i) === index ? 'translateX(0px)' : 'translateX(2px)',
+  );
+
+  return (
+    <m.span
+      className="block font-tight text-[13px] font-medium tabular-nums tracking-[0.08em] text-ink"
+      style={{ opacity, transform }}
+    >
+      {slides[index].number}
+    </m.span>
+  );
+};
+
+const ScrollProgressRail: React.FC<{
+  progress: MotionValue<number>;
+  active: MotionValue<number>;
+}> = ({ progress, active }) => {
+  const fill = useTransform(progress, [0, 1], [0, 1]);
+  const [label, setLabel] = useState('01 / 06');
+
+  useMotionValueEvent(active, 'change', (i) => {
+    const step = String(Math.round(i) + 1).padStart(2, '0');
+    setLabel(`${step} / 06`);
+  });
+
+  return (
+    <aside
+      className="flex h-[min(248px,38vh)] shrink-0 flex-col items-end justify-center self-center"
+      aria-label="Why us progress"
+    >
+      <div className="flex min-h-0 flex-1 items-stretch gap-4">
+        <div className="relative w-px bg-line" aria-hidden="true">
+          <m.div className="absolute inset-x-0 top-0 h-full origin-top bg-ink" style={{ scaleY: fill }} />
+        </div>
+        <ol className="m-0 flex list-none flex-col justify-between p-0 py-0.5">
+          {slides.map((slide, index) => (
+            <li key={slide.number} className="leading-none">
+              <IndexMark index={index} active={active} />
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="ts-eyebrow m-0 mt-5 tabular-nums leading-none" data-why-us-progress>
+        <span className="text-ink">{label.slice(0, 2)}</span>
+        <span className="text-muted">{label.slice(2)}</span>
+      </p>
+    </aside>
+  );
+};
+
+const DesktopScrollShowcase: React.FC = () => {
+  const sectionRef = React.useRef<HTMLElement>(null);
+  const reduce = useReducedMotionQuery();
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const slideProgress = useTransform(scrollYProgress, (p) => p * (SLIDE_COUNT - 1));
+  const activeSlide = useTransform(slideProgress, visibleIndex);
+
+  if (reduce) {
+    return (
+      <section className="relative hidden border-t border-line py-16 lg:block lg:py-24">
+        <div className="mx-auto w-full max-w-[1312px] mobile-safe-px md:px-8 lg:px-8 xl:px-12">
+          <SectionHeader className="mb-12 lg:mb-16" />
+          <div className="space-y-16">
+            {slides.map((slide) => (
+              <WhySlide key={slide.number} slide={slide} compact />
             ))}
           </div>
+        </div>
+      </section>
+    );
+  }
 
-          <div className="flex flex-col items-center mt-2 w-full">
-            <div className="flex items-center gap-6">
-              <m.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => scroll('left')}
-                className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </m.button>
-              <div className="flex gap-2">
-                {features.map((feature, i) => (
-                  <div
-                    key={feature.title}
-                    className={clsx(
-                      "w-1.5 h-1.5 rounded-full transition-[width,background-color] duration-300",
-                      activeIndex === i ? "bg-ink w-3" : "bg-line-strong"
-                    )}
-                  />
-                ))}
-              </div>
-              <m.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => scroll('right')}
-                className="p-3 rounded-2xl ts-card backdrop-blur-xl text-muted hover:text-ink transition-colors"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </m.button>
-            </div>
+  return (
+    <section
+      ref={sectionRef}
+      data-pin
+      data-scroll-slideshow="why-us"
+      className="relative hidden border-t border-line lg:block"
+      style={{ height: `${slides.length * 100}vh` }}
+    >
+      <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
+        <div className="relative mx-auto flex h-full w-full max-w-[1312px] flex-col mobile-safe-px md:px-8 lg:px-8 xl:px-12">
+          <SectionHeader className="shrink-0 pt-[calc(var(--header-height)+1.5rem)] pb-6 lg:pb-8" />
+
+          <ActiveSlideAnnouncer active={activeSlide} />
+
+          <div className="relative flex min-h-0 flex-1 items-stretch gap-8 pb-10 lg:gap-12">
+            <FlipStage progress={slideProgress} />
+            <ScrollProgressRail progress={scrollYProgress} active={activeSlide} />
           </div>
         </div>
-      </m.div>
-    </Section>
+      </div>
+    </section>
+  );
+};
+
+const WhyUs: React.FC = () => {
+  return (
+    <div id="why-us" data-pin>
+      <DesktopScrollShowcase />
+
+      <Section className="relative border-t border-line py-6 md:py-16 lg:hidden lg:py-24">
+        <SectionHeader className="mb-10 md:mb-12" align="center" />
+
+        <div className="space-y-2">
+          {slides.map((slide) => (
+            <Scrub key={slide.number} effect="focus" y={20}>
+              <WhySlide slide={slide} compact />
+            </Scrub>
+          ))}
+        </div>
+      </Section>
+    </div>
   );
 };
 

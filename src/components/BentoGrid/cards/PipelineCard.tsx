@@ -8,6 +8,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import CardContainer from '../shared/CardContainer';
+import { useReducedMotionQuery } from '../../../utils/scroll';
+import { useInView } from '../../../utils/useInView';
 
 type Token = { text: string; color: string };
 type CodeLine = { lineNo: number; tokens: Token[]; stepIdx?: number };
@@ -118,26 +120,30 @@ const steps = [
 const EDITOR_PADDING_TOP = 16;  // matches p-4
 const EDITOR_ROW_PITCH = 22;    // h-5 (20px) + space-y-0.5 (2px)
 
-const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
+const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
+  className,
+  title = 'Agent Workflow',
+}) => {
   const [active, setActive] = useState(0);
+  const { ref, inView } = useInView();
+  const reduce = useReducedMotionQuery();
 
   useEffect(() => {
+    if (!inView || reduce) return;
     const id = setInterval(() => setActive((p) => (p + 1) % (steps.length + 1)), 2200);
     return () => clearInterval(id);
-  }, []);
+  }, [inView, reduce]);
 
   const done = active === steps.length;
   const activeStepLineIndex = codeLines.findIndex((line) => line.stepIdx === active);
 
   return (
-    <CardContainer className={className} index={index}>
-      <div className="relative flex h-full flex-col overflow-hidden">
+    <CardContainer className={className}>
+      <div ref={ref} className="relative flex h-full flex-col overflow-hidden">
 
         {/* Header */}
         <div className="relative z-10 mb-3">
-          <div className="bento-card-title text-ink">
-            Agent Workflow
-          </div>
+          <h3 className="bento-card-title text-ink m-0">{title}</h3>
         </div>
 
         {/* Column labels — widths match the panels below */}
@@ -154,7 +160,7 @@ const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ classN
         <div className="relative z-10 flex min-h-0 flex-1 gap-3">
 
           {/* LEFT — Code Editor */}
-          <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 bg-surface/80 shadow-[0_20px_45px_rgba(0,0,0,0.42)] backdrop-blur-md flex flex-col min-w-0">
+          <div className="ts-surface flex min-w-0 flex-1 flex-col overflow-hidden shadow-[0_20px_45px_rgba(0,0,0,0.42)]">
             {/* macOS title bar */}
             <div className="flex flex-shrink-0 items-center border-b border-white/10 bg-white/[0.02] px-3 py-2">
               <div className="flex gap-[5px]">
@@ -163,11 +169,11 @@ const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ classN
                 <div className="w-2 h-2 rounded-full bg-[#28c840]" />
               </div>
               <div className="flex-1 flex justify-center">
-                <span className="font-mono text-[9px] text-muted">pipeline.ts</span>
+                <span className="hidden md:inline font-mono text-[9px] text-muted">pipeline.ts</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className={`h-1.5 w-1.5 rounded-full transition-colors duration-500 ${!done ? 'animate-pulse bg-ink' : 'bg-status-success'}`} />
-                <span className="font-mono text-[8px] uppercase tracking-widest text-muted">{!done ? 'Running' : 'Done'}</span>
+                <span className="hidden md:inline font-mono text-[8px] uppercase tracking-widest text-muted">{!done ? 'Running' : 'Done'}</span>
               </div>
             </div>
 
@@ -178,7 +184,7 @@ const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ classN
                   style={{ top: EDITOR_PADDING_TOP }}
                   initial={{ y: 0 }}
                   animate={{ y: activeStepLineIndex * EDITOR_ROW_PITCH }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute left-0 right-0 h-5 border-l-2 border-line-strong bg-ink/10"
                 />
               )}
@@ -187,8 +193,8 @@ const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ classN
                   const isActive = line.stepIdx !== undefined && active === line.stepIdx;
                   return (
                     <div key={line.lineNo} className="flex h-5 items-center gap-4">
-                      <span className="w-4 select-none text-right text-muted">{line.lineNo}</span>
-                      <span>
+                      <span className="w-4 shrink-0 select-none text-right text-muted">{line.lineNo}</span>
+                      <span className="whitespace-pre">
                         {line.tokens.length === 0
                           ? <span>&nbsp;</span>
                           : line.tokens.map((tok, j) => (
@@ -292,7 +298,7 @@ const PipelineCard: React.FC<{ className?: string; index?: number }> = ({ classN
                     <m.span
                       initial={{ rotate: -10, scale: 0.5, opacity: 0 }}
                       animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <Sparkles className="h-3 w-3 text-status-success" />
                     </m.span>

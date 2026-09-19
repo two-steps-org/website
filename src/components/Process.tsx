@@ -1,12 +1,13 @@
 'use client';
 
 import React, { memo, useRef, useState } from 'react';
-import { m, useScroll, useTransform } from 'framer-motion';
+import { m } from 'framer-motion';
 import clsx from 'clsx';
 import { Search, Lightbulb, Code2, Rocket, RefreshCw, ChevronDown } from 'lucide-react';
 import Section from './common/Section';
 import SplitText from './common/SplitText';
-import { pop, reveal, revealItem, slideItem } from '../utils/motion';
+import Scrub from './common/Scrub';
+import { useReducedMotionQuery, useSectionProgress } from '../utils/scroll';
 
 const steps = [
   {
@@ -51,149 +52,106 @@ const steps = [
   },
 ];
 
+const DesktopStep: React.FC<{ step: (typeof steps)[number]; index: number }> = ({ step, index }) => {
+  const left = index % 2 === 0;
+
+  return (
+    <div className={clsx('relative flex', left ? 'items-center justify-start' : 'items-center justify-end')}>
+      <Scrub effect="timeline" x={left ? -48 : 48} y={0} className={clsx('w-[calc(50%-2rem)]', left ? 'pr-8' : 'pl-8')}>
+        <div className="relative rounded-2xl border border-line ts-card p-6 shadow-lg transition-colors duration-200 hover:border-line-strong">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="rounded-full bg-accent px-3 py-1">
+              <span className="text-sm font-semibold text-accent-fg">{step.step}</span>
+            </div>
+            <h3 className="ts-h3 text-ink">{step.title}</h3>
+          </div>
+          <p className="text-sm leading-relaxed text-muted">{step.fullDescription}</p>
+        </div>
+      </Scrub>
+
+      <div className="absolute left-1/2 -translate-x-1/2">
+        <Scrub effect="focus" y={8} scale={0.92}>
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-line-strong ts-glass">
+            <step.icon className="h-7 w-7 text-ink" />
+          </div>
+        </Scrub>
+      </div>
+    </div>
+  );
+};
+
 const Process: React.FC = () => {
-  // processRef still drives the timeline's scroll progress below.
   const processRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotionQuery();
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [showAllMobile, setShowAllMobile] = useState(false);
   const toggleStep = (title: string) => {
     setExpandedStep(expandedStep === title ? null : title);
   };
 
-  // Track scroll progress through the entire section container
-  const { scrollYProgress } = useScroll({
-    target: processRef,
-    offset: ['start center', 'end center'],
-  });
-
-  const currentY = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+  const fill = useSectionProgress(processRef, ['start center', 'end center']);
 
   return (
     <Section className="py-6 md:py-16 lg:py-24" id="process" ref={processRef}>
       <div className="relative">
-        {/* Header */}
-        <m.div
-          {...reveal()}
-          className="text-center mb-8 lg:mb-16"
-        >
+        <Scrub y={32} className="mb-8 text-center lg:mb-16">
           <p className="ts-eyebrow mb-4">OUR PROCESS</p>
-          <SplitText as="h2" delay={0.1} className="ts-h2 text-ink mb-6" text="How We Transform Your Business" />
-        </m.div>
+          <SplitText as="h2" delay={0.1} className="ts-h2 mb-6 text-ink" text="How We Transform Your Business" />
+        </Scrub>
 
-        {/* Desktop/Tablet View */}
-        <div className="hidden lg:block relative max-w-6xl mx-auto">
-          {/* Vertical timeline - Single Unified Element */}
-          <div className="absolute left-1/2 -translate-x-[1.5px] w-[3px] h-full bg-ink/10">
+        <div className="relative mx-auto hidden max-w-6xl lg:block">
+          <div className="absolute left-1/2 h-full w-[3px] -translate-x-[1.5px] bg-ink/10">
             <m.div
-              className="absolute top-0 left-0 w-full bg-ink origin-top shadow-[0_0_12px_rgba(59,130,246,0.6)]"
-              style={{ height: currentY }}
+              className="absolute inset-0 origin-top bg-ink"
+              style={reduce ? undefined : { scaleY: fill }}
             />
           </div>
 
-          {/* Steps */}
           <div className="space-y-12">
             {steps.map((step, index) => (
-              <m.div
-                key={step.title}
-                {...slideItem(index % 2 === 0 ? 'left' : 'right', 0)}
-                className={clsx(
-                  'relative flex',
-                  index % 2 === 0 ? 'items-center justify-start' : 'items-center justify-end',
-                )}
-              >
-                {/* Card */}
-                <m.div 
-                  className={clsx('w-[calc(50%-2rem)]', index % 2 === 0 ? 'pr-8' : 'pl-8')}
-                  whileHover={{ 
-                    scale: 1.05,
-                    rotateY: index % 2 === 0 ? -3 : 3,
-                    z: 50,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  <div className="relative ts-card backdrop-blur-xl p-6 rounded-2xl border border-line shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="px-3 py-1 rounded-full bg-accent">
-                        <span className="text-sm font-semibold text-accent-fg">{step.step}</span>
-                      </div>
-                      <h3
-                        className="ts-h3 text-ink"
-                      >
-                        {step.title}
-                      </h3>
-                    </div>
-                    <p className="text-muted leading-relaxed text-sm">{step.fullDescription}</p>
-                  </div>
-                </m.div>
-
-                {/* Icon Hub */}
-                <div className="absolute left-1/2 -translate-x-1/2">
-                  <m.div
-                    {...pop(0, 0.25)}
-                    className="w-14 h-14 rounded-2xl border border-line-strong"
-                  >
-                    <div className="w-full h-full rounded-2xl bg-surface flex items-center justify-center">
-                      <step.icon className="w-7 h-7 text-ink" />
-                    </div>
-                  </m.div>
-                </div>
-              </m.div>
+              <DesktopStep key={step.title} step={step} index={index} />
             ))}
           </div>
         </div>
 
-        {/* Mobile View */}
-        <div className="block lg:hidden relative space-y-10">
+        <div className="relative block space-y-10 lg:hidden">
           {steps.map((step, index) => {
             if (index >= 2 && !showAllMobile) return null;
             return (
-              <m.div
-                key={step.title}
-                {...revealItem(index)}
-                className="relative"
-              >
-                <m.div
-                  className="relative rounded-2xl ts-card backdrop-blur-xl p-6 mt-4 touch-manipulation"
-                >
-                  <div
-                    className="mb-2 w-fit text-[10px] font-semibold uppercase tracking-[0.08em] bg-accent text-accent-fg px-2.5 py-1 rounded-full"
-                  >
+              <Scrub key={step.title} effect="timeline" x={-28} className="relative">
+                <div className="relative mt-4 touch-manipulation rounded-2xl ts-card p-6">
+                  <div className="mb-2 w-fit rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-fg">
                     {step.step}
                   </div>
-                  <h3
-                    className="ts-h3 mb-3 text-ink"
-                  >
-                    {step.title}
-                  </h3>
-                  <p className="text-muted text-base leading-relaxed">
+                  <h3 className="ts-h3 mb-3 text-ink">{step.title}</h3>
+                  <p className="text-base leading-relaxed text-muted">
                     {expandedStep === step.title ? step.fullDescription : step.shortDescription}
                   </p>
                   <button
                     type="button"
                     onClick={() => toggleStep(step.title)}
                     aria-expanded={expandedStep === step.title}
-                    className="group/see mt-5 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-line bg-ink/5 py-3 text-sm font-medium text-ink transition-colors duration-300 hover:bg-ink/10 active:bg-ink/15"
+                    className="ts-icon-btn group/see mt-5 flex min-h-[44px] w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-line bg-ink/5 py-3 text-sm font-medium text-ink hover:bg-ink/10 active:bg-ink/15"
                   >
                     <span>{expandedStep === step.title ? 'See Less' : 'See More'}</span>
                     <ChevronDown
-                      className={`h-4 w-4 text-ink transition-transform duration-300 ${
-                        expandedStep === step.title ? 'rotate-180' : ''
-                      }`}
+                      className={`h-4 w-4 text-ink transition-transform duration-300 ${expandedStep === step.title ? 'rotate-180' : ''
+                        }`}
                     />
                   </button>
-                </m.div>
-              </m.div>
+                </div>
+              </Scrub>
             );
           })}
-          
-          <div className="flex justify-center gap-4 mt-6">
-              <button
-                onClick={() => setShowAllMobile(!showAllMobile)}
-                className="rounded-xl w-full border bg-surface border-line hover:border-line-strong px-5 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:text-ink min-h-[44px]"
-              >
-                {showAllMobile ? 'See fewer steps' : 'See more steps'}
-              </button>
+
+          <div className="mt-6 flex justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowAllMobile(!showAllMobile)}
+              className="ts-icon-btn ts-surface min-h-[44px] w-full cursor-pointer px-5 py-3 text-sm font-semibold text-ink hover:text-ink"
+            >
+              {showAllMobile ? 'See fewer steps' : 'See more steps'}
+            </button>
           </div>
         </div>
       </div>

@@ -1,0 +1,102 @@
+@theme {
+  /* Semantic colors — values live in index.css [data-theme] blocks */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-tight: 'Inter Tight', Inter, ui-sans-serif, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  --radius-card: 20px;
+  --radius-nested: 12px;
+
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  --spacing-128: 32rem;
+  --spacing-mobile: clamp(0.75rem, 3vw, 1rem);
+  --spacing-tablet: clamp(1rem, 4vw, 1.5rem);
+  --spacing-safe-top: env(safe-area-inset-top);
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+  --spacing-safe-left: env(safe-area-inset-left);
+  --spacing-safe-right: env(safe-area-inset-right);
+  --spacing-modal-spacing-xs: 1rem;
+  --spacing-modal-spacing-sm: 1.25rem;
+  --spacing-modal-spacing-md: 1.5rem;
+  --spacing-modal-lg: 2rem;
+
+  --min-height-screen-dvh: 100dvh;
+
+  --max-width-modal-xs: 320px;
+  --max-width-modal-sm: 384px;
+  --max-width-modal-md: 448px;
+  --max-width-modal-lg: 512px;
+  --max-width-modal-xl: 576px;
+  --max-width-modal-2xl: 640px;
+  --max-width-screen-lg: 1024px;
+  --max-width-screen-xl: 1280px;
+
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-fade-out: fadeOut 0.3s ease-out;
+  --animate-slide-in: slideIn 0.3s ease-out;
+  --animate-slide-out: slideOut 0.3s ease-out;
+  --animate-scale-in: scaleIn 0.3s ease-out;
+  --animate-scale-out: scaleOut 0.3s ease-out;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes slideOut {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes scaleIn {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes scaleOut {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+}

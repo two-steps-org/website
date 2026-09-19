@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, type MouseEvent } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotionQuery } from '../../../utils/scroll';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LegalModal from './LegalModal';
+import SplitText from '../../common/SplitText';
+import Scrub from '../../common/Scrub';
 import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
 import { hapticFeedback } from '../../../utils/mobile/hapticFeedback';
 import { type SolutionItem } from './footerData';
@@ -26,7 +28,7 @@ const scrollToSection = (sectionId: string) => {
 };
 
 const Footer: React.FC = () => {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionQuery();
   const navigate = useNavigate();
   const location = useLocation();
   const deviceType = useDeviceType();
@@ -95,7 +97,17 @@ const Footer: React.FC = () => {
   return (
     <footer className="relative mt-auto w-full bg-transparent border-t border-line touch-manipulation">
       <div className="relative max-w-7xl mx-auto mobile-safe-px lg:px-8 py-10 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-6 items-start">
+        <Scrub effect="signature" endAtBottom className="mb-12 md:mb-16">
+          <SplitText
+            as="p"
+            delay={0.05}
+            stagger={0.05}
+            className="ts-display text-ink text-[clamp(32px,4.6vw,64px)] max-w-[16ch] m-0"
+            segments={[{ text: 'Your business, two steps' }, { text: 'ahead.', className: 'sig' }]}
+          />
+        </Scrub>
+
+        <Scrub effect="signature" endAtBottom contentClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-6 items-start">
           <FooterBrandColumn onBookCall={handleBookCall} />
           <FooterLinksGrid
             isMobile={isMobile}
@@ -112,7 +124,7 @@ const Footer: React.FC = () => {
             onToggleSection={toggleSection}
             onSelectLegal={setSelectedLegal}
           />
-        </div>
+        </Scrub>
 
         <FooterBottomBar isMobile={isMobile} onSelectLegal={setSelectedLegal} />
 

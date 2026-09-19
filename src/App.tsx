@@ -1,10 +1,11 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useLayoutEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { LazyMotion, MotionConfig, domMax } from 'framer-motion';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import BaseLayout from './components/layout/BaseLayout';
 import Head from './components/Head';
+import { PREVIEW_FULL_MOTION } from './utils/motionPreference';
 
 const Home = lazy(() => import('./pages/Home'));
 const CaseStudies = lazy(() => import('./pages/CaseStudies'));
@@ -22,7 +23,7 @@ const AppContent: React.FC = () => {
       <Head location={location} />
       <ErrorBoundary>
         <LazyMotion features={domMax} strict>
-          <MotionConfig reducedMotion="user">
+          <MotionConfig reducedMotion={PREVIEW_FULL_MOTION ? 'never' : 'user'}>
             <Suspense fallback={<LoadingFallback />}>
               <BaseLayout>
                 <Routes>
@@ -39,12 +40,19 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => (
-  <HelmetProvider>
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AppContent />
-    </Router>
-  </HelmetProvider>
-);
+const App: React.FC = () => {
+  // Prerendered markup (hidden by index.html) stays hidden until React has
+  // replaced it: render() is async, so this must run on the first commit.
+  useLayoutEffect(() => {
+    document.getElementById('root')?.removeAttribute('data-prerender');
+  }, []);
+  return (
+    <HelmetProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </HelmetProvider>
+  );
+};
 
 export default App;

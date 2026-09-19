@@ -1,23 +1,43 @@
 import React from 'react';
+import Scrub from '../common/Scrub';
 import PipelineCard from './cards/PipelineCard';
 import EncryptionCard from './cards/EncryptionCard';
 import DataEncryptionCard from './cards/DataEncryptionCard';
 import IntegrationCard from './cards/IntegrationCard';
+const TILES = [
+  { id: 'ai-chat-agents', Card: PipelineCard, className: 'md:col-span-6 min-h-[280px] md:min-h-0' },
+  { id: 'crm-development', Card: EncryptionCard, className: 'md:col-span-6 min-h-[280px] md:min-h-0' },
+  { id: 'custom-saas-solutions', Card: DataEncryptionCard, className: 'md:col-span-5 min-h-[240px] md:min-h-0' },
+  { id: 'ai-voice-agents', Card: IntegrationCard, className: 'md:col-span-7 min-h-[240px] md:min-h-0' },
+] as const;
 
-const BentoGrid: React.FC = () => {
+interface BentoGridProps {
+  services: readonly { id: string; title: string }[];
+  onSelect: (id: string) => void;
+}
+
+const BentoGrid: React.FC<BentoGridProps> = ({ services, onSelect }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-5 w-full lg:grid-rows-[420px_340px]">
-      {/* Row 1: Agentic Workflow */}
-      <PipelineCard index={0} className="col-span-1 md:col-span-1 lg:col-span-6 min-h-[420px]" />
+    <div className="w-full">
+      <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-12 md:grid-rows-[380px_300px] md:gap-4 lg:grid-rows-[420px_340px]">
+        {TILES.map(({ id, Card, className }, index) => {
+          const service = services.find((item) => item.id === id);
+          if (!service) return null;
 
-      {/* Row 1: Encryption Telemetry */}
-      <EncryptionCard index={1} className="col-span-1 md:col-span-1 lg:col-span-6 min-h-[420px]" />
-
-      {/* Row 2: Data Encryption Stream (Narrow) */}
-      <DataEncryptionCard index={2} className="col-span-1 md:col-span-1 lg:col-span-5 min-h-[340px]" />
-
-      {/* Row 2: Integrations (Wide) */}
-      <IntegrationCard index={3} className="col-span-1 md:col-span-1 lg:col-span-7 min-h-[340px]" />
+          return (
+            <Scrub key={id} effect="assemble" x={index % 2 === 0 ? -72 : 72} delay={(index % 2) * 0.12} className={className}>
+              <button
+                type="button"
+                onClick={() => onSelect(id)}
+                aria-label={`Discover more about ${service.title}`}
+                className="h-full w-full min-h-[inherit] cursor-pointer border-0 bg-transparent p-0 text-left"
+              >
+                <Card title={service.title} className="h-full" />
+              </button>
+            </Scrub>
+          );
+        })}
+      </div>
     </div>
   );
 };

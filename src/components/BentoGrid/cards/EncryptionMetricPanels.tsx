@@ -18,7 +18,7 @@ export function MetricCodePreviewPanel({
   activeField,
 }: MetricCodePreviewPanelProps) {
   return (
-    <div className="w-1/2 overflow-hidden rounded-2xl border border-white/10 bg-surface/80 shadow-[0_20px_45px_rgba(0,0,0,0.42)] backdrop-blur-md">
+    <div className="ts-surface w-1/2 overflow-hidden shadow-[0_20px_45px_rgba(0,0,0,0.42)]">
       <div className="flex items-center border-b border-white/10 bg-white/[0.02] px-3 py-2">
         <div className="flex gap-[5px]">
           <div className="h-[8px] w-[8px] rounded-full bg-[#ff5f57]" />
@@ -111,7 +111,7 @@ export function LiveMetricPanel({
   streamLabel,
 }: LiveMetricPanelProps) {
   return (
-    <div className="relative flex w-1/2 flex-col overflow-hidden rounded-2xl border border-white/10 bg-bg/35 p-4 shadow-[0_14px_30px_rgba(6,9,20,0.35)]">
+    <div className="ts-surface relative flex w-1/2 flex-col p-4 shadow-[0_14px_30px_rgba(6,9,20,0.35)]">
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent" />
 
       <div className="relative z-10 mb-4 flex items-center justify-between">

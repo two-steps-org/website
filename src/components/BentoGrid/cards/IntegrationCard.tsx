@@ -1,6 +1,8 @@
 import React from 'react';
+import clsx from 'clsx';
+import { useReducedMotionQuery } from '../../../utils/scroll';
 import CardContainer from '../shared/CardContainer';
-import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
+import { useInView } from '../../../utils/useInView';
 
 const logosRow1 = [
   { title: "OpenAI", path: "M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z" },
@@ -26,21 +28,20 @@ const logosRow2 = [
 
 const categories = ['CRM', 'Payments', 'AI / LLM', 'Messaging', 'E-commerce', 'DevOps', 'Databases', 'Automation'];
 
-const IntegrationCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
-  const deviceType = useDeviceType();
-  const enableMarquee =
-    deviceType !== 'mobile' &&
-    (typeof window === 'undefined' ||
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const IntegrationCard: React.FC<{ className?: string; title?: string }> = ({
+  className,
+  title = 'We connect to everything',
+}) => {
+  const { ref, inView } = useInView();
+  const reduce = useReducedMotionQuery();
+  const enableMarquee = inView && !reduce;
 
   return (
-    <CardContainer className={className} index={index}>
-      <div className="flex flex-col h-full items-center justify-center text-center min-h-0 overflow-hidden">
+    <CardContainer className={className}>
+      <div ref={ref} className="flex h-full min-h-0 flex-col items-center justify-center overflow-hidden text-center">
         {/* Header */}
         <div className="mb-4 relative z-10">
-          <h3 className="bento-card-title text-ink mb-1">
-            We connect to everything
-          </h3>
+          <h3 className="bento-card-title text-ink mb-1 m-0">{title}</h3>
         </div>
 
         {/* Visual */}
@@ -54,19 +55,23 @@ const IntegrationCard: React.FC<{ className?: string; index?: number }> = ({ cla
 
             {/* Row 1: Left */}
             <div className="flex overflow-hidden w-full relative">
-              <div className={`flex gap-3 whitespace-nowrap ${enableMarquee ? 'animate-marquee' : ''}`}>
-                {['original', 'repeat'].flatMap((copy) => logosRow1.map((logo) => (
-                  <LogoNode key={`${copy}-${logo.title}`} title={logo.title} path={logo.path} />
-                )))}
+              <div data-integration-ticker="forward" className={clsx('flex w-max shrink-0 whitespace-nowrap animate-marquee', !enableMarquee && 'marquee-paused')}>
+                {['original', 'repeat'].map(copy => (
+                  <div key={copy} aria-hidden={copy === 'repeat' ? true : undefined} className="flex shrink-0 gap-3 pr-3">
+                    {logosRow1.map(logo => <LogoNode key={logo.title} {...logo} />)}
+                  </div>
+                ))}
               </div>
             </div>
 
             {/* Row 2: Right (Reverse) */}
             <div className="flex overflow-hidden w-full relative">
-              <div className={`flex gap-3 whitespace-nowrap ${enableMarquee ? 'animate-marquee-reverse' : ''}`}>
-                {['original', 'repeat'].flatMap((copy) => logosRow2.map((logo) => (
-                  <LogoNode key={`${copy}-${logo.title}`} title={logo.title} path={logo.path} />
-                )))}
+              <div data-integration-ticker="reverse" className={clsx('flex w-max shrink-0 whitespace-nowrap animate-marquee-reverse', !enableMarquee && 'marquee-paused')}>
+                {['original', 'repeat'].map(copy => (
+                  <div key={copy} aria-hidden={copy === 'repeat' ? true : undefined} className="flex shrink-0 gap-3 pr-3">
+                    {logosRow2.map(logo => <LogoNode key={logo.title} {...logo} />)}
+                  </div>
+                ))}
               </div>
             </div>
           </div>

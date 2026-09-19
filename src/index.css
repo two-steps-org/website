@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+@import './tailwind-theme.css';
 
 /* Base styles */
 @layer base {
@@ -78,13 +78,14 @@
     --bento-glow: rgba(245, 246, 248, 0.08);
     --bento-radius: 20px;
     --mobile-gutter: clamp(1rem, 4.5vw, 1.5rem);
-    /* Dynamic header height: safe-area-top + 16px shell padding + 60px nav pill.
+    /* Dynamic header height: safe-area (or 16px) + 64px bar.
        Sticky/fixed offsets key off this, so it must track the Navbar shell. */
-    --header-height: calc(max(1rem, env(safe-area-inset-top)) + 76px);
+    --header-height: calc(max(1rem, env(safe-area-inset-top)) + 4rem);
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
+    overflow-anchor: none;
     font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv02';
     -webkit-tap-highlight-color: transparent;
     text-size-adjust: 100%;
@@ -92,6 +93,9 @@
     height: 100%;
     overflow-y: auto;
     overscroll-behavior-y: none;
+    /* html is the scroll container. Framer's useScroll walks offsetParent
+       up to it; static position makes that walk skip and offsets are wrong. */
+    position: relative;
   }
 
 
@@ -118,6 +122,18 @@
   ::selection {
     background: var(--accent);
     color: var(--accent-fg);
+  }
+
+  /* Tailwind v4 preflight drops the old pointer default on controls. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
   }
 
   :focus-visible {
@@ -183,10 +199,13 @@
     padding-right: 0.04em;
   }
 
+  /* Large surfaces: no backdrop-filter. Behind a card there is only the soft
+     ambient gradient, so the blur was invisible, yet every card still paid a
+     full-area re-blur on each scroll frame. Small controls use .ts-glass. */
   .ts-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: theme('borderRadius.card');
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
   }
 
   .ts-glass {
@@ -196,12 +215,44 @@
     -webkit-backdrop-filter: blur(20px);
   }
 
-  /* Primary action: a solid inverted surface, not a gradient. */
-  /* Pills: press feedback per the design-engineering bar — a 0.97 scale on
-     :active, 160ms ease-out, so the button visibly "hears" the press. Hover
-     is gated to real pointers; touch fires hover on tap otherwise. */
+  /* Dialog shell — blur on the outer panel only. */
+  .ts-modal-shell {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Nested blocks inside modals — no blur, bento-style top edge. */
+  .ts-surface {
+    position: relative;
+    overflow: hidden;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-nested);
+    transition: border-color 200ms var(--ease);
+  }
+
+  .ts-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    pointer-events: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ts-surface:hover {
+      border-color: var(--border-strong);
+    }
+  }
+
+  /* Pills: opacity + border on hover, scale on press — the site default. */
   .ts-pill {
-    @apply inline-flex items-center justify-center gap-2 rounded-full font-medium;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-medium;
     background: var(--accent);
     color: var(--accent-fg);
     transition: opacity 0.3s var(--ease), transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -218,9 +269,11 @@
   }
 
   .ts-pill-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full font-medium text-ink;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-medium text-ink;
     border: 1px solid var(--border-strong);
-    transition: background-color 0.3s var(--ease), border-color 0.3s var(--ease),
+    transition:
+      background-color 0.3s var(--ease),
+      border-color 0.3s var(--ease),
       transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
@@ -232,6 +285,56 @@
     .ts-pill-ghost:hover {
       background: var(--glass-bg);
       border-color: var(--text);
+    }
+  }
+
+  /* Icon / secondary controls: same press, color-only hover. */
+  .ts-icon-btn {
+    transition:
+      transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+      background-color 0.2s var(--ease),
+      border-color 0.2s var(--ease),
+      color 0.2s var(--ease),
+      opacity 0.2s var(--ease);
+  }
+
+  .ts-icon-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Floating chat launcher — the one control allowed a hover float. */
+  .ts-launcher {
+    transition:
+      transform 300ms var(--ease),
+      padding 300ms var(--ease),
+      box-shadow 300ms var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ts-launcher:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  .ts-launcher:active {
+    transform: scale(0.97);
+    transition-duration: 160ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ts-pill,
+    .ts-pill-ghost,
+    .ts-icon-btn,
+    .ts-launcher {
+      transition: none;
+    }
+
+    .ts-pill:active,
+    .ts-pill-ghost:active,
+    .ts-icon-btn:active,
+    .ts-launcher:hover,
+    .ts-launcher:active {
+      transform: none;
     }
   }
 
@@ -258,24 +361,27 @@
     max-width: 100%;
   }
 
+  .responsive-container-sm,
+  .responsive-container-md,
+  .responsive-container-lg,
+  .responsive-container-xl {
+    @apply w-full mx-auto px-4 md:px-8 lg:px-8 xl:px-12;
+  }
+
   .responsive-container-sm {
-    @apply responsive-container;
-    max-width: theme('maxWidth.2xl'); /* 672px */
+    max-width: var(--container-2xl); /* 672px */
   }
 
   .responsive-container-md {
-    @apply responsive-container;
-    max-width: theme('maxWidth.5xl'); /* 1024px */
+    max-width: 64rem; /* 1024px */
   }
 
   .responsive-container-lg {
-    @apply responsive-container;
-    max-width: theme('maxWidth.7xl'); /* 1280px */
+    max-width: var(--container-7xl); /* 1280px */
   }
 
   .responsive-container-xl {
-    @apply responsive-container;
-    max-width: theme('maxWidth.7xl'); /* 1280px base */
+    max-width: var(--container-7xl); /* 1280px base */
   }
 
   /* Laptop-specific override for responsive-container-xl */
@@ -299,20 +405,6 @@
 
   .responsive-heading {
     @apply text-2xl sm:text-3xl md:text-4xl font-bold;
-  }
-
-  .glass-effect {
-    @apply backdrop-blur-xl;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-  }
-
-  .glass-card {
-    @apply rounded-2xl glass-effect hover:bg-white/[0.03] transition-colors duration-300;
-  }
-
-  .glass-button {
-    @apply glass-effect hover:bg-white/[0.05] active:bg-white/[0.02] transition-colors duration-300;
   }
 
   .section-padding {
@@ -353,7 +445,7 @@
   }
 
   .touch-feedback {
-    @apply active:scale-95 transition-transform duration-200;
+    @apply transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-95;
   }
 
   .card-hover {
@@ -376,90 +468,62 @@
     }
   }
 
+  /* UA dialog is centered with inset:0 and margin:auto; keep the launcher docked. */
   .ts-chat-panel {
+    margin: 0;
+    max-width: none;
+    max-height: none;
+    inset: auto 1.5rem auto auto;
+  }
+
+  .ts-chat-panel[open] {
     animation: ts-chat-in 0.35s var(--ease) both;
   }
 
-  /* Ambient tone field — the design's one moving background layer. Two
-     counter-drifting Ember/Ocean gradients, transform-only so it stays cheap. */
-  @keyframes ts-drift {
-    0%,
-    100% {
-      transform: translate(-1.5%, -1%);
+  /* The design's fadeUp: the active rail copy in the Services scenes. */
+  @keyframes ts-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    50% {
-      transform: translate(1.5%, 1%);
-    }
-  }
-
-  .ts-drift {
-    animation: ts-drift 18s ease-in-out infinite;
-  }
-
-  /* Scroll reveal, driven by an IntersectionObserver that sets data-in. */
-  .ts-reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
-    transition-delay: var(--d, 0ms);
-  }
-
-  .ts-reveal[data-in] {
-    opacity: 1;
-    transform: none;
-  }
-
-  /* Bento Grid utilities */
-  .bento-card {
-    background: var(--bento-surface);
-    border: 1px solid var(--bento-border);
-    border-radius: var(--bento-radius);
-    backdrop-filter: blur(12px);
-    transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .bento-card:hover {
-    background: var(--bento-surface-hover);
-    border-color: var(--bento-border-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 28px 60px -18px rgba(0, 0, 0, 0.65);
-  }
-
-  .pulse-dot {
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.45;
-    }
-  }
-
-  .flow-line {
-    fill: none;
-    stroke: var(--bento-border);
-    stroke-width: 1.5;
-  }
-
-  .flow-line-glow {
-    fill: none;
-    stroke: var(--text);
-    stroke-width: 1.5;
-    stroke-dasharray: 6 40;
-    animation: flow-dash 2.5s linear infinite;
-    filter: drop-shadow(0 0 6px rgba(245, 246, 248, 0.12));
-    opacity: 0.6;
-  }
-
-  @keyframes flow-dash {
     to {
-      stroke-dashoffset: -46;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .ts-fade-up {
+    animation: ts-fade-up 0.6s var(--ease) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  /* Hero entrance and hover own separate elements. Release the entrance
+     transform at completion, and hit-test the stationary node for hover. */
+  @keyframes hero-node-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes hero-hub-enter {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .hero-node-enter {
+    animation: hero-node-enter 300ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+  }
+
+  .hero-hub-enter {
+    animation: hero-hub-enter 400ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .hero-network-card {
+      transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), border-color 200ms ease;
+    }
+    .hero-network-node:hover .hero-network-card {
+      transform: scale(1.03);
+      border-color: var(--border-strong);
     }
   }
 
@@ -613,20 +677,6 @@
     animation: breathe 4s ease-in-out infinite;
   }
 
-  /* HTML-style card classes - Glass & Neon Design System */
-  .bento-label {
-    font-family: var(--font-mono, 'SF Mono', monospace);
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    @apply text-muted;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
   .bento-card-title {
     font-size: 1.35rem;
     font-weight: 650;
@@ -635,70 +685,40 @@
     margin-bottom: 8px;
   }
 
-  .bento-card-desc {
-    font-size: 0.85rem;
-    line-height: 1.7;
-    @apply text-muted;
-    max-width: 44ch;
-  }
-
-  .bento-meta-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono, 'SF Mono', monospace);
-    font-size: 11px;
-    @apply text-muted;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--bento-border);
-    border-radius: 999px;
-    padding: 7px 12px 7px 10px;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  .bento-meta-chip:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  .bento-badge {
-    font-family: var(--font-mono, 'SF Mono', monospace);
-    font-size: 10px;
-    @apply text-muted;
-    padding: 4px 8px;
-    border-radius: 999px;
-    border: 1px solid var(--bento-border);
-    background: rgba(255, 255, 255, 0.03);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-
-  .bento-badge:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
-  /* Neon status indicators */
-  .bento-status-pulse {
-    animation: neon-pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes neon-pulse {
-    0%, 100% {
-      opacity: 1;
-      filter: drop-shadow(0 0 8px currentColor);
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
     }
-    50% {
-      opacity: 0.7;
-      filter: drop-shadow(0 0 4px currentColor);
+    100% {
+      transform: translateX(-50%);
     }
   }
 
-  .bento-status-ink {
-    color: var(--text);
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
   }
 
-  .bento-glow-ink {
-    box-shadow: 0 0 12px rgba(245, 246, 248, 0.28);
+  @keyframes marquee-reverse {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(0%);
+    }
+  }
+
+  .animate-marquee-reverse {
+    animation: marquee-reverse 20s linear infinite;
+  }
+
+  /* Keep this after both animation shorthands so either direction can pause. */
+  .marquee-paused {
+    animation-play-state: paused;
+  }
+
+  .mask-linear-fade {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
 
   /* Single ink scrollbar. The 2026 system is monochrome, so the seven
@@ -741,50 +761,16 @@
     }
   }
 
-  /* Marquee Animation for DataStreamRow */
-  @keyframes marquee {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
-  .animate-marquee {
-    animation: marquee 20s linear infinite;
-    will-change: transform;
-  }
-
-  @keyframes marquee-reverse {
-    0% {
-      transform: translateX(-50%);
-    }
-    100% {
-      transform: translateX(0%);
-    }
-  }
-
-  .animate-marquee-reverse {
-    animation: marquee-reverse 20s linear infinite;
-    will-change: transform;
-  }
-
-  .mask-linear-fade {
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  }
 }
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion-preview='full']),
+  html:not([data-motion-preview='full']) *,
+  html:not([data-motion-preview='full']) *::before,
+  html:not([data-motion-preview='full']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    /* Covers the CSS-driven motion framer-motion's MotionConfig cannot reach:
-       hover lifts, the agent launcher's collapse, the ambient drift. */
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
@@ -797,17 +783,19 @@
 
 /* CSS-only hover animations when possible */
 @media (prefers-reduced-motion: no-preference) {
-  .hover-scale {
-    @apply transition-transform duration-300;
-  }
-  .hover-scale:hover {
-    @apply scale-105;
-  }
-  .hover-lift {
-    @apply transition-transform duration-300;
-  }
-  .hover-lift:hover {
-    @apply -translate-y-1;
+  @media (hover: hover) and (pointer: fine) {
+    .hover-scale {
+      @apply transition-transform duration-200;
+    }
+    .hover-scale:hover {
+      @apply scale-[1.02];
+    }
+    .hover-lift {
+      @apply transition-transform duration-200;
+    }
+    .hover-lift:hover {
+      @apply -translate-y-1;
+    }
   }
 }
 

@@ -1,5 +1,4 @@
 import type { ElementType } from 'react';
-import { m } from 'framer-motion';
 import { X } from 'lucide-react';
 
 interface ModalHeaderProps {
@@ -17,14 +16,14 @@ export default function ModalHeader({ title, icon: Icon, onClose }: ModalHeaderP
         </div>
         <h3 className="ts-h3 text-ink truncate">{title}</h3>
       </div>
-      <m.button
+      <button
+        type="button"
         onClick={onClose}
-        whileTap={{ scale: 0.9 }}
-        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-full border border-line-strong text-ink hover:bg-ink/10 transition-colors shrink-0"
+        className="ts-icon-btn flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-line-strong text-ink hover:bg-ink/10"
         aria-label="Close modal"
       >
         <X className="w-4 h-4" />
-      </m.button>
+      </button>
     </div>
   );
 }

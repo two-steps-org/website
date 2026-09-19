@@ -8,7 +8,7 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ className = '' }) => {
   return (
     <svg
-      className={clsx('h-8 w-auto shrink-0', className)}
+      className={clsx('h-10 w-auto shrink-0', className)}
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 790.82 160.8"

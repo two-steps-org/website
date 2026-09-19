@@ -35,8 +35,9 @@ export default function CollapsibleSection({
   return (
     <div>
       <button
+        type="button"
         onClick={() => onToggle(sectionKey)}
-        className="w-full flex items-center justify-between py-4 border-b border-line min-h-[52px]"
+        className="flex min-h-[52px] w-full cursor-pointer items-center justify-between border-b border-line py-4"
         aria-expanded={isExpanded}
       >
         <h3 className="text-base font-semibold text-ink">
@@ -44,25 +45,26 @@ export default function CollapsibleSection({
         </h3>
         <m.div
           animate={{ rotate: isExpanded ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2 }}
           className="text-muted"
         >
           <ChevronDown className="w-5 h-5" />
         </m.div>
       </button>
-      <AnimatePresence>
-        {isExpanded && (
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="py-4">{children}</div>
-          </m.div>
-        )}
-      </AnimatePresence>
+      <m.div layout transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.23, 1, 0.32, 1] }}>
+        <AnimatePresence>
+          {isExpanded && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.23, 1, 0.32, 1] }}
+            >
+              <m.div layout="position" className="py-4">{children}</m.div>
+            </m.div>
+          )}
+        </AnimatePresence>
+      </m.div>
     </div>
   );
 }

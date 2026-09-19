@@ -1,119 +1,110 @@
 import React from 'react';
+import clsx from 'clsx';
 import { m } from 'framer-motion';
 import { FileCode, Cloud, Lock } from 'lucide-react';
 import CardContainer from '../shared/CardContainer';
+import { useReducedMotionQuery } from '../../../utils/scroll';
+import { useInView } from '../../../utils/useInView';
+import ScrollAccent from '../../common/ScrollAccent';
 
 const fileTypes = [
   { name: 'JSON', icon: FileCode, color: 'text-status-success' },
   { name: 'API', icon: Cloud, color: 'text-ink' },
 ];
 
-// --- Sub-component: Infinite Scrolling Data Row ---
-const DataStreamRow = ({ y, speed, opacity, content }: { y: string; speed: number; opacity: number; content: string }) => {
-  return (
-    <div 
-      className="absolute left-0 right-0 flex overflow-hidden pointer-events-none" 
-      style={{ top: y, opacity }}
+const DataStreamRow = ({
+  speed,
+  opacity,
+  content,
+  running,
+}: {
+  speed: number;
+  opacity: number;
+  content: string;
+  running: boolean;
+}) => (
+  <div className="pointer-events-none absolute left-0 right-0 flex overflow-hidden" style={{ opacity }}>
+    <div
+      className={clsx(
+        'flex select-none whitespace-nowrap font-mono text-[10px] text-status-success animate-marquee',
+        !running && 'marquee-paused',
+      )}
+      style={{ animationDuration: `${speed}s` }}
     >
-      <div
-        className="flex whitespace-nowrap font-mono text-[10px] text-status-success select-none animate-marquee"
-        style={{ animationDuration: `${speed}s` }}
-      >
-        {/* Render content twice to ensure no gaps during the loop */}
-        <span className="mr-8">{content}</span>
-        <span className="mr-8">{content}</span>
-      </div>
+      <span className="mr-8">{content}</span>
+      <span className="mr-8">{content}</span>
     </div>
-  );
-};
+  </div>
+);
 
-const DataEncryptionCard: React.FC<{ className?: string; index?: number }> = ({ className, index }) => {
+const DataEncryptionCard: React.FC<{ className?: string; title?: string }> = ({
+  className,
+  title = 'Data Encryption',
+}) => {
+  const { ref, inView } = useInView();
+  const reduce = useReducedMotionQuery();
+  const running = inView && !reduce;
+
   return (
-    <CardContainer className={className} index={index}>
-      <div className="flex flex-col h-full relative z-10 overflow-hidden">
-        
-        {/* Header Section */}
+    <CardContainer className={className}>
+      <div ref={ref} className="relative z-10 flex h-full flex-col overflow-hidden">
         <div className="mb-4">
-          <div className="bento-card-title text-ink">
-            Data Encryption
-          </div>
+          <h3 className="bento-card-title m-0 text-ink">{title}</h3>
         </div>
 
-        {/* Visual Engine - Horizontal Layout */}
-        <div className="flex-1 flex items-center justify-between w-full relative min-h-0 overflow-hidden gap-6">
-          
-          {/* Left: File Icons */}
-          <div className="flex flex-col gap-3 z-20">
-            {fileTypes.map((file, idx) => (
-              <m.div
+        <div className="relative flex min-h-0 flex-1 items-center justify-between gap-6 overflow-hidden">
+          <div className="z-20 flex flex-col gap-3">
+            {fileTypes.map((file, index) => (
+              <ScrollAccent
                 key={file.name}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.2 }}
-                className="w-12 h-12 bg-bg border border-white/[0.08] rounded-lg flex flex-col items-center justify-center gap-1 relative shadow-lg group"
+                x={-10}
+                delay={index * 0.2}
+                className="group relative flex h-12 w-12 flex-col items-center justify-center gap-1 rounded-lg border border-white/[0.08] bg-bg shadow-lg"
               >
-                {/* Corner Fold */}
-                <div className="absolute -top-[1px] -right-[1px] w-0 h-0 border-l-[8px] border-l-transparent border-b-[8px] border-b-white/[0.08] border-r-[8px] border-r-transparent rounded-br-lg" />
-                
-                <file.icon className={`w-4 h-4 ${file.color} group-hover:scale-110 transition-transform duration-300`} />
-                <span className="text-[7px] font-mono font-semibold text-muted group-hover:text-muted transition-colors">
-                  {file.name}
-                </span>
-              </m.div>
+                <div className="absolute -right-[1px] -top-[1px] h-0 w-0 rounded-br-lg border-b-[8px] border-l-[8px] border-r-[8px] border-b-white/[0.08] border-l-transparent border-r-transparent" />
+                <file.icon className={`h-4 w-4 ${file.color}`} />
+                <span className="text-[7px] font-mono font-semibold text-muted">{file.name}</span>
+              </ScrollAccent>
             ))}
           </div>
 
-          {/* Center: Encryption Barrier (Vertical Line) */}
-          <div className="h-full w-px bg-gradient-to-b from-transparent  to-transparent relative mx-2">
-            {/* Laser Scanner */}
-            <m.div 
-              className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-ink blur-[2px]"
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            />
-            
-            {/* Central Lock */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+          <div className="relative mx-2 h-full w-px bg-gradient-to-b from-transparent to-transparent">
+            {running && (
               <m.div
-                className="w-10 h-10 rounded-full bg-bg border border-line-strong flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                animate={{ 
-                  boxShadow: ['0 0 15px rgba(59,130,246,0.2)', '0 0 25px rgba(59,130,246,0.5)', '0 0 15px rgba(59,130,246,0.2)'],
-                  borderColor: ['rgba(59,130,246,0.3)', 'rgba(59,130,246,0.6)', 'rgba(59,130,246,0.3)'],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Lock className="w-4 h-4 text-ink" />
-              </m.div>
+                className="absolute left-1/2 top-0 h-full w-[2px] -translate-x-1/2 bg-ink blur-[2px]"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+            )}
+
+            <div className="absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2">
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line-strong bg-bg">
+                {running && (
+                  <m.div
+                    data-encryption-glow
+                    className="pointer-events-none absolute inset-0 rounded-full border border-blue-400/40 bg-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.4)]"
+                    animate={{ opacity: [0.3, 0.7, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+                <Lock className="relative z-10 h-4 w-4 text-ink" />
+              </div>
             </div>
           </div>
 
-          {/* Right: Encrypted Data Stream Background */}
-          <div className="flex-1 h-full relative overflow-hidden rounded-lg border border-white/[0.05] bg-bg/50 mask-linear-fade">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent  " />
-             
-             {/* Data Rows */}
-             <div className="flex flex-col justify-center h-full gap-4 py-2">
-               <DataStreamRow 
-                 y="auto" 
-                 speed={15} 
-                 opacity={0.3} 
-                 content="0x1A4F 8B2C 9D3E 0x5F1A 7C8B 2D9E 0x3F4A 1B2C 8D9E" 
-               />
-               <DataStreamRow 
-                 y="auto" 
-                 speed={20} 
-                 opacity={0.6} 
-                 content="ENCRYPTED_PAYLOAD_V2_SECURE_CHANNEL_ESTABLISHED" 
-               />
-               <DataStreamRow 
-                 y="auto" 
-                 speed={12} 
-                 opacity={0.4} 
-                 content=":: AES-256-GCM :: SHA-384 :: RSA-4096 :: TLS 1.3" 
-               />
-             </div>
+          <div className="relative h-full flex-1 overflow-hidden rounded-lg border border-white/[0.05] bg-bg/50 mask-linear-fade">
+            <div className="relative flex h-full flex-col justify-center gap-4 py-2">
+              {[
+                { speed: 15, opacity: 0.3, content: '0x1A4F 8B2C 9D3E 0x5F1A 7C8B 2D9E 0x3F4A 1B2C 8D9E' },
+                { speed: 20, opacity: 0.6, content: 'ENCRYPTED_PAYLOAD_V2_SECURE_CHANNEL_ESTABLISHED' },
+                { speed: 12, opacity: 0.4, content: ':: AES-256-GCM :: SHA-384 :: RSA-4096 :: TLS 1.3' },
+              ].map((row) => (
+                <div key={row.content} className="relative h-5 overflow-hidden">
+                  <DataStreamRow {...row} running={running} />
+                </div>
+              ))}
+            </div>
           </div>
-
         </div>
       </div>
     </CardContainer>

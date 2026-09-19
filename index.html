@@ -21,6 +21,10 @@
         background: #0a0a0c;
         min-height: 100%;
       }
+      /* Prerendered markup is for crawlers; React replaces it on mount. */
+      #root[data-prerender] {
+        visibility: hidden;
+      }
     </style>
     <title>Two Steps AI</title>
     <script type="application/ld+json">

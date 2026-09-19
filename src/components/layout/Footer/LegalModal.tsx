@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useEffect, memo, useRef, useState } from 'react';
-import { useReducedMotion, m, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
+import { useReducedMotionQuery } from '../../../utils/scroll';
 import clsx from 'clsx';
 import ModalHeader from '../../common/Modal/ModalHeader';
 import { Shield, Scale, Cookie, Plus, Minus } from 'lucide-react';
+import { fade, modalPanel } from '../../../utils/motion';
 
 /** Defines the structure of each legal content section. */
 interface LegalSection {
@@ -242,7 +244,7 @@ const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
 };
 
 const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionQuery();
   const scrollRef = useRef(0);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
@@ -284,22 +286,17 @@ const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
       {type && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            {...fade}
             onClick={handleBackdropClick}
             className="absolute inset-0 bg-bg/70 backdrop-blur-sm"
           />
 
+          <div className="pointer-events-none flex h-full w-full items-center justify-center p-4 mobile-safe-px mobile-safe-pb mobile-safe-pt">
           <m.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.3 }}
+            {...modalPanel}
             className={clsx(
-              'relative w-full max-w-2xl mx-4 max-h-[90dvh] flex flex-col mobile-safe-px mobile-safe-pb',
-              'bg-surface rounded-card',
-              'border border-line backdrop-blur-xl',
+              'pointer-events-auto relative flex w-full max-w-2xl max-h-[90dvh] flex-col',
+              'ts-modal-shell overflow-hidden',
             )}
           >
             {/* Header */}
@@ -314,20 +311,17 @@ const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
             <div
               className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar"
             > {/* Reduced p-6 space-y-4 to p-4 space-y-3 */}
-              {content.sections.map((section, index) => {
+              {content.sections.map((section) => {
                 const sectionKey = `${type}-${section.title}`;
                 const isExpanded = expandedSections[sectionKey] ?? false;
                 return (
-                  <m.div
+                  <div
                     key={sectionKey}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="relative group"
                   >
                     <div
                       className={clsx(
-                        'relative overflow-hidden rounded-xl ts-card backdrop-blur-xl',
+                        'ts-surface',
                         isExpanded ? 'p-5' : 'p-4',
                       )}
                     >
@@ -341,7 +335,7 @@ const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
                         <button
                           type="button"
                           onClick={() => toggleSection(sectionKey)}
-                          className="shrink-0 min-w-[44px] min-h-[44px] rounded-full border border-line-strong text-ink flex items-center justify-center transition-colors hover:bg-ink/10"
+                          className="ts-icon-btn flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-full border border-line-strong text-ink hover:bg-ink/10"
                           aria-label={isExpanded ? `Collapse ${section.title}` : `Expand ${section.title}`}
                           aria-expanded={isExpanded}
                         >
@@ -359,7 +353,7 @@ const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: reduceMotion ? 0 : 0.3, ease: 'easeInOut' }}
+                            transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.23, 1, 0.32, 1] }}
                             className="overflow-hidden"
                           >
                             <ul className="mt-4 pt-4 border-t border-line space-y-3">
@@ -376,11 +370,12 @@ const LegalModalContent: React.FC<LegalModalProps> = ({ type, onClose }) => {
                         )}
                       </AnimatePresence>
                     </div>
-                  </m.div>
+                  </div>
                 );
               })}
             </div>
           </m.div>
+          </div>
         </div>
       )}
     </AnimatePresence>

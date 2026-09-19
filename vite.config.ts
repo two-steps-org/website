@@ -1,19 +1,16 @@
 import process from 'node:process';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import compression from 'vite-plugin-compression';
-import { visualizer } from "rollup-plugin-visualizer";
+import tailwindcss from '@tailwindcss/vite';
+import { compression } from 'vite-plugin-compression2';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     compression({
-      algorithm: 'brotliCompress',
-      ext: '.br'
-    }),
-    compression({
-      algorithm: 'gzip',
-      ext: '.gz'
+      algorithms: ['brotliCompress', 'gzip'],
     }),
     ...(process.env.ANALYZE
       ? [visualizer({ filename: 'stats.html' }) as import('vite').PluginOption]
@@ -21,22 +18,26 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
-    minify: 'esbuild',
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      treeshake: {
-        preset: 'recommended',
-        propertyReadSideEffects: false,
-      },
+    rolldownOptions: {
+      treeshake: true,
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'icons-vendor': ['lucide-react']
-        }
-      }
-    }
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react-vendor',
+              test: /node_modules\/(react|react-dom|react-router-dom)/,
+            },
+            {
+              name: 'icons-vendor',
+              test: /node_modules\/lucide-react/,
+            },
+          ],
+        },
+      },
+    },
   },
   optimizeDeps: {
     include: [
@@ -44,21 +45,13 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       'framer-motion',
-      'lucide-react'
-    ]
-  },
-  esbuild: {
-    logLevel: 'info',
-    treeShaking: true,
-    minifyIdentifiers: true,
-    minifySyntax: true,
-    minifyWhitespace: true,
-    legalComments: 'none'
+      'lucide-react',
+    ],
   },
   server: {
-    port: 5175,
+    port: 3005,
     strictPort: true,
     host: true,
-    open: false
-  }
+    open: false,
+  },
 });

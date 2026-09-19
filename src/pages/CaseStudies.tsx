@@ -7,7 +7,8 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { caseStudies } from '../components/CaseStudies/data';
 import type { CaseStudy } from '../components/CaseStudies/types';
 import SplitText from '../components/common/SplitText';
-import { pop, slide } from '../utils/motion';
+import Scrub from '../components/common/Scrub';
+import { enter } from '../utils/motion';
 /**
  * The Before/After pair under each entry.
  *
@@ -30,13 +31,13 @@ const EntryFacts: React.FC<{ study: CaseStudy }> = ({ study }) => {
 
   return (
     <div className="grid grid-cols-2 gap-px bg-line border border-line rounded-nested overflow-hidden">
-      {pairs.map((pair, i) => (
-        <m.div key={pair.label} {...pop(i, 0.35)} className="bg-surface p-4">
+      {pairs.map((pair) => (
+        <div key={pair.label} className="ts-surface border-0 p-4">
           <p className={`ts-eyebrow mb-2 ${pair.strong ? 'text-ink' : ''}`}>{pair.label}</p>
           <p className={`text-[15px] leading-[1.45] m-0 ${pair.strong ? 'text-ink' : 'text-muted'}`}>
             {pair.value}
           </p>
-        </m.div>
+        </div>
       ))}
     </div>
   );
@@ -55,12 +56,7 @@ const CaseStudies: React.FC = () => {
           style={{ paddingTop: 'calc(var(--header-height) + 4rem)' }}
         >
           <div className="max-w-[1240px] mx-auto flex flex-col gap-6">
-            <m.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="ts-eyebrow"
-            >
+            <m.p {...enter(0)} className="ts-eyebrow">
               Selected work
             </m.p>
             <SplitText
@@ -71,12 +67,7 @@ const CaseStudies: React.FC = () => {
               className="ts-display text-ink max-w-[13ch] m-0"
               text="Proof, not promises."
             />
-            <m.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-              className="text-[clamp(17px,1.4vw,19px)] text-muted max-w-[48ch] m-0"
-            >
+            <m.p {...enter(0.3)} className="text-[clamp(17px,1.4vw,19px)] text-muted max-w-[48ch] m-0">
               Real systems, live right now. Every project below is running in production.
             </m.p>
           </div>
@@ -87,15 +78,18 @@ const CaseStudies: React.FC = () => {
           <div className="max-w-[1240px] mx-auto flex flex-col">
             {caseStudies.map((study, index) => {
               const imageFirst = index % 2 === 0;
+              const revealX = imageFirst ? -48 : 48;
 
               return (
                 <article
                   key={study.title}
                   className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center py-[clamp(48px,7vw,96px)] border-b border-line"
                 >
-                  <m.div
-                    {...slide(imageFirst ? 'left' : 'right', 0, 64)}
-                    className={`relative aspect-[4/3] rounded-card overflow-hidden isolate flex items-start justify-between p-6 ${
+                  <Scrub
+                    x={revealX}
+                    y={0}
+                    contentClassName="flex items-start justify-between p-6"
+                    className={`relative aspect-[4/3] rounded-card overflow-hidden isolate ${
                       imageFirst ? 'lg:order-1' : 'lg:order-2'
                     }`}
                   >
@@ -107,17 +101,19 @@ const CaseStudies: React.FC = () => {
                       className="absolute inset-0 w-full h-full object-cover"
                     />
 
-                    <m.span
-                      {...pop(0, 0.4)}
+                    <span
                       className="relative inline-flex items-center h-6 px-2.5 rounded-full bg-[#F5F6F8] text-[#0A0A0C] text-[11px] font-semibold tracking-[0.08em]"
                     >
                       {study.industry}
-                    </m.span>
-                  </m.div>
+                    </span>
+                  </Scrub>
 
-                  <m.div
-                    {...slide(imageFirst ? 'right' : 'left', 0.1, 64)}
-                    className={`flex flex-col gap-6 ${imageFirst ? 'lg:order-2' : 'lg:order-1'}`}
+                  <Scrub
+                    x={revealX}
+                    y={0}
+                    delay={0.05}
+                    contentClassName="flex flex-col gap-6"
+                    className={`${imageFirst ? 'lg:order-2' : 'lg:order-1'}`}
                   >
                     <p className="text-sm text-muted m-0">{study.client}</p>
 
@@ -130,7 +126,7 @@ const CaseStudies: React.FC = () => {
                     <div className="flex gap-6 flex-wrap items-center">
                       <Link
                         to={`/case-studies/${study.slug}`}
-                        className="ts-pill h-12 px-6 text-[15px] hover:-translate-y-0.5"
+                        className="ts-pill h-12 px-6 text-[15px]"
                       >
                         Read the full case study
                         <ArrowRight className="w-4 h-4" />
@@ -148,7 +144,7 @@ const CaseStudies: React.FC = () => {
                         </a>
                       )}
                     </div>
-                  </m.div>
+                  </Scrub>
                 </article>
               );
             })}

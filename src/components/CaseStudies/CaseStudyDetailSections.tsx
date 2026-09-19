@@ -7,7 +7,8 @@ import { parseMetric, toneCss } from './tone';
 import type { CaseStudy } from './types';
 import SplitText from '../common/SplitText';
 import Parallax from '../common/Parallax';
-import { blurIn, draw, drawY, enter, enterPop, pop, reveal, revealItem, scaleIn, scaleItem, slide, slideItem, stamp } from '../../utils/motion';
+import Scrub from '../common/Scrub';
+import { blurIn, draw, drawY, enter, enterItem, pop, reveal, revealItem, scaleItem, slide, slideItem, stamp } from '../../utils/motion';
 
 const SECTION = 'max-w-[1240px] mx-auto mobile-safe-px md:px-6';
 
@@ -80,7 +81,7 @@ export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps)
           {[study.deployedPlatform, study.industry].map((chip, i) => (
             <m.li
               key={chip}
-              {...enterPop(i, 0.7)}
+              {...enterItem(i, 0.7)}
               className="ts-glass inline-flex items-center h-9 px-3.5 rounded-full text-[13px] font-medium text-ink"
             >
               {chip}
@@ -124,7 +125,7 @@ interface CaseStudyAboutSectionProps {
 
 export function CaseStudyAboutSection({ study }: CaseStudyAboutSectionProps) {
   return (
-    <m.section {...reveal()} className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
+    <Scrub as="section" className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <Split>
         <p className="ts-eyebrow">About the project</p>
         <div className="flex flex-col gap-8">
@@ -147,7 +148,7 @@ export function CaseStudyAboutSection({ study }: CaseStudyAboutSectionProps) {
           )}
         </div>
       </Split>
-    </m.section>
+    </Scrub>
   );
 }
 
@@ -159,7 +160,7 @@ export function CaseStudyProblemSection({ study }: CaseStudyProblemSectionProps)
   if (!study.problem && !study.before) return null;
 
   return (
-    <m.section {...reveal()} className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
+    <Scrub as="section" className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <Split>
         <SectionHead label="The problem" heading={study.before ?? 'Where it started.'} />
         {study.problem && (
@@ -168,7 +169,7 @@ export function CaseStudyProblemSection({ study }: CaseStudyProblemSectionProps)
           </m.p>
         )}
       </Split>
-    </m.section>
+    </Scrub>
   );
 }
 
@@ -180,10 +181,10 @@ export function CaseStudyBuildSection({ study }: CaseStudyBuildSectionProps) {
   return (
     <section className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <div className="flex flex-col gap-12 md:gap-20">
-        <m.div {...reveal()} className="flex flex-col gap-6">
+        <Scrub contentClassName="flex flex-col gap-6">
           <SectionHead label="The build" heading="What we built." />
           <p className="text-[18px] leading-[1.6] text-muted m-0 max-w-[52ch]">{study.solution}</p>
-        </m.div>
+        </Scrub>
 
         {study.implementation.map((step, index) => (
           <article key={step.title} className="flex flex-col gap-6">
@@ -230,7 +231,7 @@ export function CaseStudyDeliveredSection({ study }: CaseStudyDeliveredSectionPr
   if (!study.delivered?.length && !study.stack?.length) return null;
 
   return (
-    <m.section {...reveal()} className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
+    <Scrub as="section" className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <Split>
         <div className="flex flex-col gap-6">
           <SectionHead label="What we delivered" heading="Everything shipped, in production." />
@@ -262,7 +263,7 @@ export function CaseStudyDeliveredSection({ study }: CaseStudyDeliveredSectionPr
           </ul>
         )}
       </Split>
-    </m.section>
+    </Scrub>
   );
 }
 
@@ -278,7 +279,7 @@ export function CaseStudyOutcomesSection({ study }: CaseStudyOutcomesSectionProp
   }));
 
   return (
-    <m.section {...reveal()} className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
+    <Scrub as="section" className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <div className="flex flex-col gap-10">
         <SectionHead label="Outcomes" heading="What changed." />
         <dl className="m-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-px bg-line border border-line rounded-card overflow-hidden">
@@ -286,7 +287,7 @@ export function CaseStudyOutcomesSection({ study }: CaseStudyOutcomesSectionProp
             <m.div
               key={label}
               {...scaleItem(i, 0.15)}
-              className="bg-surface p-7 md:p-9 flex flex-col gap-3.5"
+              className="ts-surface border-0 p-7 md:p-9 flex flex-col gap-3.5"
             >
               <dd className="ts-num m-0 text-ink whitespace-nowrap">
                 {parsed ? (
@@ -300,7 +301,7 @@ export function CaseStudyOutcomesSection({ study }: CaseStudyOutcomesSectionProp
           ))}
         </dl>
       </div>
-    </m.section>
+    </Scrub>
   );
 }
 
@@ -399,7 +400,7 @@ interface CaseStudyClosingCtaProps {
 
 export function CaseStudyClosingCta({ onBookCall }: CaseStudyClosingCtaProps) {
   return (
-    <m.section {...scaleIn()} className={`${SECTION} pt-[clamp(80px,9vw,128px)] pb-6`}>
+    <Scrub as="section" y={24} className={`${SECTION} pt-[clamp(80px,9vw,128px)] pb-6`}>
       <div className="rounded-card bg-accent text-accent-fg p-[clamp(40px,8vw,112px)] grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10 items-end">
         <div>
           <h2 className="ts-display text-[clamp(36px,5.5vw,80px)] max-w-[12ch] m-0">
@@ -413,13 +414,13 @@ export function CaseStudyClosingCta({ onBookCall }: CaseStudyClosingCtaProps) {
           <button
             type="button"
             onClick={onBookCall}
-            className="inline-flex items-center gap-2 h-14 px-7 rounded-full bg-bg text-ink text-base font-medium transition-transform duration-300 hover:-translate-y-0.5"
+            className="ts-pill inline-flex h-14 items-center gap-2 bg-bg px-7 text-base text-ink"
           >
             Book a Call
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
-    </m.section>
+    </Scrub>
   );
 }

@@ -1,7 +1,6 @@
 import React from 'react';
-import { m } from 'framer-motion';
+import Scrub from './common/Scrub';
 import SplitText from './common/SplitText';
-import { draw, pop, reveal } from '../utils/motion';
 
 /**
  * The operators we have shipped alongside, mirroring the `client` values in
@@ -31,7 +30,9 @@ const OPERATORS = [
  * Navbar watches for it and flips to its light treatment while it is under the
  * nav, which is what keeps the nav readable over #fafafa.
  */
-const ProofStrip: React.FC = () => (
+const ProofStrip: React.FC = () => {
+
+  return (
   <div
     data-theme="light"
     data-band="light"
@@ -39,40 +40,40 @@ const ProofStrip: React.FC = () => (
   >
     <section className="bg-[#fafafa] py-[clamp(80px,8vw,112px)]">
       <div className="mx-auto w-full max-w-[1312px] px-[clamp(20px,3vw,32px)]">
-        <div className="text-center">
-          <m.p {...reveal()} className="text-[13px] text-[#6b6b6b] m-0">
+        <Scrub effect="curtain" className="text-center">
+          <p className="text-[13px] text-[#6b6b6b] m-0">
             The operators we build alongside
-          </m.p>
+          </p>
           <SplitText
             as="h2"
-            delay={0.1}
-            className="ts-h2 text-[#0a0a0a] max-w-[640px] mx-auto mt-4 mb-0"
+            className="ts-h2 mx-auto mt-4 mb-0 max-w-[640px] text-[#0a0a0a]"
             text="Trusted where the work cannot fail."
           />
-        </div>
+        </Scrub>
 
         {/* The grid draws open from the left edge, then each mark pops into its cell. */}
-        <m.ul
-          {...draw(0.35)}
-          className="mt-12 mb-0 p-0 list-none grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] border-t border-l border-[#e6e6e6]"
+        <Scrub effect="timeline" y={0} opacity={1} className="mt-12">
+        <ul
+          className="m-0 p-0 list-none grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] border-t border-l border-[#e6e6e6]"
         >
           {OPERATORS.map((name, i) => (
             <li
               key={name}
               className="flex h-[88px] items-center justify-center border-r border-b border-[#e6e6e6] px-4"
             >
-              <m.span
-                {...pop(i, 0.7)}
+              <Scrub effect="rise" delay={i * 0.06}
                 className="font-tight text-[15px] font-medium uppercase tracking-[0.14em] text-[#8a8a8a] transition-colors duration-300 hover:text-[#0a0a0a] text-center"
               >
                 {name}
-              </m.span>
+              </Scrub>
             </li>
           ))}
-        </m.ul>
+        </ul>
+        </Scrub>
       </div>
     </section>
   </div>
-);
+  );
+};
 
 export default React.memo(ProofStrip);

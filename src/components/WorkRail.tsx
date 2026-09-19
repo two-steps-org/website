@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
-import { m } from 'framer-motion';
-import { pop, slide, slideItem } from '../utils/motion';
+import Scrub from './common/Scrub';
 
 interface CaseCard {
   readonly slug: string;
@@ -93,8 +92,6 @@ const ArrowRightIcon = ({ className, stroke }: { className?: string; stroke?: st
 const WorkRail: React.FC = () => {
   const railRef = useRef<HTMLUListElement>(null);
 
-  // Scroll by exactly one card plus the 16px gap, matching scrollRail() in the
-  // artboard, so the snap points stay aligned.
   const scrollRail = (direction: 1 | -1) => () => {
     const rail = railRef.current;
     if (!rail) return;
@@ -112,10 +109,7 @@ const WorkRail: React.FC = () => {
     >
       <section className="bg-[#fafafa] pb-[clamp(96px,10vw,128px)]">
         <div className="mx-auto w-full max-w-[1312px] px-[clamp(20px,3vw,32px)]">
-          <m.div
-            {...slide('left')}
-            className="flex items-end justify-between gap-8 flex-wrap"
-          >
+          <Scrub x={-28} y={20} contentClassName="flex items-end justify-between gap-8 flex-wrap">
             <div>
               <p className="text-[13px] text-[#6b6b6b] m-0 mb-4">Selected work</p>
               <h2 className="ts-h2 text-[#0a0a0a] max-w-[768px] text-[clamp(30px,3.9vw,54px)] m-0">
@@ -124,39 +118,36 @@ const WorkRail: React.FC = () => {
             </div>
 
             <div className="flex shrink-0 gap-2">
-              <m.button
-                {...pop(0, 0.3)}
+              <button
                 type="button"
                 onClick={scrollRail(-1)}
                 aria-label="Previous"
-                className="flex w-10 h-10 items-center justify-center rounded-full border border-[#e6e6e6] bg-transparent text-[#0a0a0a] transition-colors hover:bg-[#0a0a0a] hover:text-white"
+                className="ts-icon-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#e6e6e6] bg-transparent text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white"
               >
                 <ArrowRightIcon className="rotate-180" />
-              </m.button>
-              <m.button
-                {...pop(1, 0.3)}
+              </button>
+              <button
                 type="button"
                 onClick={scrollRail(1)}
                 aria-label="Next"
-                className="flex w-10 h-10 items-center justify-center rounded-full border border-[#e6e6e6] bg-transparent text-[#0a0a0a] transition-colors hover:bg-[#0a0a0a] hover:text-white"
+                className="ts-icon-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-[#e6e6e6] bg-transparent text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white"
               >
                 <ArrowRightIcon />
-              </m.button>
+              </button>
             </div>
-          </m.div>
+          </Scrub>
         </div>
 
         {/* The rail bleeds to the right edge but its first card aligns with the
             container, so the row reads as continuing off-screen. */}
-        <div className="mt-10 pl-[max(clamp(20px,3vw,32px),calc((100vw-1312px)/2+32px))]">
+        <Scrub effect="shutter" className="mt-10" contentClassName="pl-[max(clamp(20px,3vw,32px),calc((100vw-1312px)/2+32px))]">
           <ul
             ref={railRef}
             className="flex gap-4 overflow-x-auto pr-5 pb-2 m-0 list-none snap-x snap-mandatory scrollbar-hide"
           >
-            {CASE_CARDS.map((card, i) => (
-              <m.li
+            {CASE_CARDS.map((card) => (
+              <li
                 key={card.slug}
-                {...slideItem('right', i, 0.15)}
                 className="relative aspect-[3/4] md:aspect-square w-[min(86vw,560px)] md:w-[min(78vw,560px)] shrink-0 snap-start overflow-hidden rounded-2xl bg-[#141414]"
               >
                 <div
@@ -217,10 +208,10 @@ const WorkRail: React.FC = () => {
                     </p>
                   </div>
                 </div>
-              </m.li>
+              </li>
             ))}
           </ul>
-        </div>
+        </Scrub>
       </section>
     </div>
   );

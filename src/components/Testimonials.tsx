@@ -1,7 +1,8 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { m } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { m, useTransform, type MotionValue } from 'framer-motion';
 import SplitText from './common/SplitText';
-import { deal, pop, slide } from '../utils/motion';
+import Scrub from './common/Scrub';
+import { useReducedMotionQuery, useSectionProgress } from '../utils/scroll';
 
 interface Quote {
   readonly quote: string;
@@ -49,6 +50,21 @@ const DEPTH_STYLE = [
 
 /** Horizontal travel, in px, past which a drag counts as a discard. */
 const FLING_THRESHOLD = 110;
+/** A fast flick may discard sooner, but never from a tap's pixel jitter. */
+const FLICK_MIN_TRAVEL = 24;
+
+// Scroll opens the fan; the article inside retains its independent drag transform.
+const DeckFan = ({ progress, depth, children }: { progress: MotionValue<number>; depth: number; children: React.ReactNode }) => {
+  const rest = DEPTH_STYLE[depth];
+  const transform = useTransform(progress, value => {
+    const remaining = 1 - value;
+    const y = -parseFloat(rest.ty) * remaining;
+    const rotate = -parseFloat(rest.rot) * remaining;
+    const scale = 1 + (1 / rest.sc - 1) * remaining;
+    return `translateY(${y}px) rotate(${rotate}deg) scale(${scale})`;
+  });
+  return <m.div className="h-full" data-scroll-deck={depth} style={{ transform }}>{children}</m.div>;
+};
 
 const initials = (name: string) =>
   name
@@ -66,18 +82,26 @@ const initials = (name: string) =>
 const Testimonials: React.FC = () => {
   // `order[0]` is the card currently face-up.
   const [order, setOrder] = useState(() => QUOTES.map((_, i) => i));
-  const dragRef = useRef<{ x: number; y: number; dx: number; el: HTMLElement } | null>(null);
+  const reduce = useReducedMotionQuery();
+  const stackRef = useRef<HTMLDivElement>(null);
+  const deckProgress = useSectionProgress(stackRef, ['start 0.94', 'start 0.34']);
+  const dragRef = useRef<{ x: number; y: number; dx: number; t: number; el: HTMLElement; horizontal: boolean } | null>(null);
+
+  const flingTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (flingTimer.current !== null) window.clearTimeout(flingTimer.current);
+  }, []);
 
   const advance = useCallback(() => {
+    if (flingTimer.current !== null) return;
     setOrder((prev) => prev.slice(1).concat(prev[0]));
   }, []);
 
   const onPointerDown = (event: React.PointerEvent<HTMLElement>) => {
     const el = event.currentTarget;
-    if (el.getAttribute('data-top') !== '1') return;
-    dragRef.current = { x: event.clientX, y: event.clientY, dx: 0, el };
+    if (!event.isPrimary || event.button !== 0 || flingTimer.current !== null || el.getAttribute('data-top') !== '1') return;
+    dragRef.current = { x: event.clientX, y: event.clientY, dx: 0, t: performance.now(), el, horizontal: false };
     el.setPointerCapture(event.pointerId);
-    el.style.transition = 'none';
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLElement>) => {
@@ -85,26 +109,55 @@ const Testimonials: React.FC = () => {
     if (!drag) return;
     drag.dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
-    drag.el.style.transform = `translate(${drag.dx}px, ${dy}px) rotate(${drag.dx / 18}deg)`;
+    if (!drag.horizontal) {
+      if (Math.max(Math.abs(drag.dx), Math.abs(dy)) < 8) return;
+      // A vertical gesture belongs to native page scrolling.
+      if (Math.abs(dy) >= Math.abs(drag.dx)) {
+        dragRef.current = null;
+        return;
+      }
+      drag.horizontal = true;
+      drag.el.style.transition = 'none';
+    }
+    drag.el.style.transform = `translateX(${drag.dx}px) rotate(${reduce ? 0 : drag.dx / 18}deg)`;
+  };
+
+  const cancelDrag = () => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    dragRef.current = null;
+    drag.el.style.transition = reduce ? 'none' : 'transform .22s var(--ease)';
+    drag.el.style.transform = '';
   };
 
   const onPointerUp = () => {
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
-    const { el, dx } = drag;
+    const { el, dx, t } = drag;
+    if (!drag.horizontal) return;
+    const velocity = Math.abs(dx) / Math.max(performance.now() - t, 1);
 
-    if (Math.abs(dx) <= FLING_THRESHOLD) {
-      el.style.transition = 'transform .5s var(--ease)';
+    const flicked = Math.abs(dx) >= FLICK_MIN_TRAVEL && velocity >= 0.11;
+    if (Math.abs(dx) < FLING_THRESHOLD && !flicked) {
+      el.style.transition = reduce ? 'none' : 'transform .22s var(--ease)';
       el.style.transform = '';
       return;
     }
 
-    // Fling it off, then reset the node and rotate the stack underneath it.
-    el.style.transition = 'transform .35s cubic-bezier(.4,0,1,1), opacity .35s';
+    if (reduce) {
+      el.style.transform = '';
+      el.style.transition = '';
+      advance();
+      return;
+    }
+
+    // Finish the exit before recycling the card; do not accept another fling.
+    el.style.transition = 'transform .25s var(--ease), opacity .25s var(--ease)';
     el.style.transform = `translate(${dx * 4}px, 40px) rotate(${dx / 8}deg)`;
     el.style.opacity = '0';
-    window.setTimeout(() => {
+    flingTimer.current = window.setTimeout(() => {
+      flingTimer.current = null;
       el.style.transition = 'none';
       el.style.transform = '';
       el.style.opacity = '';
@@ -112,7 +165,7 @@ const Testimonials: React.FC = () => {
       requestAnimationFrame(() => {
         el.style.transition = '';
       });
-    }, 340);
+    }, 250);
   };
 
   return (
@@ -122,10 +175,7 @@ const Testimonials: React.FC = () => {
       className="relative z-[1] bg-[#fafafa] text-[#0a0a0a] pb-[clamp(96px,10vw,128px)] border-b border-[#e6e6e6]"
     >
       <div className="mx-auto w-full max-w-[1312px] px-[clamp(20px,3vw,32px)] grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-[clamp(32px,5vw,80px)] items-center">
-        <m.div
-          {...slide('left')}
-          className="flex flex-col gap-6"
-        >
+        <Scrub x={-28} y={20} contentClassName="flex flex-col gap-6">
           <p className="ts-eyebrow">What clients say</p>
           <SplitText
             as="h2"
@@ -138,12 +188,11 @@ const Testimonials: React.FC = () => {
           </p>
 
           <div className="flex items-center gap-4 mt-4">
-            <m.button
-              {...pop(0, 0.5)}
+            <button
               type="button"
               onClick={advance}
               aria-label="Next quote"
-              className="inline-flex items-center gap-2 h-11 px-[18px] rounded-full border border-[#0a0a0a] bg-transparent text-[#0a0a0a] text-sm font-medium transition-colors hover:bg-[#0a0a0a] hover:text-white"
+              className="ts-icon-btn inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-[#0a0a0a] bg-transparent px-[18px] text-sm font-medium text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white"
             >
               Next
               <svg
@@ -160,14 +209,14 @@ const Testimonials: React.FC = () => {
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
               </svg>
-            </m.button>
+            </button>
             <span className="font-mono text-[13px] text-[#6b6b6b] tabular-nums">
               {String(order[0] + 1).padStart(2, '0')} / {String(QUOTES.length).padStart(2, '0')}
             </span>
           </div>
-        </m.div>
+        </Scrub>
 
-        <div className="relative h-[clamp(360px,40vw,460px)]">
+        <div ref={stackRef} data-scroll-anchor="deck" className="relative h-[clamp(360px,40vw,460px)]">
           {QUOTES.map((q, i) => {
             const depth = order.indexOf(i);
             const style = DEPTH_STYLE[Math.min(depth, DEPTH_STYLE.length - 1)];
@@ -176,49 +225,49 @@ const Testimonials: React.FC = () => {
             return (
               <div
                 key={q.name}
-                className="absolute inset-0 transition-transform"
+                className="absolute inset-0"
                 style={{
                   zIndex: 10 - depth,
                   transform: `translateY(${style.ty}) scale(${style.sc}) rotate(${style.rot})`,
                   pointerEvents: isTop ? 'auto' : 'none',
-                  transitionDuration: '550ms',
-                  transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                  transition: reduce ? 'none' : 'transform 280ms cubic-bezier(0.22, 1, 0.36, 1)',
                 }}
               >
-                <m.div {...deal(QUOTES.length - 1 - depth, 0.1)} className="h-full">
-                <article
-                  data-top={isTop ? '1' : '0'}
-                  onPointerDown={onPointerDown}
-                  onPointerMove={onPointerMove}
-                  onPointerUp={onPointerUp}
-                  onPointerCancel={onPointerUp}
-                  className="h-full flex flex-col justify-between gap-8 p-[clamp(24px,3vw,40px)] rounded-[20px] bg-white border border-[#e6e6e6] shadow-[0_24px_64px_rgba(0,0,0,0.10)] select-none touch-none"
-                  style={{ cursor: isTop ? 'grab' : 'default' }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold tracking-[0.14em] uppercase">
-                      {q.company}
-                    </span>
-                    <span className="font-mono text-xs text-[#6b6b6b]">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-
-                  <blockquote className="font-tight font-light text-[clamp(22px,2.4vw,34px)] leading-[1.15] tracking-[-0.025em] text-balance m-0">
-                    &ldquo;{q.quote}&rdquo;
-                  </blockquote>
-
-                  <div className="flex items-center gap-3">
-                    <span className="flex w-10 h-10 items-center justify-center rounded-full bg-[#0a0a0a] text-white text-xs font-semibold">
-                      {initials(q.name)}
-                    </span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{q.name}</span>
-                      <span className="text-[13px] text-[#6b6b6b]">{q.role}</span>
+                <DeckFan progress={deckProgress} depth={reduce ? 0 : depth}>
+                  <article
+                    data-top={isTop ? '1' : '0'}
+                    onPointerDown={onPointerDown}
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onPointerCancel={cancelDrag}
+                    onLostPointerCapture={cancelDrag}
+                    className="h-full flex flex-col justify-between gap-8 p-[clamp(24px,3vw,40px)] rounded-[20px] bg-white border border-[#e6e6e6] shadow-[0_24px_64px_rgba(0,0,0,0.10)] select-none touch-pan-y"
+                    style={{ cursor: isTop ? 'grab' : 'default' }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold tracking-[0.14em] uppercase">
+                        {q.company}
+                      </span>
+                      <span className="font-mono text-xs text-[#6b6b6b]">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
                     </div>
-                  </div>
-                </article>
-                </m.div>
+
+                    <blockquote className="font-tight font-light text-[clamp(22px,2.4vw,34px)] leading-[1.15] tracking-[-0.025em] text-balance m-0">
+                      &ldquo;{q.quote}&rdquo;
+                    </blockquote>
+
+                    <div className="flex items-center gap-3">
+                      <span className="flex w-10 h-10 items-center justify-center rounded-full bg-[#0a0a0a] text-white text-xs font-semibold">
+                        {initials(q.name)}
+                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{q.name}</span>
+                        <span className="text-[13px] text-[#6b6b6b]">{q.role}</span>
+                      </div>
+                    </div>
+                  </article>
+                </DeckFan>
               </div>
             );
           })}

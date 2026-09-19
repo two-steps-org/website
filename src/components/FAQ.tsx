@@ -1,10 +1,12 @@
 import { useState, memo } from 'react';
-import { AnimatePresence, useReducedMotion, m } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, m } from 'framer-motion';
+import { useReducedMotionQuery } from '../utils/scroll';
 import { Plus } from 'lucide-react';
 import Section from './common/Section';
 import clsx from 'clsx';
 import SplitText from './common/SplitText';
-import { reveal, slideItem } from '../utils/motion';
+import Scrub from './common/Scrub';
+import { EASE_OUT } from '../utils/motion';
 
 const faqs = [
   {
@@ -40,7 +42,7 @@ const faqs = [
 ];
 
 const FAQ = () => {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReducedMotionQuery();
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
   const [showAllMobile, setShowAllMobile] = useState(false);
 
@@ -48,97 +50,95 @@ const FAQ = () => {
     const isOpen = openQuestion === faq.question;
 
     return (
-      <m.div
+      <Scrub effect="unfold" delay={(index % 2) * 0.08}
         key={faq.question}
-        // Two columns on lg: even items sit left and enter from the left,
-        // odd items sit right and enter from the right.
-        {...slideItem(index % 2 === 0 ? 'left' : 'right', Math.floor(index / 2))}
         className={clsx(
-          'relative group',
+          'group relative',
           index >= 3 && !showAllMobile ? 'hidden lg:block' : 'block',
         )}
       >
         <m.div
+          layout
+          transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
           className={clsx(
-            'relative overflow-hidden rounded-2xl border transition-colors duration-300 h-full',
-            isOpen
-              ? 'bg-surface border-line-strong'
-              : 'bg-surface border-line hover:border-line-strong',
+            'relative overflow-hidden rounded-2xl ts-card transition-colors duration-200 h-full',
+            isOpen ? 'border-line-strong' : 'hover:border-line-strong',
           )}
         >
-          <button
-            onClick={() => setOpenQuestion(isOpen ? null : faq.question)}
-            className="w-full p-6 text-left"
-          >
-            <div className="flex justify-between items-start gap-4">
-              <h3
-                className={clsx(
-                  'ts-h3 transition-colors duration-300',
-                  isOpen ? 'text-ink' : 'text-muted group-hover:text-ink',
-                )}
-              >
-                {faq.question}
-              </h3>
-              <div
-                className={clsx('mt-1 transition-transform duration-300', isOpen && 'rotate-45')}
-              >
-                <Plus className={clsx('w-5 h-5', isOpen ? 'text-ink' : 'text-muted')} />
-              </div>
-            </div>
-            {/* The answer used to fade in while the card height snapped — a
-                teleporting state. Height + opacity now move together, and the
-                exit is ~20% faster than the entrance, as system responses
-                should be. */}
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <m.div
-                  key="answer"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{
-                    height: 0,
-                    opacity: 0,
-                    transition: { duration: reduceMotion ? 0 : 0.18, ease: [0.23, 1, 0.32, 1] },
-                  }}
-                  transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.23, 1, 0.32, 1] }}
-                  className="overflow-hidden"
+          <m.div layout="position">
+            <button
+              type="button"
+              onClick={() => setOpenQuestion(isOpen ? null : faq.question)}
+              aria-expanded={isOpen}
+              aria-controls={`faq-answer-${index}`}
+              className="w-full cursor-pointer p-6 text-left"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <h3
+                  className={clsx(
+                    'ts-h3 transition-colors duration-300',
+                    isOpen ? 'text-ink' : 'text-muted group-hover:text-ink',
+                  )}
                 >
-                  <p className="mt-4 text-muted leading-relaxed">{faq.answer}</p>
-                </m.div>
-              )}
-            </AnimatePresence>
-          </button>
+                  {faq.question}
+                </h3>
+                <div
+                  className={clsx('mt-1 transition-transform duration-300', isOpen && 'rotate-45')}
+                >
+                  <Plus className={clsx('w-5 h-5', isOpen ? 'text-ink' : 'text-muted')} />
+                </div>
+              </div>
+            </button>
+          </m.div>
+          <AnimatePresence initial={false}>
+            {isOpen && (
+              <m.div
+                key="answer"
+                id={`faq-answer-${index}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
+              >
+                <p className="px-6 pb-6 text-muted leading-relaxed">{faq.answer}</p>
+              </m.div>
+            )}
+          </AnimatePresence>
         </m.div>
-      </m.div>
+      </Scrub>
     );
   };
 
   return (
     <Section className="py-6 md:py-16 lg:py-24" id="faq">
       {/* FAQ Header */}
-      <div className="text-center mb-8 md:mb-16">
-        <m.p {...reveal()} className="ts-eyebrow mb-4">
+      <Scrub y={32} className="text-center mb-8 md:mb-16">
+        <p className="ts-eyebrow mb-4">
           FREQUENTLY ASKED QUESTIONS
-        </m.p>
+        </p>
         <SplitText as="h2" delay={0.1} className="ts-h2 text-ink mb-6" text="Got Any Questions?" />
-      </div>
+      </Scrub>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-        {faqs.map((faq, index) => renderFaqItem(faq, index))}
-      </div>
+      <LayoutGroup>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+          {faqs.map((faq, index) => renderFaqItem(faq, index))}
+        </div>
+      </LayoutGroup>
 
       <div className="mt-8 flex justify-center lg:hidden">
         {showAllMobile ? (
           <button
+            type="button"
             onClick={() => setShowAllMobile(false)}
-            className="rounded-xl h-full w-full border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink transition-colors duration-300 hover:text-ink"
+            className="ts-icon-btn rounded-xl h-full w-full cursor-pointer border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink hover:text-ink"
           >
             See fewer questions
           </button>
         ) : (
           <button
+            type="button"
             onClick={() => setShowAllMobile(true)}
-            className="rounded-xl h-full w-full border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink transition-colors duration-300 hover:text-ink"
+            className="ts-icon-btn rounded-xl h-full w-full cursor-pointer border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink hover:text-ink"
           >
             See more questions
           </button>
