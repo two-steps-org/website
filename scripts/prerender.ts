@@ -79,7 +79,11 @@ async function prerender() {
       // replaces it (createRoot, not hydration). index.html hides a marked
       // root and main.tsx clears the mark before the first render.
       await page.evaluate(() => document.getElementById('root')?.setAttribute('data-prerender', ''));
-      const html = await page.content();
+      // Vite injects modulepreload links for lazy chunks at runtime with
+      // absolute hrefs, so the capture carries the preview server's origin.
+      // Make them root-relative or production ships localhost URLs.
+      const origin = new URL(url).origin;
+      const html = (await page.content()).replaceAll(`${origin}/`, '/');
       const fileName = route === '/' ? 'index.html' : `${route.replace(/^\//, '')}/index.html`;
       const filePath = path.join('./dist', fileName);
       const dir = path.dirname(filePath);

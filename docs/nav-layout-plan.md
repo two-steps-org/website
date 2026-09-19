@@ -4,6 +4,13 @@ Written 2026-09-19, revised the same day after review. Based on a measured study
 of wonderful.ai and idealink.tech (desktop 1440px, mobile 390px) and the same
 measurements taken from our own site.
 
+**Status (2026-09-19): steps 1–9 are done**, one commit each on `ne1`, checked by
+`scripts/verify-layout.mjs`. 4b shipped with Lucide glyphs. Home page went from
+13,195px to 12,011px on desktop. Still open: the copy pass (section 6), and two
+motion checks that were already failing before this work — "Hero must fade
+gently while scrolling" (`verify-scroll-scenes.mjs`) and "Accordion must animate
+its height" (`verify-motion.mjs`).
+
 Scope: navbar and page layout only. **Copy is a separate pass after this one** —
 section 6 lists what that pass should pick up.
 
