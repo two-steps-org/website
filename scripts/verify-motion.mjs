@@ -45,17 +45,17 @@ try {
     const cssEntranceDuration = await page.locator('#home .absolute.z-30 > div').first().evaluate(el => parseFloat(getComputedStyle(el).animationDuration));
     assert.ok(cssEntranceDuration >= 0.2, `CSS entrances must follow the same motion setting as JS: ${JSON.stringify(await page.locator('#home .absolute.z-30 > div').first().evaluate(el => ({duration: getComputedStyle(el).animationDuration, preview: document.documentElement.dataset.motionPreview, classes: el.className, rules: [...document.styleSheets].flatMap(sheet => { try { return [...sheet.cssRules].map(rule => rule.cssText).filter(text => text.includes('0.01ms')); } catch { return []; } })})))}`);
 
-    const serviceCard = page.getByRole('button', { name: 'Discover more about AI Chat Agents', exact: true });
-    await serviceCard.evaluate(button => button.closest('[data-scroll-reveal]').scrollIntoView({ block: 'start' }));
+    // Service cards are links to their own pages now (the pop-up is gone).
+    const serviceCard = page.getByRole('link', { name: 'Discover more about AI Chat Agents', exact: true });
+    await serviceCard.evaluate(link => link.closest('[data-scroll-reveal]').scrollIntoView({ block: 'start' }));
     await page.waitForTimeout(150);
-    assert.equal(await serviceCard.evaluate(button => getComputedStyle(button.parentElement).opacity), '1');
+    assert.equal(await serviceCard.evaluate(link => getComputedStyle(link.parentElement).opacity), '1');
     await serviceCard.click();
-    const serviceDialog = page.getByRole('dialog');
-    await serviceDialog.waitFor({ state: 'visible' });
-    await page.waitForTimeout(300);
-    await serviceDialog.getByRole('button', { name: 'Close modal', exact: true }).click();
-    assert.equal(await serviceDialog.count(), 1, 'Modal must remain mounted during its exit animation');
-    await serviceDialog.waitFor({ state: 'detached' });
+    await page.waitForURL('**/services/ai-chat-agents');
+    await page.getByLabel('Breadcrumb').waitFor({ state: 'visible' }); // the route is lazy: URL changes before it mounts
+    assert.equal(await page.evaluate(() => scrollY), 0, 'A service page must open at the top');
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(600);
 
     const heading = page.locator('#services h2');
     await heading.evaluate(el => el.closest('[data-scroll-reveal]').scrollIntoView({ block: 'start' }));
@@ -155,7 +155,7 @@ try {
     await page.waitForTimeout(400);
     assert.equal(await page.evaluate(() => scrollY), top, 'Deep links must remain settled');
     assert.deepEqual(errors, []);
-    console.log(`${mobile ? 'Mobile' : 'Desktop'}: card entrances, modal exits, accordions, stable scroll, gestures, and routing passed.`);
+    console.log(`${mobile ? 'Mobile' : 'Desktop'}: card entrances, service links, accordions, stable scroll, gestures, and routing passed.`);
     await page.close();
   }
 
