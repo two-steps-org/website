@@ -92,7 +92,8 @@ const PortraitCard: React.FC<{ member: (typeof team)[number] }> = ({ member }) =
 
 const Team: React.FC = () => {
   return (
-    <Section id="team">
+    // A light band, so the page's closing run alternates like its opening one.
+    <Section id="team" data-theme="light" data-band="light" className="relative z-[1] bg-[#fafafa] text-ink">
       <Scrub y={32} className="relative mb-8 md:mb-16">
         <p className="ts-eyebrow mb-4">The Team</p>
         <SplitText as="h2" delay={0.1} className="ts-h2 mb-6 text-ink" text="We Are Ready To Provide Solutions" />

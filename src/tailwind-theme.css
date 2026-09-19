@@ -1,4 +1,7 @@
-@theme {
+/* inline: utilities read var(--text) etc. where they are used, so a
+   [data-theme] on any ancestor re-themes them. Without it Tailwind resolves
+   these at :root and light bands keep dark-theme ink. */
+@theme inline {
   /* Semantic colors — values live in index.css [data-theme] blocks */
   --color-bg: var(--bg);
   --color-surface: var(--surface);
