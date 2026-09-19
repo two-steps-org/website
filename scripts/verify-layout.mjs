@@ -1,4 +1,4 @@
-/* global console, document, getComputedStyle */
+/* global console, document, getComputedStyle, window */
 // Layout contract from docs/nav-layout-plan.md. Checks only what is supposed
 // to be true; sections that opt out carry data-layout="free" in the markup.
 import assert from 'node:assert/strict';
@@ -48,6 +48,21 @@ try {
       assert.equal(r.pad, rhythm[0].pad, `${viewport.width}px: section "${r.id}" pads ${r.pad}, expected ${rhythm[0].pad}`);
     }
     console.log(`${viewport.width}px rhythm: ${rhythm.length} sections at ${rhythm[0].pad}`);
+
+    // N1 — capsule: off over the hero, on past it, and never in the way of clicks.
+    const capsule = page.locator('[data-nav-capsule]');
+    assert.equal(await capsule.evaluate((el) => getComputedStyle(el).opacity), '0', `${viewport.width}px: capsule must be hidden over the hero`);
+    await page.evaluate(() => window.scrollTo(0, document.getElementById('home').offsetHeight + 200));
+    await page.waitForTimeout(500);
+    assert.equal(await capsule.evaluate((el) => getComputedStyle(el).opacity), '1', `${viewport.width}px: capsule must show past the hero`);
+    const gapHit = await page.evaluate(() => {
+      const logo = document.querySelector('header a[aria-label="Go to Home"]').getBoundingClientRect();
+      const hit = document.elementFromPoint(logo.right + 12, logo.top + logo.height / 2);
+      return Boolean(hit?.closest('header'));
+    });
+    assert.equal(gapHit, false, `${viewport.width}px: the gap beside the logo must click through to the page`);
+    await page.screenshot({ path: `/tmp/layout-nav-${viewport.width}.png`, clip: { x: 0, y: 0, width: viewport.width, height: 140 } });
+    console.log(`${viewport.width}px nav: capsule threshold and click-through ok`);
     await page.close();
   }
   console.log('layout ok');

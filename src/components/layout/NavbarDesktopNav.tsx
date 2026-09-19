@@ -7,11 +7,13 @@ import type { NavbarNavigate } from './useNavbar';
 export const NavbarDesktopNav = ({
   activeTab,
   isOverLightBand,
+  isPastHero,
   handleNavigation,
   handleBookCall,
 }: {
   activeTab: string;
   isOverLightBand: boolean;
+  isPastHero: boolean;
   handleNavigation: NavbarNavigate;
   handleBookCall: () => void;
 }) => (
@@ -19,10 +21,14 @@ export const NavbarDesktopNav = ({
     <div className="hidden flex-1 justify-center lg:flex">
       <div
         className={clsx(
-          'pointer-events-auto flex items-center gap-0.5 p-1 rounded-full shadow-[var(--shadow-sm)] backdrop-blur-[20px] xl:gap-1',
-          isOverLightBand
-            ? 'bg-white/70 border border-black/10'
-            : 'ts-glass',
+          'pointer-events-auto isolate flex items-center gap-0.5 rounded-full border p-1 xl:gap-1',
+          // One glass surface at a time: the capsule takes over past the hero.
+          isPastHero
+            ? 'border-transparent'
+            : clsx(
+                'shadow-[var(--shadow-sm)] backdrop-blur-[20px]',
+                isOverLightBand ? 'border-black/10 bg-white/70' : 'ts-glass',
+              ),
         )}
       >
         {navItems.map((item) => {

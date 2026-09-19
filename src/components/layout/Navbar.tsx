@@ -8,10 +8,9 @@ import { useNavbar } from './useNavbar';
 
 const Navbar = () => {
   const {
-    headerRef,
     isMenuOpen,
     setIsMenuOpen,
-    showMobileContrastBar,
+    isPastHero,
     activeTab,
     isOverLightBand,
     handleNavigation,
@@ -22,14 +21,9 @@ const Navbar = () => {
   // controls opt back in; otherwise the page under the gaps is unclickable.
   return (
     <header
-      ref={headerRef}
       className="fixed left-0 right-0 z-50 pointer-events-none"
       style={{ top: 'max(1rem, env(safe-area-inset-top))' }}
     >
-      {showMobileContrastBar && (
-        <div className="absolute inset-x-0 -top-4 h-24 lg:hidden pointer-events-none bg-gradient-to-b from-bg/90 via-bg/65 to-transparent backdrop-blur-md" />
-      )}
-
       <nav
         aria-label="Primary"
         className={clsx(
@@ -40,6 +34,20 @@ const Navbar = () => {
           isOverLightBand ? 'text-[#0a0a0a]' : 'text-ink',
         )}
       >
+        {/* Past the hero the three floating pieces share one frosted capsule so
+            they stay legible over any content. Background only: it must never
+            take pointer events, or the gaps between the controls go dead. */}
+        <div
+          aria-hidden="true"
+          data-nav-capsule
+          className={clsx(
+            'pointer-events-none absolute inset-y-0 -z-10 rounded-full shadow-[var(--shadow-md)] transition-opacity duration-200 ease-out motion-reduce:transition-none',
+            isOverLightBand ? 'border border-black/10 bg-white/70 backdrop-blur-[20px]' : 'ts-glass',
+            isPastHero ? 'opacity-100' : 'opacity-0',
+          )}
+          style={{ left: 'calc(var(--container-pad) - 0.75rem)', right: 'calc(var(--container-pad) - 0.75rem)' }}
+        />
+
         <a
           href="/#home"
           onClick={(event) => handleNavigation('/#home', 'Home', event)}
@@ -52,6 +60,7 @@ const Navbar = () => {
         <NavbarDesktopNav
           activeTab={activeTab}
           isOverLightBand={isOverLightBand}
+          isPastHero={isPastHero}
           handleNavigation={handleNavigation}
           handleBookCall={handleBookCall}
         />
