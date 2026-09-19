@@ -92,14 +92,14 @@ const Process: React.FC = () => {
   const fill = useSectionProgress(processRef, ['start center', 'end center']);
 
   return (
-    <Section className="py-6 md:py-16 lg:py-24" id="process" ref={processRef}>
+    <Section id="process" ref={processRef}>
       <div className="relative">
-        <Scrub y={32} className="mb-8 text-center lg:mb-16">
+        <Scrub y={32} className="mb-8 lg:mb-16">
           <p className="ts-eyebrow mb-4">OUR PROCESS</p>
           <SplitText as="h2" delay={0.1} className="ts-h2 mb-6 text-ink" text="How We Transform Your Business" />
         </Scrub>
 
-        <div className="relative mx-auto hidden max-w-6xl lg:block">
+        <div className="relative hidden lg:block">
           <div className="absolute left-1/2 h-full w-[3px] -translate-x-[1.5px] bg-ink/10">
             <m.div
               className="absolute inset-0 origin-top bg-ink"

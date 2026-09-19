@@ -108,7 +108,7 @@ const ServiceSection: React.FC = () => {
   }, []);
 
   return (
-    <section id="services" className="relative border-t border-line py-6 md:py-16 lg:py-24">
+    <section id="services" className="ts-section relative border-t border-line">
       <div className="ts-container relative">
         <Scrub y={32} className="mb-8 md:mb-14 lg:mb-16">
           <p className="ts-eyebrow mb-4">Our services</p>

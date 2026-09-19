@@ -38,7 +38,7 @@ const ProofStrip: React.FC = () => {
     data-band="light"
     className="relative z-[1] text-[#0a0a0a] bg-[#fafafa] border-t border-[#e6e6e6]"
   >
-    <section className="bg-[#fafafa] py-[clamp(80px,8vw,112px)]">
+    <section data-layout="free" className="bg-[#fafafa] py-[clamp(40px,5vw,64px)]">
       <div className="ts-container">
         <Scrub effect="curtain" className="text-center">
           <p className="text-[13px] text-[#6b6b6b] m-0">

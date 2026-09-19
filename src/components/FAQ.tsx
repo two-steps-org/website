@@ -110,7 +110,7 @@ const FAQ = () => {
   };
 
   return (
-    <Section className="py-6 md:py-16 lg:py-24" id="faq">
+    <Section id="faq">
       {/* FAQ Header */}
       <Scrub y={32} className="text-center mb-8 md:mb-16">
         <p className="ts-eyebrow mb-4">

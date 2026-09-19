@@ -1,27 +1,23 @@
 import React, { forwardRef, memo } from 'react';
 import clsx from 'clsx';
 
-interface SectionProps {
+interface SectionProps extends React.HTMLAttributes<HTMLElement> {
   /** Child elements to be displayed within the section. */
   children: React.ReactNode;
-  /** Additional class names for styling. */
-  className?: string;
-  /** Optional ID for the section (useful for in-page navigation). */
-  id?: string;
 }
 
 /**
- * A flexible section component with padding and a default min-height.
+ * A chapter section: shared vertical rhythm and the shared container.
  * Utilizes a forwardRef for advanced use cases.
  */
 const BaseSection = forwardRef<HTMLElement, SectionProps>(
-  ({ children, className = '', id }, ref) => {
+  ({ children, className = '', ...rest }, ref) => {
     return (
       <section
         ref={ref}
-        id={id}
+        {...rest}
         className={clsx(
-          'relative w-full min-h-[auto] flex flex-col justify-center py-6 md:py-12 lg:py-16 md:min-h-[calc(100vh-80px)]',
+          'ts-section relative w-full flex flex-col justify-center',
           className,
         )}
       >

@@ -92,13 +92,13 @@ const PortraitCard: React.FC<{ member: (typeof team)[number] }> = ({ member }) =
 
 const Team: React.FC = () => {
   return (
-    <Section className="relative py-6 md:py-16 lg:py-24" id="team">
-      <Scrub y={32} className="relative mb-8 text-center md:mb-16">
+    <Section id="team">
+      <Scrub y={32} className="relative mb-8 md:mb-16">
         <p className="ts-eyebrow mb-4">The Team</p>
         <SplitText as="h2" delay={0.1} className="ts-h2 mb-6 text-ink" text="We Are Ready To Provide Solutions" />
       </Scrub>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {team.map((member, index) => (
           <Scrub key={member.name} effect="portrait" x={index % 2 === 0 ? -12 : 12} delay={(index % 4) * 0.08}>
             <PortraitCard member={member} />

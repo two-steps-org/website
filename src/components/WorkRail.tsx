@@ -107,12 +107,12 @@ const WorkRail: React.FC = () => {
       data-band="light"
       className="relative z-[1] text-[#0a0a0a] bg-[#fafafa]"
     >
-      <section className="bg-[#fafafa] pb-[clamp(96px,10vw,128px)]">
+      <section className="ts-section bg-[#fafafa]">
         <div className="ts-container">
           <Scrub x={-28} y={20} contentClassName="flex items-end justify-between gap-8 flex-wrap">
             <div>
               <p className="text-[13px] text-[#6b6b6b] m-0 mb-4">Selected work</p>
-              <h2 className="ts-h2 text-[#0a0a0a] max-w-[768px] text-[clamp(30px,3.9vw,54px)] m-0">
+              <h2 className="ts-h2 text-[#0a0a0a] max-w-[768px] m-0">
                 Work that used to queue, now closing itself.
               </h2>
             </div>

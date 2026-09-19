@@ -56,6 +56,7 @@ const Hero: React.FC = () => {
 
   return (
     <Section ref={heroRef}
+      data-layout="free"
       className="relative flex min-h-0 items-center justify-center overflow-hidden pt-36 pb-12 md:py-28 lg:min-h-[calc(100vh-80px)] lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20"
     >
       <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-8">

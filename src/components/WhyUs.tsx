@@ -180,16 +180,13 @@ const FlipStage: React.FC<{ progress: MotionValue<number> }> = ({ progress }) =>
   </div>
 );
 
-const SectionHeader: React.FC<{ className?: string; align?: 'left' | 'center' }> = ({
-  className,
-  align = 'left',
-}) => (
-  <Scrub y={24} className={clsx(align === 'center' ? 'text-center' : 'text-left', className)}>
+const SectionHeader: React.FC<{ className?: string }> = ({ className }) => (
+  <Scrub y={24} className={className}>
     <p className="ts-eyebrow mb-3">Why us</p>
     <SplitText
       as="h2"
       delay={0.1}
-      className={clsx('ts-h2 m-0 text-ink', align === 'center' && 'mx-auto')}
+      className="ts-h2 m-0 text-ink"
       text="What Sets Us Apart"
     />
   </Scrub>
@@ -274,7 +271,7 @@ const DesktopScrollShowcase: React.FC = () => {
 
   if (reduce) {
     return (
-      <section className="relative hidden border-t border-line py-16 lg:block lg:py-24">
+      <section className="ts-section relative hidden border-t border-line lg:block">
         <div className="ts-container">
           <SectionHeader className="mb-12 lg:mb-16" />
           <div className="space-y-16">
@@ -291,6 +288,7 @@ const DesktopScrollShowcase: React.FC = () => {
     <section
       ref={sectionRef}
       data-pin
+      data-layout="free"
       data-scroll-slideshow="why-us"
       className="relative hidden border-t border-line lg:block"
       style={{ height: `${slides.length * 100}vh` }}
@@ -316,8 +314,8 @@ const WhyUs: React.FC = () => {
     <div id="why-us" data-pin>
       <DesktopScrollShowcase />
 
-      <Section className="relative border-t border-line py-6 md:py-16 lg:hidden lg:py-24">
-        <SectionHeader className="mb-10 md:mb-12" align="center" />
+      <Section className="border-t border-line lg:hidden">
+        <SectionHeader className="mb-10 md:mb-12" />
 
         <div className="space-y-2">
           {slides.map((slide) => (

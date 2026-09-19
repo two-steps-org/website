@@ -172,7 +172,7 @@ const Testimonials: React.FC = () => {
     <section
       data-theme="light"
       data-band="light"
-      className="relative z-[1] bg-[#fafafa] text-[#0a0a0a] pb-[clamp(96px,10vw,128px)] border-b border-[#e6e6e6]"
+      className="ts-section relative z-[1] bg-[#fafafa] text-[#0a0a0a] border-b border-[#e6e6e6]"
     >
       <div className="ts-container grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-[clamp(32px,5vw,80px)] items-center">
         <Scrub x={-28} y={20} contentClassName="flex flex-col gap-6">
@@ -180,7 +180,7 @@ const Testimonials: React.FC = () => {
           <SplitText
             as="h2"
             delay={0.1}
-            className="ts-h2 text-[#0a0a0a] text-[clamp(34px,4vw,56px)] leading-[1.02] tracking-[-0.03em] max-w-[14ch] m-0"
+            className="ts-h2 text-[#0a0a0a] max-w-[14ch] m-0"
             text="Said by the people who run on it."
           />
           <p className="text-base text-[#6b6b6b] m-0 max-w-[40ch]">
