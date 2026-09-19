@@ -21,12 +21,13 @@ export function useNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isPastHero, setIsPastHero] = useState(false);
+  const [showMobileContrastBar, setShowMobileContrastBar] = useState(false);
   // '' = nothing lit: on the hero, or in a section the desktop pill doesn't list.
   const [activeTab, setActiveTab] = useState('');
   const [isOverLightBand, setIsOverLightBand] = useState(false);
   const manualNavLockRef = useRef(false);
   const manualNavTimerRef = useRef<number | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
 
   const unlockManualNav = useCallback((delay = 600) => {
     if (manualNavTimerRef.current) window.clearTimeout(manualNavTimerRef.current);
@@ -169,6 +170,43 @@ export function useNavbar() {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    if (!window.matchMedia('(max-width: 1023px)').matches) {
+      setShowMobileContrastBar(false);
+      return;
+    }
+
+    const header = headerRef.current;
+    const footer = document.querySelector('footer');
+    if (!header || !footer) return;
+
+    let rafId = 0;
+    const updateContrastState = () => {
+      rafId = 0;
+      const headerRect = header.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      const navBottomAbs = window.scrollY + headerRect.bottom;
+      const footerTopAbs = window.scrollY + footerRect.top;
+      const shouldShow = navBottomAbs >= footerTopAbs && footerRect.bottom > 0;
+      setShowMobileContrastBar((prev) => (prev === shouldShow ? prev : shouldShow));
+    };
+
+    const onScrollOrResize = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(updateContrastState);
+    };
+
+    updateContrastState();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [location.pathname]);
+
   const handleBookCall = useCallback(() => {
     window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
     setIsMenuOpen(false);
@@ -189,12 +227,6 @@ export function useNavbar() {
         }
       }
       setIsOverLightBand((prev) => (prev === light ? prev : light));
-
-      // Threshold, not a scrub: glass held at partial opacity looks muddy.
-      // Pages without a hero get the capsule as soon as they scroll.
-      const hero = document.getElementById('home');
-      const past = hero ? hero.getBoundingClientRect().bottom <= NAV_LINE : window.scrollY > 8;
-      setIsPastHero((prev) => (prev === past ? prev : past));
     };
 
     const onScroll = () => {
@@ -216,9 +248,10 @@ export function useNavbar() {
   }, [location.pathname]);
 
   return {
+    headerRef,
     isMenuOpen,
     setIsMenuOpen,
-    isPastHero,
+    showMobileContrastBar,
     activeTab,
     isOverLightBand,
     handleNavigation,

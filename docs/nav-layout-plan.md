@@ -11,6 +11,13 @@ motion checks that were already failing before this work — "Hero must fade
 gently while scrolling" (`verify-scroll-scenes.mjs`) and "Accordion must animate
 its height" (`verify-motion.mjs`).
 
+**Navbar look reverted (2026-09-19, owner's call):** N1 (capsule) and N3 (mobile
+sheet restyle) were built, reviewed in the browser and removed. The navbar keeps
+its original look — three floating pieces at every scroll position, original
+mobile menu — with the N2 structure only: four desktop links, no Home, nothing
+lit on the hero, shared container. The logo/CTA overlap with page content on
+scroll is accepted as part of that look.
+
 Scope: navbar and page layout only. **Copy is a separate pass after this one** —
 section 6 lists what that pass should pick up.
 

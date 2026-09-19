@@ -3,8 +3,7 @@ import { Menu, X, ArrowRight } from 'lucide-react';
 import clsx from 'clsx';
 import Logo from '../Logo';
 import { navItems } from '../../data/navItems';
-import { drawerPanel, drawerScrim, enterItem } from '../../utils/motion';
-import { contact } from './Footer/footerData';
+import { drawerPanel, drawerScrim } from '../../utils/motion';
 import type { NavbarNavigate } from './useNavbar';
 
 export const NavbarMobileMenu = ({
@@ -59,41 +58,47 @@ export const NavbarMobileMenu = ({
             </button>
           </div>
 
-          {/* Links scroll if they must; the ask stays pinned in thumb reach. */}
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-            {navItems.map((item, index) => (
-              <m.a
-                key={item.name}
-                {...enterItem(index, 0.12)}
-                href={item.url}
-                aria-current={activeTab === item.name ? (item.url.includes('#') ? 'location' : 'page') : undefined}
-                onClick={(event) => handleNavigation(item.url, item.name, event)}
-                className={clsx(
-                  'flex min-h-[60px] items-center justify-between border-b border-line font-tight text-2xl font-light tracking-[-0.02em] transition-colors',
-                  activeTab === item.name ? 'text-ink' : 'text-muted hover:text-ink',
-                )}
-              >
-                {item.name}
-                <ArrowRight
-                  className={clsx('h-5 w-5 transition-opacity', activeTab === item.name ? 'opacity-100' : 'opacity-0')}
-                />
-              </m.a>
-            ))}
-          </div>
-
-          <div className="shrink-0 pt-6">
-            <div className="mb-4 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted">
-              {contact
-                .filter((item) => /^(mailto|tel):/.test(item.href))
-                .map((item) => (
-                  <a key={item.href} href={item.href} className="hover:text-ink">
-                    {item.text}
-                  </a>
-                ))}
+          <div className="mt-6 flex-1 min-h-0 flex flex-col">
+            <div className="flex flex-col gap-3.5">
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.url}
+                  onClick={(event) => handleNavigation(item.url, item.name, event)}
+                  className={clsx(
+                    'group block text-base font-medium text-left py-3 px-4 rounded-lg transition-colors min-h-[48px]',
+                    activeTab === item.name
+                      ? 'text-ink bg-ink/5'
+                      : 'text-muted hover:text-ink hover:bg-ink/5',
+                  )}
+                >
+                  <span className="relative inline-flex items-center">
+                    <span className="relative inline-block">
+                      {item.name}
+                      {activeTab === item.name && (
+                        <span className="absolute left-0 right-0 -bottom-1 h-[2px] bg-ink rounded-full" />
+                      )}
+                    </span>
+                    <ArrowRight
+                      className={clsx(
+                        'w-4 h-4 ml-2 text-ink transform transition-all duration-300',
+                        activeTab === item.name
+                          ? 'opacity-100 translate-x-0'
+                          : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0',
+                      )}
+                    />
+                  </span>
+                </a>
+              ))}
             </div>
-            <button type="button" onClick={handleBookCall} className="ts-pill h-14 w-full text-base">
+
+            <button
+              type="button"
+              onClick={handleBookCall}
+              className="ts-pill mt-6 w-full h-14 text-base"
+            >
               <span>Book a Call</span>
-              <ArrowRight className="h-5 w-5" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </m.div>
