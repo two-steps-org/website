@@ -9,6 +9,7 @@ import {
   useTransform,
   type MotionValue,
 } from 'framer-motion';
+import { BrainCircuit, PencilRuler, Plug, ShieldCheck, TrendingUp, Users, type LucideIcon } from 'lucide-react';
 import Section from './common/Section';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
@@ -17,36 +18,42 @@ import { useReducedMotionQuery } from '../utils/scroll';
 const slides = [
   {
     number: '01',
+    icon: PencilRuler,
     headline: 'Built for Your Business',
     description:
       'Our AI solutions are custom-built to fit your goals, industry, and challenges—because your business deserves more than one-size-fits-all.',
   },
   {
     number: '02',
+    icon: Plug,
     headline: 'Effortless Integration',
     description:
       'Seamlessly connect our AI solutions with your existing tools and workflows, ensuring zero downtime and immediate results.',
   },
   {
     number: '03',
+    icon: BrainCircuit,
     headline: 'Intelligence You Can Trust',
     description:
       'Our AI agents are designed with precision, delivering reliable, consistent results that you can count on.',
   },
   {
     number: '04',
+    icon: TrendingUp,
     headline: 'Evolving with Your Needs',
     description:
       "Our solutions grow with you, adapting to your business's evolution so you're always ready for what's next.",
   },
   {
     number: '05',
+    icon: ShieldCheck,
     headline: 'Security at the Core',
     description:
       'Every AI solution we build is designed with advanced data protection, keeping your operations secure at every step.',
   },
   {
     number: '06',
+    icon: Users,
     headline: 'Expertise You Can Rely On',
     description:
       'Our team of specialists works closely with you, from concept to delivery, to ensure your AI vision becomes a reality.',
@@ -54,6 +61,8 @@ const slides = [
 ] as const;
 
 const SLIDE_COUNT = slides.length;
+/** Pinned scroll per slide, in vh. Every slide, the last included, holds this long. */
+const STEP_VH = 55;
 const HOLD = 0.86;
 const FLIP = 1 - HOLD;
 const HALF = 0.5;
@@ -136,6 +145,20 @@ const WhySlideBody: React.FC<{ slide: (typeof slides)[number] }> = ({ slide }) =
   </div>
 );
 
+/** Static on purpose: it rides the slide's flip, so it must not animate itself. */
+const SlideGlyph: React.FC<{ icon: LucideIcon }> = ({ icon: Icon }) => (
+  <div
+    aria-hidden="true"
+    className="relative flex aspect-square w-[clamp(200px,24vw,340px)] shrink-0 items-center justify-center"
+  >
+    <span className="absolute inset-0 rounded-full border border-line" />
+    <span className="absolute inset-[15%] rounded-full border border-line" />
+    <span className="ts-card flex h-[42%] w-[42%] items-center justify-center rounded-full">
+      <Icon strokeWidth={1} className="h-[46%] w-[46%] text-ink" />
+    </span>
+  </div>
+);
+
 const WhySlide: React.FC<{ slide: (typeof slides)[number]; compact?: boolean }> = ({
   slide,
   compact,
@@ -159,7 +182,7 @@ const FlipSlide: React.FC<{
 
   return (
     <m.div
-      className="pointer-events-none absolute inset-0 flex items-center"
+      className="pointer-events-none absolute inset-0 flex items-center justify-between gap-8 pr-[clamp(16px,4vw,72px)]"
       style={{
         transform,
         opacity,
@@ -168,6 +191,7 @@ const FlipSlide: React.FC<{
       }}
     >
       <WhySlideBody slide={slide} />
+      <SlideGlyph icon={slide.icon} />
     </m.div>
   );
 };
@@ -266,7 +290,9 @@ const DesktopScrollShowcase: React.FC = () => {
     offset: ['start start', 'end end'],
   });
 
-  const slideProgress = useTransform(scrollYProgress, (p) => p * (SLIDE_COUNT - 1));
+  // One equal segment per slide; the last one holds to the end of the pin
+  // instead of appearing just as the section lets go.
+  const slideProgress = useTransform(scrollYProgress, (p) => Math.min(p * SLIDE_COUNT, SLIDE_COUNT - 1));
   const activeSlide = useTransform(slideProgress, visibleIndex);
 
   if (reduce) {
@@ -291,7 +317,7 @@ const DesktopScrollShowcase: React.FC = () => {
       data-layout="free"
       data-scroll-slideshow="why-us"
       className="relative hidden border-t border-line lg:block"
-      style={{ height: `${slides.length * 100}vh` }}
+      style={{ height: `${SLIDE_COUNT * STEP_VH + 100}vh` }}
     >
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
         <div className="ts-container relative flex h-full flex-col">
