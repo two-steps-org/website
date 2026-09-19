@@ -14,10 +14,10 @@ import { EASE_OUT, enterScale, mainThread } from '../utils/motion';
 
 /** The four things we build, shown as glass chips under the CTAs. */
 const CAPABILITY_CHIPS = [
-  'AI Chat Agents',
-  'AI Voice Agents',
-  'CRM Development',
-  'Custom SaaS',
+  { label: 'AI Chat Agents', to: '/services/ai-chat-agents' },
+  { label: 'AI Voice Agents', to: '/services/ai-voice-agents' },
+  { label: 'CRM Development', to: '/services/crm-development' },
+  { label: 'Custom SaaS', to: '/services/custom-saas-solutions' },
 ] as const;
 
 const Hero: React.FC = () => {
@@ -109,12 +109,13 @@ const Hero: React.FC = () => {
 
           <ul className="m-0 flex list-none flex-wrap justify-center gap-2 p-0 pt-2 lg:justify-start">
             {CAPABILITY_CHIPS.map((chip, index) => (
-              <m.li
-                key={chip}
-                {...entrance(0.45 + index * 0.05, true)}
-                className="ts-glass inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-medium text-ink"
-              >
-                {chip}
+              <m.li key={chip.to} {...entrance(0.45 + index * 0.05, true)}>
+                <Link
+                  to={chip.to}
+                  className="ts-glass inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-medium text-ink transition-colors hover:bg-ink/10"
+                >
+                  {chip.label}
+                </Link>
               </m.li>
             ))}
           </ul>

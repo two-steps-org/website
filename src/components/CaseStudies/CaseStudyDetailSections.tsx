@@ -12,14 +12,14 @@ import { blurIn, draw, drawY, enter, enterItem, pop, reveal, revealItem, scaleIt
 
 const SECTION = 'ts-container';
 
-const SectionHead: React.FC<{ label: string; heading: string }> = ({ label, heading }) => (
+export const SectionHead: React.FC<{ label: string; heading: string }> = ({ label, heading }) => (
   <div className="flex flex-col gap-3">
     <p className="ts-eyebrow">{label}</p>
     <h2 className="ts-h2 text-ink max-w-[14ch] m-0">{heading}</h2>
   </div>
 );
 
-const Split: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const Split: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-6 md:gap-[clamp(32px,5vw,96px)] items-start">
     {children}
   </div>
@@ -94,7 +94,7 @@ export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps)
 }
 
 interface CaseStudyFactsRailProps {
-  facts: Array<{ label: string; value: string }>;
+  facts: Array<{ label: string; value: string; to?: string }>;
 }
 
 export function CaseStudyFactsRail({ facts }: CaseStudyFactsRailProps) {
@@ -111,7 +111,15 @@ export function CaseStudyFactsRail({ facts }: CaseStudyFactsRailProps) {
             className={`flex flex-col gap-2 py-7 pr-6 ${i === 0 ? '' : 'md:pl-6'} border-line md:border-r last:border-r-0`}
           >
             <dt className="ts-eyebrow">{fact.label}</dt>
-            <dd className="m-0 text-base font-medium tracking-[-0.01em] text-ink">{fact.value}</dd>
+            <dd className="m-0 text-base font-medium tracking-[-0.01em] text-ink">
+              {fact.to ? (
+                <Link to={fact.to} className="underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
+                  {fact.value}
+                </Link>
+              ) : (
+                fact.value
+              )}
+            </dd>
           </m.div>
         ))}
       </m.dl>
@@ -335,15 +343,16 @@ export function CaseStudyQuoteSection({ study }: CaseStudyQuoteSectionProps) {
 }
 
 interface CaseStudyMoreWorkSectionProps {
-  others: CaseStudy[];
+  others: readonly CaseStudy[];
+  heading?: string;
 }
 
-export function CaseStudyMoreWorkSection({ others }: CaseStudyMoreWorkSectionProps) {
+export function CaseStudyMoreWorkSection({ others, heading = 'More work' }: CaseStudyMoreWorkSectionProps) {
   return (
     <section className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <div className="flex flex-col gap-8">
         <m.div {...reveal()} className="flex items-end justify-between gap-6 flex-wrap">
-          <h2 className="ts-h2 text-ink m-0">More work</h2>
+          <h2 className="ts-h2 text-ink m-0">{heading}</h2>
           <Link
             to="/case-studies"
             className="inline-flex items-center gap-1.5 text-[15px] font-medium text-muted hover:text-ink transition-colors"
@@ -401,7 +410,8 @@ interface CaseStudyClosingCtaProps {
 export function CaseStudyClosingCta({ onBookCall }: CaseStudyClosingCtaProps) {
   return (
     <Scrub as="section" y={24} className={`${SECTION} pt-[clamp(80px,9vw,128px)] pb-6`}>
-      <div className="rounded-card bg-accent text-accent-fg p-[clamp(40px,8vw,112px)] grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10 items-end">
+      {/* A light surface: tell the nav, or its white button vanishes over it. */}
+      <div data-band="light" data-layout="free" className="rounded-card bg-accent text-accent-fg p-[clamp(40px,8vw,112px)] grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10 items-end">
         <div>
           <h2 className="ts-display text-[clamp(36px,5.5vw,80px)] max-w-[12ch] m-0">
             Tell us the <em className="sig">vision</em>. We will build it.

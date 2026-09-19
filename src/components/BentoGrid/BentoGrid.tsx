@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Scrub from '../common/Scrub';
 import PipelineCard from './cards/PipelineCard';
 import EncryptionCard from './cards/EncryptionCard';
@@ -11,12 +12,16 @@ const TILES = [
   { id: 'ai-voice-agents', Card: IntegrationCard, className: 'md:col-span-7 min-h-[240px] md:min-h-0' },
 ] as const;
 
+/** The animated card that stands for each service, by service id. */
+export const SERVICE_CARDS: Record<string, (typeof TILES)[number]['Card']> = Object.fromEntries(
+  TILES.map(({ id, Card }) => [id, Card]),
+);
+
 interface BentoGridProps {
   services: readonly { id: string; title: string }[];
-  onSelect: (id: string) => void;
 }
 
-const BentoGrid: React.FC<BentoGridProps> = ({ services, onSelect }) => {
+const BentoGrid: React.FC<BentoGridProps> = ({ services }) => {
   return (
     <div className="w-full">
       <div className="grid w-full grid-cols-1 gap-3 md:grid-cols-12 md:grid-rows-[380px_300px] md:gap-4 lg:grid-rows-[420px_340px]">
@@ -26,14 +31,13 @@ const BentoGrid: React.FC<BentoGridProps> = ({ services, onSelect }) => {
 
           return (
             <Scrub key={id} effect="assemble" x={index % 2 === 0 ? -72 : 72} delay={(index % 2) * 0.12} className={className}>
-              <button
-                type="button"
-                onClick={() => onSelect(id)}
+              <Link
+                to={`/services/${id}`}
                 aria-label={`Discover more about ${service.title}`}
-                className="h-full w-full min-h-[inherit] cursor-pointer border-0 bg-transparent p-0 text-left"
+                className="block h-full w-full min-h-[inherit] text-left"
               >
                 <Card title={service.title} className="h-full" />
-              </button>
+              </Link>
             </Scrub>
           );
         })}

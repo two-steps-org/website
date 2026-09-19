@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { CASE_STUDY_META } from './CaseStudies/seoMeta';
+import { services } from '../data/services';
 import { useLocation, type Location as RouterLocation } from 'react-router-dom';
 import {
   DEFAULT_SITE_URL,
@@ -38,6 +39,18 @@ const getPageMetadata = (pathname: string) => {
         'Two Steps AI - Transforming Business Through AI. We help businesses leverage artificial intelligence to automate processes, improve efficiency, and drive growth.',
       type: 'WebPage',
     },
+    '/services': {
+      title: 'Services - Two Steps AI',
+      description:
+        'AI chat agents, AI voice agents, custom CRM development and custom SaaS. Four services from one in-house team, built around your process.',
+      type: 'CollectionPage',
+    },
+    '/about': {
+      title: 'About - Two Steps AI',
+      description:
+        'Meet the Two Steps team and see how we work: custom AI solutions built for your business, integrated with your tools, and secure by design.',
+      type: 'AboutPage',
+    },
     '/case-studies': {
       title: 'Case Studies - Two Steps AI',
       description:
@@ -45,6 +58,12 @@ const getPageMetadata = (pathname: string) => {
       type: 'CollectionPage',
     },
   };
+
+  const serviceMatch = /^\/services\/(.+)$/.exec(path);
+  const service = serviceMatch && services.find((entry) => entry.id === serviceMatch[1]);
+  if (service) {
+    return { title: `${service.title} - Two Steps AI`, description: service.description, type: 'Service' };
+  }
 
   const caseStudyMatch = /^\/case-studies\/(.+)$/.exec(path);
   if (caseStudyMatch) {

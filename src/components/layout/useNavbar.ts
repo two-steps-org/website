@@ -70,7 +70,8 @@ export function useNavbar() {
 
   useEffect(() => {
     if (normalizePath(location.pathname) === '/') return;
-    const matched = navItems.find((item) => normalizePath(item.url) === normalizePath(location.pathname));
+    const path = normalizePath(location.pathname);
+    const matched = navItems.find((item) => !item.url.includes('#') && (path === item.url || path.startsWith(`${item.url}/`)));
     setActiveTab(matched?.name ?? '');
   }, [location.pathname]);
 
@@ -132,7 +133,6 @@ export function useNavbar() {
 
       if (!url.includes('#')) {
         navigate(url);
-        if (url === '/case-studies') window.scrollTo({ top: 0, behavior: 'auto' });
         unlockManualNav(250);
         return;
       }

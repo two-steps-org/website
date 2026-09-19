@@ -6,6 +6,7 @@ import { CaseStudy } from './types';
 export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   {
     slug: 'task-automation-google-calendar',
+    service: 'ai-chat-agents',
     title: 'Task Automation via Google Calendar API',
     client: 'Internal Team',
     industry: 'Professional Services',
@@ -70,6 +71,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   },
   {
     slug: 'ai-chat-agent-barber',
+    service: 'ai-chat-agents',
     title: 'AI Chat Agent for a Home-Based Barber',
     client: 'Independent Barber',
     industry: 'Personal Services',
@@ -134,6 +136,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   },
   {
     slug: 'ai-sdr-call-agent',
+    service: 'ai-voice-agents',
     title: 'AI SDR Call Agent for a Leads Manager',
     client: 'Leads Manager',
     industry: 'Sales and Marketing',
@@ -198,6 +201,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   },
   {
     slug: 'custom-saas-logistics',
+    service: 'custom-saas-solutions',
     title: 'Custom SaaS for a Logistics Firm',
     client: 'Logistics Company',
     industry: 'Logistics and Supply Chain',
@@ -269,6 +273,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
   },
   {
     slug: 'crm-accounting-firm',
+    service: 'crm-development',
     title: 'CRM Build for an Accounting Firm',
     client: 'Accounting Firm',
     industry: 'Financial Services',

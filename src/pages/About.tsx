@@ -1,0 +1,47 @@
+import React from 'react';
+import { m } from 'framer-motion';
+import WhyUs from '../components/WhyUs';
+import Team from '../components/Team';
+import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
+import SplitText from '../components/common/SplitText';
+import { BOOK_CALL_URL } from '../data/navItems';
+import { enter } from '../utils/motion';
+import { usePageScrollReset } from '../utils/scroll';
+
+const handleBookCall = () => {
+  window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
+};
+
+const About: React.FC = () => {
+  usePageScrollReset();
+
+  return (
+    <main className="relative w-full flex-1">
+      <section className="pb-16" style={{ paddingTop: 'calc(var(--header-height) + 4rem)' }}>
+        <div className="ts-container flex flex-col gap-6">
+          <m.p {...enter(0)} className="ts-eyebrow">
+            About
+          </m.p>
+          <SplitText
+            as="h1"
+            mode="enter"
+            delay={0.1}
+            stagger={0.08}
+            className="ts-display m-0 max-w-[14ch] text-ink"
+            segments={[{ text: 'The team that keeps you' }, { text: 'ahead.', className: 'sig' }]}
+          />
+          <m.p {...enter(0.3)} className="m-0 max-w-[48ch] text-[clamp(17px,1.4vw,19px)] text-muted">
+            We craft custom AI solutions, turning complex challenges into seamless automation. Here is how we work, and who you will be working with.
+          </m.p>
+        </div>
+      </section>
+
+      <WhyUs />
+      <Team />
+
+      <CaseStudyClosingCta onBookCall={handleBookCall} />
+    </main>
+  );
+};
+
+export default About;

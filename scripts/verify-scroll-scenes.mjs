@@ -19,7 +19,17 @@ try {
     const hub = page.locator('[data-hero-hub]:visible');
     assert.ok(await hub.evaluate(el => parseFloat(getComputedStyle(el).animationDuration) >= 0.3), 'Hero hub entrance must be enabled in the preview');
     // The dev preview intentionally enables motion on reduced-motion devices.
-    for (const effect of ['curtain', 'assemble', 'shutter', 'focus', 'timeline', 'portrait', 'unfold']) {
+    // Scenes live on the page that owns their section; grouped so each page loads once.
+    const SCENE_PAGE = { focus: '/services', timeline: '/services', portrait: '/about' };
+    let at = '/';
+    const open = async (path) => {
+      if (path === at) return;
+      await page.goto(baseURL + path, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(600);
+      at = path;
+    };
+    for (const effect of ['curtain', 'assemble', 'shutter', 'unfold', 'focus', 'timeline', 'portrait']) {
+      await open(SCENE_PAGE[effect] ?? '/');
       const anchors = page.locator(`${effect === 'timeline' ? '#process ' : ''}[data-scroll-reveal="${effect}"]`);
       let anchor;
       for (const candidate of await anchors.all()) {
@@ -52,6 +62,7 @@ try {
     }
     // Restored details must stay synchronized with their existing scroll scene.
     if (!mobile) {
+      await open('/about');
       const slideshow = page.locator('[data-scroll-slideshow="why-us"]');
       assert.ok(await slideshow.count(), 'Why Us scroll slideshow must exist on desktop');
       const readSlide = async (fraction) => {
@@ -72,6 +83,7 @@ try {
       assert.equal((await readSlide(0.35)).label, mid.label, 'Why Us slideshow must reverse on scroll up');
       console.log('Desktop why-us scroll slideshow: forward, reverse, and labels passed.');
     }
+    await open('/');
     for (const selector of ['#services [data-scroll-accent]', '[data-band="light"] ul']) {
       const detail = page.locator(selector).first();
       const at = async fraction => {

@@ -88,7 +88,6 @@ interface FooterLinksGridProps {
   expandedSections: Record<string, boolean>;
   onToggleSection: (sectionKey: string) => void;
   onNavigate: (href: string, event?: MouseEvent<HTMLAnchorElement>) => void;
-  onSolutionNavigate: (item: SolutionItem, event?: MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export function FooterLinksGrid({
@@ -97,7 +96,6 @@ export function FooterLinksGrid({
   expandedSections,
   onToggleSection,
   onNavigate,
-  onSolutionNavigate,
 }: FooterLinksGridProps) {
   return (
     <div className={`md:col-span-2 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-4 ${isMobile ? '' : 'pl-2 lg:pl-4'}`}>
@@ -151,7 +149,7 @@ export function FooterLinksGrid({
               <a
                 href={item.href}
                 onClick={(event) => {
-                  onSolutionNavigate(item, event);
+                  onNavigate(item.href, event);
                   hapticFeedback.selection();
                 }}
                 className="flex items-center gap-3 group w-full text-left min-h-[44px]"

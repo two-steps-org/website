@@ -19,7 +19,6 @@ export interface SolutionItem {
   label: string;
   icon: LucideIcon;
   href: string;
-  serviceId: string;
 }
 
 export interface ContactItem {
@@ -36,19 +35,17 @@ export interface SocialItem {
 
 export const navigation: NavItem[] = [
   { label: 'Home', href: '/#home' },
-  { label: 'Services', href: '/#services' },
-  { label: 'Why Us', href: '/#why-us' },
-  { label: 'Process', href: '/#process' },
-  { label: 'Team', href: '/#team' },
-  { label: 'Q&A', href: '/#faq' },
+  { label: 'Services', href: '/services' },
   { label: 'Case Studies', href: '/case-studies' },
+  { label: 'About', href: '/about' },
+  { label: 'Q&A', href: '/#faq' },
 ];
 
 export const solutions: SolutionItem[] = [
-  { label: 'AI Voice Agents', icon: Mic, href: '/#services', serviceId: 'ai-voice-agents' },
-  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/#services', serviceId: 'ai-chat-agents' },
-  { label: 'CRM Development', icon: LayoutDashboard, href: '/#services', serviceId: 'crm-development' },
-  { label: 'Custom SaaS', icon: Code2, href: '/#services', serviceId: 'custom-saas-solutions' },
+  { label: 'AI Voice Agents', icon: Mic, href: '/services/ai-voice-agents' },
+  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/services/ai-chat-agents' },
+  { label: 'CRM Development', icon: LayoutDashboard, href: '/services/crm-development' },
+  { label: 'Custom SaaS', icon: Code2, href: '/services/custom-saas-solutions' },
 ];
 
 export const contact: ContactItem[] = [

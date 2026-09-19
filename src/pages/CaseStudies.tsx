@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { caseStudies } from '../components/CaseStudies/data';
+import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
+import { BOOK_CALL_URL } from '../data/navItems';
 import type { CaseStudy } from '../components/CaseStudies/types';
 import SplitText from '../components/common/SplitText';
 import Scrub from '../components/common/Scrub';
@@ -74,7 +76,7 @@ const CaseStudies: React.FC = () => {
         </section>
 
         {/* ── Entries: image and text swap sides down the list ────────────── */}
-        <section className="pb-24 border-t border-line">
+        <section className="border-t border-line">
           <div className="ts-container flex flex-col">
             {caseStudies.map((study, index) => {
               const imageFirst = index % 2 === 0;
@@ -150,6 +152,8 @@ const CaseStudies: React.FC = () => {
             })}
           </div>
         </section>
+
+        <CaseStudyClosingCta onBookCall={() => window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer')} />
       </main>
   );
 };

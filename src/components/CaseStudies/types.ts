@@ -39,6 +39,8 @@ export interface CaseStudy {
   readonly slug: string;
   /** Title of the case study. */
   readonly title: string;
+  /** `id` of the service in src/data/services.ts this work belongs to. */
+  readonly service: string;
   /** The client for whom the solution was developed. */
   readonly client: string;
   /** The industry sector relevant to the case study. */

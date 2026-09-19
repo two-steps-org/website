@@ -7,7 +7,6 @@ import LegalModal from './LegalModal';
 import Scrub from '../../common/Scrub';
 import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
 import { hapticFeedback } from '../../../utils/mobile/hapticFeedback';
-import { type SolutionItem } from './footerData';
 import {
   FooterBottomBar,
   FooterBrandColumn,
@@ -63,34 +62,6 @@ const Footer: React.FC = () => {
 
     event?.preventDefault();
     navigate(href);
-    if (href === '/case-studies') {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-  };
-
-  const handleSolutionNavigation = (item: SolutionItem, event?: MouseEvent<HTMLAnchorElement>) => {
-    if (!isMobile) {
-      handleNavigation(item.href, event);
-      return;
-    }
-
-    event?.preventDefault();
-
-    if (location.pathname !== '/') {
-      navigate('/', {
-        state: {
-          targetSection: 'services',
-          isSectionNav: true,
-          targetService: item.serviceId,
-        },
-      });
-      return;
-    }
-
-    scrollToSection('services');
-    window.setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('servicesFocus', { detail: { serviceId: item.serviceId } }));
-    }, 220);
   };
 
   return (
@@ -104,7 +75,6 @@ const Footer: React.FC = () => {
             expandedSections={expandedSections}
             onToggleSection={toggleSection}
             onNavigate={handleNavigation}
-            onSolutionNavigate={handleSolutionNavigation}
           />
           <FooterContactColumn
             isMobile={isMobile}

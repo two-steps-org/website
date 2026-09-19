@@ -1,4 +1,5 @@
-import { createContext, useEffect, useState, type RefObject } from 'react';
+import { createContext, useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useScroll, type MotionValue } from 'framer-motion';
 import { PREVIEW_FULL_MOTION } from './motionPreference';
 
@@ -37,3 +38,13 @@ export const useReducedMotionQuery = () => {
   const reduced = useMediaQuery('(prefers-reduced-motion: reduce)');
   return !PREVIEW_FULL_MOTION && reduced;
 };
+
+/** A routed page opens at its #hash target when it has one, otherwise at the top. */
+export function usePageScrollReset() {
+  const { pathname, hash } = useLocation();
+  useLayoutEffect(() => {
+    const target = hash ? document.getElementById(hash.slice(1)) : null;
+    if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    else window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname, hash]);
+}

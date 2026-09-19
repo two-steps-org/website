@@ -25,7 +25,7 @@ export const NavbarDesktopNav = ({
             : 'ts-glass',
         )}
       >
-        {navItems.filter((item) => item.desktop !== false).map((item) => {
+        {navItems.map((item) => {
           const isActive = activeTab === item.name;
           return (
             <a

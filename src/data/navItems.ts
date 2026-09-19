@@ -1,12 +1,9 @@
-// `desktop: false` keeps a link out of the desktop pill; the mobile menu and
-// the footer still carry it. The logo is the Home link.
-export const navItems: ReadonlyArray<{ name: string; url: string; desktop?: false }> = [
-  { name: 'Services', url: '/#services' },
-  { name: 'Why Us', url: '/#why-us' },
-  { name: 'Process', url: '/#process', desktop: false },
-  { name: 'Team', url: '/#team', desktop: false },
-  { name: 'Q&A', url: '/#faq' },
+// The logo is the Home link. Page links light up on their own page and its children.
+export const navItems: ReadonlyArray<{ name: string; url: string }> = [
+  { name: 'Services', url: '/services' },
   { name: 'Case Studies', url: '/case-studies' },
+  { name: 'About', url: '/about' },
+  { name: 'Q&A', url: '/#faq' },
 ];
 
 export const BOOK_CALL_URL = 'https://calendly.com/yoni-insell-twosteps/30min';

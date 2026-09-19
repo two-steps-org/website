@@ -18,7 +18,11 @@ mobile menu — with the N2 structure only: four desktop links, no Home, nothing
 lit on the hero, shared container. The logo/CTA overlap with page content on
 scroll is accepted as part of that look.
 
-**Next: Phase 2 — real pages behind the nav links (section 7).** Not started.
+**Phase 2 (section 7) is built (2026-09-19):** `/services`, four
+`/services/:id` pages, `/about`; home slimmed to ~7,100px; nav is Services ·
+Case Studies · About · Q&A; the service pop-up is gone; old `/#why-us`,
+`/#team`, `/#process` links redirect. 13 routes prerender. Page headlines and
+the Custom SaaS paragraph are first drafts for the copy pass.
 
 Scope: navbar and page layout only. **Copy is a separate pass after this one** —
 section 6 lists what that pass should pick up.

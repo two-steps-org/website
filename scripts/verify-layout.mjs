@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import process from 'node:process';
 import { chromium } from 'playwright';
+import { SITE_ROUTES } from './routes.mjs';
 
 const baseURL = process.env.LAYOUT_TEST_URL || 'http://127.0.0.1:5180';
 const browser = await chromium.launch({ headless: true });
@@ -19,7 +20,7 @@ const measure = () => {
   const logo = document.querySelector('header a[aria-label="Go to Home"]');
   // Section h2s only: the hero h1 carries a deliberate optical offset (-0.04em).
   const headings = [...document.querySelectorAll('main h2')]
-    .filter((h) => h.offsetParent && getComputedStyle(h).textAlign !== 'center')
+    .filter((h) => h.offsetParent && getComputedStyle(h).textAlign !== 'center' && !h.closest('[data-layout="free"]'))
     .map((h) => ({ text: h.textContent.trim().slice(0, 40), left: layoutLeft(h) }));
   const rhythm = [...document.querySelectorAll('main .ts-section')]
     .filter((el) => el.offsetParent && !el.closest('[data-layout="free"]'))
@@ -41,6 +42,18 @@ try {
       assert.ok(Math.abs(h.left - logoLeft) <= 1, `${viewport.width}px: "${h.text}" starts at ${h.left}px, logo at ${logoLeft}px`);
     }
     console.log(`${viewport.width}px grid: ${headings.length} headings on the logo line (${logoLeft}px)`);
+    for (const route of ['/services', '/services/ai-voice-agents', '/about']) {
+      await page.goto(baseURL + route, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(500);
+      const sub = await page.evaluate(measure);
+      assert.ok(sub.headings.length >= 1, `${route}: expected section headings`);
+      for (const h of sub.headings) {
+        assert.ok(Math.abs(h.left - sub.logoLeft) <= 1, `${viewport.width}px ${route}: "${h.text}" starts at ${h.left}px, logo at ${sub.logoLeft}px`);
+      }
+      console.log(`${viewport.width}px grid ${route}: ${sub.headings.length} headings on the logo line`);
+    }
+    await page.goto(baseURL, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(500);
 
     // L2 — one rhythm: chapter sections share a single padding-block.
     assert.ok(rhythm.length >= 5, `expected chapter sections at ${viewport.width}px, found ${rhythm.length}`);
@@ -74,6 +87,25 @@ try {
     assert.ok(scene >= viewport.height - 1, `${viewport.width}x${viewport.height}: network starts at ${scene}px, inside the first viewport`);
     await page.screenshot({ path: `/tmp/layout-hero-${viewport.width}.png` });
     console.log(`${viewport.width}x${viewport.height} hero: ask ends at ${Math.round(cta)}px, network starts at ${scene}px`);
+    await page.close();
+  }
+  // Phase 2 — no dead ends, no orphans: every route ends in an ask and is
+  // linked from some other page.
+  {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const linked = new Set();
+    for (const route of SITE_ROUTES) {
+      await page.goto(baseURL + route, { waitUntil: 'networkidle' });
+      await page.waitForTimeout(300);
+      const { asks, hrefs } = await page.evaluate(() => ({
+        asks: [...document.querySelectorAll('main button, main a')].filter((el) => !el.closest('header, footer') && /book a call/i.test(el.textContent)).length,
+        hrefs: [...document.querySelectorAll('a[href^="/"]')].map((a) => a.getAttribute('href').split('#')[0].replace(/(.)\/$/, '$1')),
+      }));
+      assert.ok(asks >= 1, `${route}: no "Book a Call" in the page body — a dead end`);
+      hrefs.filter((href) => href !== route).forEach((href) => linked.add(href));
+    }
+    for (const route of SITE_ROUTES) assert.ok(route === '/' || linked.has(route), `${route}: no other page links to it`);
+    console.log(`${SITE_ROUTES.length} routes: each ends in an ask and is linked from another page`);
     await page.close();
   }
   console.log('layout ok');

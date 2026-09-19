@@ -5,7 +5,7 @@ import ResponsiveImage from './common/ResponsiveImage';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
 
-const team = [
+export const team = [
   {
     name: 'Jonathan Insell',
     role: 'CEO & Founder',

@@ -10,6 +10,9 @@ import { PREVIEW_FULL_MOTION } from './utils/motionPreference';
 const Home = lazy(() => import('./pages/Home'));
 const CaseStudies = lazy(() => import('./pages/CaseStudies'));
 const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
+const Services = lazy(() => import('./pages/Services'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+const About = lazy(() => import('./pages/About'));
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-black" aria-hidden="true" />
@@ -30,6 +33,9 @@ const AppContent: React.FC = () => {
                   <Route path="/" element={<Home />} />
                   <Route path="/case-studies" element={<CaseStudies />} />
                   <Route path="/case-studies/:slug" element={<CaseStudyDetail />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/services/:slug" element={<ServiceDetail />} />
+                  <Route path="/about" element={<About />} />
                 </Routes>
               </BaseLayout>
             </Suspense>

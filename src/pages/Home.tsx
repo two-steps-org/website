@@ -9,10 +9,15 @@ import WorkRail from '../components/WorkRail';
 import Testimonials from '../components/Testimonials';
 import CtaBand from '../components/CtaBand';
 import Services from '../components/Services';
-import WhyUs from '../components/WhyUs';
-import Process from '../components/Process';
-import Team from '../components/Team';
+import AboutTeaser from '../components/AboutTeaser';
 import FAQ from '../components/FAQ';
+
+// Sections that used to live on this page. Old links and bookmarks still land.
+const MOVED_SECTIONS: Record<string, string> = {
+  'why-us': '/about#why-us',
+  team: '/about#team',
+  process: '/services#process',
+};
 
 const SectionErrorFallback = ({ error }: { error: Error }) => (
   <div className="min-h-[200px] flex items-center justify-center p-4">
@@ -32,6 +37,12 @@ const Home = () => {
     (navState?.isSectionNav ? navState.targetSection : null) ?? (location.hash.slice(1) || null);
 
   useLayoutEffect(() => {
+    const moved = targetSection ? MOVED_SECTIONS[targetSection] : undefined;
+    if (moved) {
+      navigate(moved, { replace: true });
+      return;
+    }
+
     if (targetSection && targetSection !== 'home') {
       hasConsumedSectionNav.current = true;
       const sectionId = targetSection;
@@ -81,10 +92,7 @@ const Home = () => {
       <Testimonials />
       <CtaBand />
 
-      <WhyUs />
-
-      <Process />
-      <Team />
+      <AboutTeaser />
       <FAQ />
     </ErrorBoundary>
   );

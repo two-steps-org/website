@@ -3,6 +3,7 @@
 import React, { useLayoutEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { caseStudies } from '../components/CaseStudies/data';
+import { services } from '../data/services';
 import {
   CaseStudyAboutSection,
   CaseStudyBuildSection,
@@ -31,13 +32,16 @@ const CaseStudyDetail: React.FC = () => {
   const ground = toneCss(study.tone);
   const others = caseStudies.filter((entry) => entry.slug !== study.slug).slice(0, 2);
 
+  const service = services.find((entry) => entry.id === study.service);
+
   const facts = [
+    { label: 'Service', value: service?.title, to: service && `/services/${service.id}` },
     { label: 'Client', value: study.client },
     { label: 'Industry', value: study.industry },
     { label: 'Deployed on', value: study.deployedPlatform },
     { label: 'Time frame', value: study.timeframe },
     { label: 'Delivered', value: study.year },
-  ].filter((fact): fact is { label: string; value: string } => Boolean(fact.value));
+  ].filter((fact): fact is { label: string; value: string; to?: string } => Boolean(fact.value));
 
   const handleBookCall = () => {
     window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');

@@ -15,7 +15,7 @@ import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
 import { useReducedMotionQuery } from '../utils/scroll';
 
-const slides = [
+export const slides = [
   {
     number: '01',
     icon: PencilRuler,

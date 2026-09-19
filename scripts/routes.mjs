@@ -10,8 +10,19 @@ export const CASE_STUDY_SLUGS = [
   'crm-accounting-firm',
 ];
 
+// Keep in sync with the `id` field in src/data/services.ts.
+export const SERVICE_SLUGS = [
+  'ai-chat-agents',
+  'ai-voice-agents',
+  'crm-development',
+  'custom-saas-solutions',
+];
+
 export const SITE_ROUTES = [
   '/',
+  '/services',
+  ...SERVICE_SLUGS.map((slug) => `/services/${slug}`),
+  '/about',
   '/case-studies',
   ...CASE_STUDY_SLUGS.map((slug) => `/case-studies/${slug}`),
 ];
