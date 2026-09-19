@@ -174,7 +174,7 @@ const Testimonials: React.FC = () => {
       data-band="light"
       className="relative z-[1] bg-[#fafafa] text-[#0a0a0a] pb-[clamp(96px,10vw,128px)] border-b border-[#e6e6e6]"
     >
-      <div className="mx-auto w-full max-w-[1312px] px-[clamp(20px,3vw,32px)] grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-[clamp(32px,5vw,80px)] items-center">
+      <div className="ts-container grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-[clamp(32px,5vw,80px)] items-center">
         <Scrub x={-28} y={20} contentClassName="flex flex-col gap-6">
           <p className="ts-eyebrow">What clients say</p>
           <SplitText

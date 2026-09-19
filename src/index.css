@@ -78,9 +78,25 @@
     --bento-glow: rgba(245, 246, 248, 0.08);
     --bento-radius: 20px;
     --mobile-gutter: clamp(1rem, 4.5vw, 1.5rem);
+    /* The one content measure. The nav, every section and the footer share
+       it, so section headings start on the same vertical line as the logo. */
+    --container-max: 80rem;
+    --container-pad: var(--mobile-gutter);
     /* Dynamic header height: safe-area (or 16px) + 64px bar.
        Sticky/fixed offsets key off this, so it must track the Navbar shell. */
     --header-height: calc(max(1rem, env(safe-area-inset-top)) + 4rem);
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --container-pad: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    :root {
+      --container-pad: 3rem;
+    }
   }
 
   html {
@@ -409,6 +425,23 @@
 
   .section-padding {
     @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .ts-container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-left: max(var(--container-pad), env(safe-area-inset-left));
+    padding-right: max(var(--container-pad), env(safe-area-inset-right));
+  }
+
+  /* Left edge of .ts-container for a row that bleeds off the right edge. */
+  .ts-container-bleed {
+    padding-left: max(
+      var(--container-pad),
+      env(safe-area-inset-left),
+      calc((100vw - var(--container-max)) / 2 + var(--container-pad))
+    );
   }
 
   .mobile-shell-px {

@@ -109,7 +109,7 @@ const ServiceSection: React.FC = () => {
 
   return (
     <section id="services" className="relative border-t border-line py-6 md:py-16 lg:py-24">
-      <div className="relative mx-auto w-full max-w-[1312px] mobile-safe-px md:px-6">
+      <div className="ts-container relative">
         <Scrub y={32} className="mb-8 md:mb-14 lg:mb-16">
           <p className="ts-eyebrow mb-4">Our services</p>
           <SplitText as="h2" delay={0.1} className="ts-h2 text-ink m-0 max-w-[16ch]" text="Automate Roles, Not Just Tasks" />

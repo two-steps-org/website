@@ -58,7 +58,7 @@ const Hero: React.FC = () => {
     <Section ref={heroRef}
       className="relative flex min-h-0 items-center justify-center overflow-hidden pt-36 pb-12 md:py-28 lg:min-h-[calc(100vh-80px)] lg:pt-[calc(var(--header-height)+2rem)] lg:pb-20"
     >
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
+      <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
         <div
           data-scroll-hero="copy"
           className="z-10 flex h-full flex-col justify-center space-y-6 text-center lg:justify-start lg:text-left"

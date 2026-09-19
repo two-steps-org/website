@@ -108,7 +108,7 @@ const WorkRail: React.FC = () => {
       className="relative z-[1] text-[#0a0a0a] bg-[#fafafa]"
     >
       <section className="bg-[#fafafa] pb-[clamp(96px,10vw,128px)]">
-        <div className="mx-auto w-full max-w-[1312px] px-[clamp(20px,3vw,32px)]">
+        <div className="ts-container">
           <Scrub x={-28} y={20} contentClassName="flex items-end justify-between gap-8 flex-wrap">
             <div>
               <p className="text-[13px] text-[#6b6b6b] m-0 mb-4">Selected work</p>
@@ -140,7 +140,7 @@ const WorkRail: React.FC = () => {
 
         {/* The rail bleeds to the right edge but its first card aligns with the
             container, so the row reads as continuing off-screen. */}
-        <Scrub effect="shutter" className="mt-10" contentClassName="pl-[max(clamp(20px,3vw,32px),calc((100vw-1312px)/2+32px))]">
+        <Scrub effect="shutter" className="mt-10" contentClassName="ts-container-bleed">
           <ul
             ref={railRef}
             className="flex gap-4 overflow-x-auto pr-5 pb-2 m-0 list-none snap-x snap-mandatory scrollbar-hide"

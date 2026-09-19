@@ -36,7 +36,7 @@ const Navbar = () => {
           // Same gutters as the page sections so the logo and CTA sit on the
           // content edges. The link pill takes the space between them and
           // centres there, so its gap to the logo equals its gap to the CTA.
-          'relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 mobile-safe-px md:px-8 xl:px-12',
+          'ts-container relative flex h-16 items-center justify-between gap-4',
           isOverLightBand ? 'text-[#0a0a0a]' : 'text-ink',
         )}
       >

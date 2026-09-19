@@ -130,7 +130,7 @@ const WhySlideBody: React.FC<{ slide: (typeof slides)[number] }> = ({ slide }) =
     </span>
     <div className="h-[clamp(72px,12vh,140px)] w-px shrink-0 bg-line" aria-hidden="true" />
     <div className="flex min-w-0 flex-col justify-center py-2">
-      <h2 className="ts-display m-0 mb-5 max-w-[14ch] text-ink">{slide.headline}</h2>
+      <h3 className="ts-display m-0 mb-5 max-w-[14ch] text-ink">{slide.headline}</h3>
       <p className="ts-body m-0 max-w-[38ch]">{slide.description}</p>
     </div>
   </div>
@@ -275,7 +275,7 @@ const DesktopScrollShowcase: React.FC = () => {
   if (reduce) {
     return (
       <section className="relative hidden border-t border-line py-16 lg:block lg:py-24">
-        <div className="mx-auto w-full max-w-[1312px] mobile-safe-px md:px-8 lg:px-8 xl:px-12">
+        <div className="ts-container">
           <SectionHeader className="mb-12 lg:mb-16" />
           <div className="space-y-16">
             {slides.map((slide) => (
@@ -296,7 +296,7 @@ const DesktopScrollShowcase: React.FC = () => {
       style={{ height: `${slides.length * 100}vh` }}
     >
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        <div className="relative mx-auto flex h-full w-full max-w-[1312px] flex-col mobile-safe-px md:px-8 lg:px-8 xl:px-12">
+        <div className="ts-container relative flex h-full flex-col">
           <SectionHeader className="shrink-0 pt-[calc(var(--header-height)+1.5rem)] pb-6 lg:pb-8" />
 
           <ActiveSlideAnnouncer active={activeSlide} />

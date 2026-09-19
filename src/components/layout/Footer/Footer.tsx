@@ -96,7 +96,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="relative mt-auto w-full bg-transparent border-t border-line touch-manipulation">
-      <div className="relative max-w-7xl mx-auto mobile-safe-px lg:px-8 py-10 md:py-12">
+      <div className="ts-container relative py-10 md:py-12">
         <Scrub effect="signature" endAtBottom className="mb-12 md:mb-16">
           <SplitText
             as="p"

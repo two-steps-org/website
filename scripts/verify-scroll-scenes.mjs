@@ -59,7 +59,7 @@ try {
         await page.waitForTimeout(120);
         return slideshow.evaluate(el => ({
           label: el.querySelector('[data-why-us-progress]')?.textContent?.trim() ?? '',
-          headline: el.querySelector('[data-why-us-stage] h2')?.textContent?.trim() ?? '',
+          headline: el.querySelector('[data-why-us-stage] h3')?.textContent?.trim() ?? '',
         }));
       };
       const start = await readSlide(0.05);
