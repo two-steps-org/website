@@ -10,7 +10,10 @@ export interface ServiceDetails {
 
 export interface Service {
   id: string;
+  /** Searchable name. Used in the document title, breadcrumb, and services index. */
   title: string;
+  /** Positioning line shown as the page H1. */
+  headline: string;
   description: string;
   details: ServiceDetails;
 }
@@ -19,45 +22,56 @@ export const services: readonly Service[] = [
   {
     id: 'ai-chat-agents',
     title: 'AI Chat Agents',
-    description: 'Transform how you engage with customers and streamline operations using smart AI Chat Agents built just for you.',
+    headline: 'Conversational systems that hold a role',
+    description:
+      "An agent that owns a conversation end to end — understands what's being asked, decides what to do, and does it. It reads your systems, takes the action, and hands off to a person when a person is genuinely needed.",
     details: {
       features: ['Text-based conversational agents', 'Task automation and workflow integration', '24/7 availability', 'Personalized responses and functionality'],
       benefits: ['Enhance customer engagement', 'Automate repetitive tasks', 'Improve response times and accuracy', 'Free up your team for higher-value activities'],
-      useCase: 'Businesses aiming to automate customer service, streamline operations, and ensure personalized interactions with clients and team members.',
-      extendedDescription: 'Our conversational AI agents deliver personalized, 24/7 support across multiple platforms, integrating seamlessly with your existing workflows to automate routine tasks while maintaining human-like interactions. From customer service to internal team communication, our chat agents understand context, learn from interactions, and continuously improve to provide exceptional experiences.',
+      useCase:
+        'Companies where the same questions are answered by hand every day, and where the answer has to sound like it came from them.',
+      extendedDescription: 'Built into the tools your team already uses, in the voice your brand already has.',
     },
   },
   {
     id: 'ai-voice-agents',
     title: 'AI Voice Agents',
-    description: 'Enhance customer experiences with conversational AI Voice Agents that handle calls like a pro.',
+    headline: 'Voice systems that do the job, not the demo',
+    description:
+      "We build voice agents around a role rather than a script: inbound discovery, customer success, win-back, the operator who never misses a call. Each one knows what it's for, what it's allowed to do, and when to pass the call to a person.",
     details: {
       features: ['Multilingual voice assistants', 'Natural language processing', 'Integration with phones and apps', 'Real-time task execution'],
       benefits: ['Enhance customer experience', 'Reduce manual call handling', 'Ensure 24/7 availability', 'Support multiple languages'],
+      // TODO: add "Ours is live on this site. Talk to it before you talk to us." only after the voice demo URL is confirmed. It is not in this repo.
       useCase: 'For industries needing real-time, voice-based support—deploy a single agent or a coordinated team to suit your needs.',
-      extendedDescription: 'Deploy intelligent voice assistants that understand natural language, support multiple languages, and execute tasks in real-time—perfect for customer support, sales, and appointment scheduling. Our voice agents can handle inbound calls, make outbound calls, integrate with your phone systems, and perform complex tasks like lead qualification, appointment booking, and information retrieval—all while sounding natural and professional.',
     },
   },
   {
     id: 'crm-development',
     title: 'CRM Development',
-    description: 'Say goodbye to generic CRMs — let us build one perfectly designed for your needs.',
+    headline: 'The system your business actually runs on',
+    description:
+      'Most companies bend their process to fit the software. We build the software around the process — the pipeline as you actually run it, the fields you actually use, the reports you actually read.',
     details: {
       features: ['Fully customizable CRM platforms', 'Built-in automation', 'Seamless integration', 'Scalable solutions'],
       benefits: ['Streamline workflows', 'Improve team collaboration', 'Save on costs', 'Scale effortlessly'],
-      useCase: 'Organizations seeking a CRM designed for their specific needs, eliminating unnecessary features and boosting productivity.',
-      extendedDescription: 'We create fully customizable CRM platforms with built-in automation, seamless integration with your existing tools, and scalable solutions that grow with your business. Whether you need to manage customer relationships, track sales pipelines, automate marketing campaigns, or centralize your business data, we build CRMs that fit your unique processes—not the other way around.',
+      useCase: "Teams who've outgrown the off-the-shelf tool and are tired of the workarounds holding it together.",
+      extendedDescription: 'It connects to what you already have. Nobody has to change how they work to use it.',
     },
   },
   {
     id: 'custom-saas-solutions',
     title: 'Custom SaaS Solutions',
-    description: 'Bring your vision to life with custom-built software, tailored precisely to your needs.',
+    headline: 'Products, built from nothing',
+    description:
+      'Phyizit and Shift Manager started as blank files. We designed them, built them, shipped them and still run them.',
     details: {
       features: ['Custom software solutions', 'Robust architecture', 'API integration', 'Unique requirements'],
       benefits: ['Build unique products', 'Gain competitive edge', 'Ensure seamless UX/UI', 'Adapt as needed'],
-      useCase: 'Businesses with unique software needs that require custom-built, scalable, and integrated SaaS solutions.',
-      extendedDescription: 'When off-the-shelf software forces your team to work around it, we build the product that fits instead. We design and ship custom SaaS platforms with a robust architecture, clean API integrations with the tools you already run, and an interface your team and customers actually want to use. You own the result, and it is built to change as your business does.',
+      useCase:
+        "Founders and companies building something that doesn't exist yet, who want it done properly the first time.",
+      extendedDescription:
+        "That's the same work we do for clients: an idea taken from nothing to a product people use, with one team owning every step.",
     },
   },
 ];

@@ -55,7 +55,8 @@ const ServiceDetail: React.FC = () => {
             <span aria-hidden="true">/</span>
             <span className="text-ink">{service.title}</span>
           </m.nav>
-          <SplitText as="h1" mode="enter" delay={0.1} stagger={0.08} className="ts-display m-0 max-w-[14ch] text-ink" text={service.title} />
+          <h2 className="ts-eyebrow m-0">{service.title}</h2>
+          <SplitText as="h1" mode="enter" delay={0.1} stagger={0.08} className="ts-display m-0 max-w-[22ch] text-ink" text={service.headline} />
           <m.p {...enter(0.3)} className="m-0 max-w-[48ch] text-[clamp(17px,1.4vw,19px)] text-muted">
             {service.description}
           </m.p>
