@@ -1,6 +1,5 @@
 import React from 'react';
 import { m } from 'framer-motion';
-import WhyUs from '../components/WhyUs';
 import Team from '../components/Team';
 import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
 import SplitText from '../components/common/SplitText';
@@ -31,7 +30,6 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      <WhyUs />
       <Team />
 
       <CaseStudyClosingCta />
