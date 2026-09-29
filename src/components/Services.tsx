@@ -1,19 +1,15 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import BentoGrid from './BentoGrid/BentoGrid';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
-import { services } from '../data/services';
+import { capabilities } from '../data/capabilities';
 
 const ServiceSection: React.FC = () => (
   <section id="services" className="ts-section relative border-t border-line">
     <div className="ts-container relative">
       <Scrub y={32} className="mb-8 md:mb-14 lg:mb-16" contentClassName="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <p className="ts-eyebrow mb-4">Our services</p>
-          <SplitText as="h2" delay={0.1} className="ts-h2 text-ink m-0 max-w-[16ch]" text="Automate Roles, Not Just Tasks" />
-        </div>
+        <SplitText as="h2" delay={0.1} className="ts-h2 text-ink m-0 max-w-[16ch]" text="What we build" />
         <Link
           to="/services"
           className="inline-flex items-center gap-1.5 text-[15px] font-medium text-muted transition-colors hover:text-ink"
@@ -23,7 +19,14 @@ const ServiceSection: React.FC = () => (
         </Link>
       </Scrub>
 
-      <BentoGrid services={services} />
+      <div className="flex flex-col border-t border-line">
+        {capabilities.map((capability) => (
+          <article key={capability.title} className="flex flex-col gap-3 border-b border-line py-8 md:py-10">
+            <h3 className="ts-h3 m-0 text-ink">{capability.title}</h3>
+            <p className="m-0 max-w-[52ch] text-[17px] leading-[1.6] text-muted">{capability.body}</p>
+          </article>
+        ))}
+      </div>
     </div>
   </section>
 );
