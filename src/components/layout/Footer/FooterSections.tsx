@@ -40,11 +40,7 @@ export function FooterBrandColumn() {
       </div>
       <div className="space-y-4">
         <p className="text-ink leading-relaxed">
-          <span className="font-bold text-ink">
-            Always Be Ahead
-          </span>
-          <br />
-          We craft custom AI solutions, turning complex challenges into seamless automation
+          Two Steps — AI systems, built to a standard.
         </p>
       </div>
       <div className="flex gap-2">

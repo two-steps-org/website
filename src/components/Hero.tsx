@@ -63,16 +63,11 @@ const Hero: React.FC = () => {
             delay={0.05}
             stagger={0.035}
             className="ts-display -ml-[0.04em]"
-            segments={[
-              { text: 'Always Be' },
-              { text: 'Ahead', className: 'sig' },
-              { text: 'AI Built Just For You', breakBefore: true },
-            ]}
+            text="AI systems, built to a standard."
           />
 
           <m.p {...entrance(0.25)} className="ts-body mx-auto max-w-2xl lg:mx-0">
-            At Two Steps, our process is simple: you bring the vision, we bring it to life.
-            We craft custom AI solutions, turning complex challenges into seamless automation.
+            We build custom AI that does real work — finished to the level your brand requires.
           </m.p>
 
           <div className="flex w-full flex-col justify-center gap-3 pt-2 md:w-auto md:flex-row md:items-center lg:justify-start">

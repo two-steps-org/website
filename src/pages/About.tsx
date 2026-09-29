@@ -26,7 +26,7 @@ const About: React.FC = () => {
             segments={[{ text: 'The team that keeps you' }, { text: 'ahead.', className: 'sig' }]}
           />
           <m.p {...enter(0.3)} className="m-0 max-w-[48ch] text-[clamp(17px,1.4vw,19px)] text-muted">
-            We craft custom AI solutions, turning complex challenges into seamless automation. Here is how we work, and who you will be working with.
+            Here is how we work, and who you will be working with.
           </m.p>
         </div>
       </section>
