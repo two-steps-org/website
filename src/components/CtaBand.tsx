@@ -1,15 +1,13 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
-import { BOOK_CALL_URL } from '../data/navItems';
+import { useBookCall } from './BookCall/useBookCall';
 
 /** The page's one loud ask. It sits where a visitor has just seen the work and
  * the quotes; the footer keeps a quiet button and no headline of its own. */
 const CtaBand: React.FC = () => {
-  const handleBookCall = useCallback(() => {
-    window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-  }, []);
+  const { open } = useBookCall();
 
   return (
     <section className="ts-section relative border-t border-line">
@@ -25,8 +23,8 @@ const CtaBand: React.FC = () => {
         </Scrub>
 
         {/* Not scrubbed: the ask is never shown half-faded. */}
-        <button type="button" onClick={handleBookCall} className="ts-pill h-14 shrink-0 self-start px-7 text-base lg:self-auto">
-          Book a Call
+        <button type="button" onClick={open} className="ts-pill h-14 shrink-0 self-start px-7 text-base lg:self-auto">
+          Start a conversation
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>

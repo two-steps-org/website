@@ -8,6 +8,7 @@ import type { CaseStudy } from './types';
 import SplitText from '../common/SplitText';
 import Parallax from '../common/Parallax';
 import Scrub from '../common/Scrub';
+import { useBookCall } from '../BookCall/useBookCall';
 import { blurIn, draw, drawY, enter, enterItem, pop, reveal, revealItem, scaleItem, slide, slideItem, stamp } from '../../utils/motion';
 
 const SECTION = 'ts-container';
@@ -62,7 +63,7 @@ export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps)
           </Link>
           <span aria-hidden="true">/</span>
           <Link to="/case-studies" className="hover:text-ink transition-colors">
-            Work
+            Our Work
           </Link>
           <span aria-hidden="true">/</span>
           <span className="text-ink">{study.client}</span>
@@ -404,33 +405,40 @@ export function CaseStudyMoreWorkSection({ others, heading = 'More work' }: Case
 }
 
 interface CaseStudyClosingCtaProps {
-  onBookCall: () => void;
+  /** Sit inside another section (home Q&A) without a second section wrapper. */
+  embedded?: boolean;
 }
 
-export function CaseStudyClosingCta({ onBookCall }: CaseStudyClosingCtaProps) {
+export function CaseStudyClosingCta({ embedded = false }: CaseStudyClosingCtaProps) {
+  const { open } = useBookCall();
+  const band = (
+    <div data-band="light" data-layout="free" className="rounded-card bg-accent text-accent-fg p-[clamp(40px,8vw,112px)] grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10 items-end">
+      <div>
+        <h2 className="ts-display text-[clamp(36px,5.5vw,80px)] max-w-[12ch] m-0">
+          Tell us the <em className="sig">vision</em>. We will build it.
+        </h2>
+        <p className="text-[18px] opacity-75 mt-6 mb-0 max-w-[40ch]">
+          One conversation is all it takes to start. No pitch decks, no pressure.
+        </p>
+      </div>
+      <div className="md:justify-self-end">
+        <button
+          type="button"
+          onClick={open}
+          className="ts-pill inline-flex h-14 items-center gap-2 bg-bg px-7 text-base text-ink"
+        >
+          Start a conversation
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+
+  if (embedded) return band;
+
   return (
     <Scrub as="section" y={24} className={`${SECTION} pt-[clamp(80px,9vw,128px)] pb-6`}>
-      {/* A light surface: tell the nav, or its white button vanishes over it. */}
-      <div data-band="light" data-layout="free" className="rounded-card bg-accent text-accent-fg p-[clamp(40px,8vw,112px)] grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-10 items-end">
-        <div>
-          <h2 className="ts-display text-[clamp(36px,5.5vw,80px)] max-w-[12ch] m-0">
-            Tell us the <em className="sig">vision</em>. We will build it.
-          </h2>
-          <p className="text-[18px] opacity-75 mt-6 mb-0 max-w-[40ch]">
-            One conversation is all it takes to start. No pitch decks, no pressure.
-          </p>
-        </div>
-        <div className="md:justify-self-end">
-          <button
-            type="button"
-            onClick={onBookCall}
-            className="ts-pill inline-flex h-14 items-center gap-2 bg-bg px-7 text-base text-ink"
-          >
-            Book a Call
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      {band}
     </Scrub>
   );
 }

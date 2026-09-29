@@ -83,7 +83,7 @@ try {
         return y;
       })(),
     }));
-    assert.ok(cta <= viewport.height, `${viewport.width}x${viewport.height}: Book a Call ends at ${Math.round(cta)}px, below the fold`);
+    assert.ok(cta <= viewport.height, `${viewport.width}x${viewport.height}: Start a conversation ends at ${Math.round(cta)}px, below the fold`);
     assert.ok(scene >= viewport.height - 1, `${viewport.width}x${viewport.height}: network starts at ${scene}px, inside the first viewport`);
     await page.screenshot({ path: `/tmp/layout-hero-${viewport.width}.png` });
     console.log(`${viewport.width}x${viewport.height} hero: ask ends at ${Math.round(cta)}px, network starts at ${scene}px`);
@@ -98,10 +98,10 @@ try {
       await page.goto(baseURL + route, { waitUntil: 'networkidle' });
       await page.waitForTimeout(300);
       const { asks, hrefs } = await page.evaluate(() => ({
-        asks: [...document.querySelectorAll('main button, main a')].filter((el) => !el.closest('header, footer') && /book a call/i.test(el.textContent)).length,
+        asks: [...document.querySelectorAll('main button, main a')].filter((el) => !el.closest('header, footer') && /start a conversation/i.test(el.textContent)).length,
         hrefs: [...document.querySelectorAll('a[href^="/"]')].map((a) => a.getAttribute('href').split('#')[0].replace(/(.)\/$/, '$1')),
       }));
-      assert.ok(asks >= 1, `${route}: no "Book a Call" in the page body — a dead end`);
+      assert.ok(asks >= 1, `${route}: no "Start a conversation" in the page body — a dead end`);
       hrefs.filter((href) => href !== route).forEach((href) => linked.add(href));
     }
     for (const route of SITE_ROUTES) assert.ok(route === '/' || linked.has(route), `${route}: no other page links to it`);

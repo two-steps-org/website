@@ -97,7 +97,7 @@ export const NavbarMobileMenu = ({
               onClick={handleBookCall}
               className="ts-pill mt-6 w-full h-14 text-base"
             >
-              <span>Book a Call</span>
+              <span>Start a conversation</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>

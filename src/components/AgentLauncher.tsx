@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Mic, X } from 'lucide-react';
 import clsx from 'clsx';
 import { cancelFrame, frame } from 'framer-motion';
-import { BOOK_CALL_URL } from '../data/navItems';
+import { useBookCall } from './BookCall/useBookCall';
 
 const LAUNCHER_LABEL = 'Talk to our AI now';
 const WELCOME =
-  'Hi, I am the Two Steps agent, built by the team you are looking at. Ask me anything about what we build, or book a call with a human.';
+  'Hi, I am the Two Steps agent, built by the team you are looking at. Ask me anything about what we build, or start a conversation with a human.';
 
 const LAUNCHER_BOTTOM = 'calc(1.5rem + env(safe-area-inset-bottom))';
 const PANEL_BOTTOM = 'calc(5.75rem + env(safe-area-inset-bottom))';
@@ -22,6 +22,7 @@ const PANEL_BOTTOM = 'calc(5.75rem + env(safe-area-inset-bottom))';
  * next to the launcher without locking the rest of the page.
  */
 const AgentLauncher: React.FC = () => {
+  const { open: openBookCall } = useBookCall();
   const [isOpen, setIsOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -99,15 +100,16 @@ const AgentLauncher: React.FC = () => {
         </p>
 
         <div className="flex gap-2">
-          <a
-            href={BOOK_CALL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setIsOpen(false)}
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false);
+              openBookCall();
+            }}
             className="ts-pill-ghost flex-1 h-11 text-sm"
           >
-            Book a Call
-          </a>
+            Start a conversation
+          </button>
         </div>
       </dialog>
 

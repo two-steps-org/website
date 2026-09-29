@@ -17,7 +17,6 @@ import {
   CaseStudyQuoteSection,
 } from '../components/CaseStudies/CaseStudyDetailSections';
 import { toneCss } from '../components/CaseStudies/tone';
-import { BOOK_CALL_URL } from '../data/navItems';
 
 const CaseStudyDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -43,10 +42,6 @@ const CaseStudyDetail: React.FC = () => {
     { label: 'Delivered', value: study.year },
   ].filter((fact): fact is { label: string; value: string; to?: string } => Boolean(fact.value));
 
-  const handleBookCall = () => {
-    window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <main className="flex-1 relative w-full">
       <CaseStudyDetailHero study={study} ground={ground} />
@@ -58,7 +53,7 @@ const CaseStudyDetail: React.FC = () => {
       <CaseStudyOutcomesSection study={study} />
       <CaseStudyQuoteSection study={study} />
       <CaseStudyMoreWorkSection others={others} />
-      <CaseStudyClosingCta onBookCall={handleBookCall} />
+      <CaseStudyClosingCta />
     </main>
   );
 };

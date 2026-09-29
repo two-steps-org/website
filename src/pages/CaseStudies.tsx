@@ -6,7 +6,6 @@ import { m } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { caseStudies } from '../components/CaseStudies/data';
 import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
-import { BOOK_CALL_URL } from '../data/navItems';
 import type { CaseStudy } from '../components/CaseStudies/types';
 import SplitText from '../components/common/SplitText';
 import Scrub from '../components/common/Scrub';
@@ -130,7 +129,7 @@ const CaseStudies: React.FC = () => {
                         to={`/case-studies/${study.slug}`}
                         className="ts-pill h-12 px-6 text-[15px]"
                       >
-                        Read the full case study
+                        See the project
                         <ArrowRight className="w-4 h-4" />
                       </Link>
 
@@ -153,7 +152,7 @@ const CaseStudies: React.FC = () => {
           </div>
         </section>
 
-        <CaseStudyClosingCta onBookCall={() => window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer')} />
+        <CaseStudyClosingCta />
       </main>
   );
 };

@@ -5,3 +5,8 @@
 [build.environment]
   VITE_SITE_URL = "https://twosteps.ai"
   SITE_URL = "https://twosteps.ai"
+
+[[redirects]]
+  from = "/api/book-call"
+  to = "/.netlify/functions/book-call"
+  status = 200

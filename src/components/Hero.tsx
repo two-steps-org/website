@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';
@@ -8,17 +8,9 @@ import Parallax from './common/Parallax';
 import ErrorBoundary from './common/ErrorBoundary';
 import SplitText from './common/SplitText';
 import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
-import { BOOK_CALL_URL } from '../data/navItems';
+import { useBookCall } from './BookCall/useBookCall';
 import { useReducedMotionQuery } from '../utils/scroll';
 import { EASE_OUT, enterScale, mainThread } from '../utils/motion';
-
-/** The four things we build, shown as glass chips under the CTAs. */
-const CAPABILITY_CHIPS = [
-  { label: 'AI Chat Agents', to: '/services/ai-chat-agents' },
-  { label: 'AI Voice Agents', to: '/services/ai-voice-agents' },
-  { label: 'CRM Development', to: '/services/crm-development' },
-  { label: 'Custom SaaS', to: '/services/custom-saas-solutions' },
-] as const;
 
 const Hero: React.FC = () => {
   const heroRef = useRef<HTMLElement>(null);
@@ -50,9 +42,7 @@ const Hero: React.FC = () => {
   });
   const deviceType = useDeviceType();
   const isMobile = deviceType === 'mobile';
-  const handleBookCall = useCallback(() => {
-    window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-  }, []);
+  const { open } = useBookCall();
 
   return (
     <Section ref={heroRef}
@@ -89,10 +79,10 @@ const Hero: React.FC = () => {
             <m.div {...entrance(0.35)} className="w-full md:w-auto">
               <button
                 type="button"
-                onClick={handleBookCall}
+                onClick={open}
                 className="ts-pill h-14 w-full px-7 text-base md:w-auto"
               >
-                Book a Call
+                Start a conversation
                 <ArrowRight className="h-4 w-4" />
               </button>
             </m.div>
@@ -102,23 +92,10 @@ const Hero: React.FC = () => {
                 to="/case-studies"
                 className="ts-pill-ghost h-14 w-full px-7 text-base md:w-auto"
               >
-                Case Studies
+                Our Work
               </Link>
             </m.div>
           </div>
-
-          <ul className="m-0 flex list-none flex-wrap justify-center gap-2 p-0 pt-2 lg:justify-start">
-            {CAPABILITY_CHIPS.map((chip, index) => (
-              <m.li key={chip.to} {...entrance(0.45 + index * 0.05, true)}>
-                <Link
-                  to={chip.to}
-                  className="ts-glass inline-flex h-9 items-center rounded-full px-3.5 text-[13px] font-medium text-ink transition-colors hover:bg-ink/10"
-                >
-                  {chip.label}
-                </Link>
-              </m.li>
-            ))}
-          </ul>
         </div>
 
         <Parallax distance={90} className="relative w-full">

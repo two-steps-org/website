@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type MouseEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BOOK_CALL_URL, navItems } from '../../data/navItems';
+import { navItems } from '../../data/navItems';
+import { useBookCall } from '../BookCall/useBookCall';
 
 const NAV_SCROLL_OFFSET_DESKTOP = 96;
 const NAV_SCROLL_OFFSET_MOBILE = 72;
@@ -20,6 +21,7 @@ export type NavbarNavigate = (
 export function useNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { open: openBookCall } = useBookCall();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showMobileContrastBar, setShowMobileContrastBar] = useState(false);
   // '' = nothing lit: on the hero, or in a section the desktop pill doesn't list.
@@ -208,9 +210,9 @@ export function useNavbar() {
   }, [location.pathname]);
 
   const handleBookCall = useCallback(() => {
-    window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
+    openBookCall();
     setIsMenuOpen(false);
-  }, []);
+  }, [openBookCall]);
 
   useEffect(() => {
     const NAV_LINE = 44;

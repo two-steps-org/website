@@ -14,10 +14,6 @@ import {
   FooterLinksGrid,
 } from './FooterSections';
 
-const handleBookCall = () => {
-  window.open('https://calendly.com/yoni-insell-twosteps/30min', '_blank', 'noopener,noreferrer');
-};
-
 const scrollToSection = (sectionId: string) => {
   window.setTimeout(() => {
     const el = document.getElementById(sectionId);
@@ -68,7 +64,7 @@ const Footer: React.FC = () => {
     <footer className="relative mt-auto w-full bg-transparent border-t border-line touch-manipulation">
       <div className="ts-container relative py-10 md:py-12">
         <Scrub effect="signature" endAtBottom contentClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-6 items-start">
-          <FooterBrandColumn onBookCall={handleBookCall} />
+          <FooterBrandColumn />
           <FooterLinksGrid
             isMobile={isMobile}
             reduceMotion={reduceMotion}

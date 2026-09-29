@@ -1,18 +1,19 @@
 import { useState, memo } from 'react';
-import { AnimatePresence, LayoutGroup, m } from 'framer-motion';
-import { useReducedMotionQuery } from '../utils/scroll';
+import { AnimatePresence, m } from 'framer-motion';
 import { Plus } from 'lucide-react';
-import Section from './common/Section';
 import clsx from 'clsx';
+import Section from './common/Section';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
-import { EASE_OUT } from '../utils/motion';
+import { CaseStudyClosingCta } from './CaseStudies/CaseStudyDetailSections';
+import { useReducedMotionQuery } from '../utils/scroll';
+import { EASE_OUT, mainThread } from '../utils/motion';
 
 const faqs = [
   {
     question: 'Is my business the right fit for AI solutions?',
     answer:
-      "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI solutions tailored specifically to your business's needs. Book a call, and let's explore how we can help you succeed.",
+      "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI solutions tailored specifically to your business's needs. Start a conversation, and let's explore how we can help you succeed.",
   },
   {
     question: 'How do I know which AI solution is right for my business?',
@@ -41,108 +42,76 @@ const faqs = [
   },
 ];
 
+const panelMotion = (reduce: boolean) => ({
+  ...mainThread,
+  initial: { height: 0, opacity: 0 },
+  animate: { height: 'auto' as const, opacity: 1 },
+  exit: { height: 0, opacity: 0 },
+  transition: { duration: reduce ? 0 : 0.22, ease: EASE_OUT },
+});
+
 const FAQ = () => {
   const reduceMotion = useReducedMotionQuery();
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
-  const [showAllMobile, setShowAllMobile] = useState(false);
 
-  const renderFaqItem = (faq: (typeof faqs)[0], index: number) => {
-    const isOpen = openQuestion === faq.question;
+  return (
+    <Section id="faq">
+      <Scrub y={32} className="mb-8 text-center md:mb-16">
+        <p className="ts-eyebrow mb-4">Frequently asked questions</p>
+        <SplitText as="h2" delay={0.1} className="ts-h2 mb-6 text-ink" text="Got Any Questions?" />
+      </Scrub>
 
-    return (
-      <Scrub effect="unfold" delay={(index % 2) * 0.08}
-        key={faq.question}
-        className={clsx(
-          'group relative',
-          index >= 3 && !showAllMobile ? 'hidden lg:block' : 'block',
-        )}
-      >
-        <m.div
-          layout
-          transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
-          className={clsx(
-            'relative overflow-hidden rounded-2xl ts-card transition-colors duration-200 h-full',
-            isOpen ? 'border-line-strong' : 'hover:border-line-strong',
-          )}
-        >
-          <m.div layout="position">
-            <button
-              type="button"
-              onClick={() => setOpenQuestion(isOpen ? null : faq.question)}
-              aria-expanded={isOpen}
-              aria-controls={`faq-answer-${index}`}
-              className="w-full cursor-pointer p-6 text-left"
-            >
-              <div className="flex justify-between items-start gap-4">
+      <ul className="mx-auto m-0 max-w-[720px] list-none border-t border-line p-0">
+        {faqs.map((faq, index) => {
+          const isOpen = openQuestion === faq.question;
+          const panelId = `faq-answer-${index}`;
+
+          return (
+            <li key={faq.question} className="group border-b border-line">
+              <button
+                type="button"
+                onClick={() => setOpenQuestion(isOpen ? null : faq.question)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                className="flex w-full cursor-pointer items-start justify-between gap-4 py-5 text-left"
+              >
                 <h3
                   className={clsx(
-                    'ts-h3 transition-colors duration-300',
+                    'ts-h3 transition-colors duration-200',
                     isOpen ? 'text-ink' : 'text-muted group-hover:text-ink',
                   )}
                 >
                   {faq.question}
                 </h3>
-                <div
-                  className={clsx('mt-1 transition-transform duration-300', isOpen && 'rotate-45')}
-                >
-                  <Plus className={clsx('w-5 h-5', isOpen ? 'text-ink' : 'text-muted')} />
-                </div>
-              </div>
-            </button>
-          </m.div>
-          <AnimatePresence initial={false}>
-            {isOpen && (
-              <m.div
-                key="answer"
-                id={`faq-answer-${index}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: reduceMotion ? 0 : 0.22, ease: EASE_OUT }}
-              >
-                <p className="px-6 pb-6 text-muted leading-relaxed">{faq.answer}</p>
-              </m.div>
-            )}
-          </AnimatePresence>
-        </m.div>
-      </Scrub>
-    );
-  };
+                <Plus
+                  className={clsx(
+                    'mt-1 h-5 w-5 shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none',
+                    isOpen ? 'rotate-45 text-ink' : 'text-muted',
+                  )}
+                  aria-hidden
+                />
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <m.div
+                    key={panelId}
+                    id={panelId}
+                    {...panelMotion(reduceMotion)}
+                    className="overflow-hidden"
+                  >
+                    <p className="max-w-[62ch] pb-5 pr-10 text-[17px] leading-relaxed text-muted">
+                      {faq.answer}
+                    </p>
+                  </m.div>
+                )}
+              </AnimatePresence>
+            </li>
+          );
+        })}
+      </ul>
 
-  return (
-    <Section id="faq">
-      {/* FAQ Header */}
-      <Scrub y={32} className="text-center mb-8 md:mb-16">
-        <p className="ts-eyebrow mb-4">
-          FREQUENTLY ASKED QUESTIONS
-        </p>
-        <SplitText as="h2" delay={0.1} className="ts-h2 text-ink mb-6" text="Got Any Questions?" />
-      </Scrub>
-
-      <LayoutGroup>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-          {faqs.map((faq, index) => renderFaqItem(faq, index))}
-        </div>
-      </LayoutGroup>
-
-      <div className="mt-8 flex justify-center lg:hidden">
-        {showAllMobile ? (
-          <button
-            type="button"
-            onClick={() => setShowAllMobile(false)}
-            className="ts-icon-btn rounded-xl h-full w-full cursor-pointer border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink hover:text-ink"
-          >
-            See fewer questions
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setShowAllMobile(true)}
-            className="ts-icon-btn rounded-xl h-full w-full cursor-pointer border ts-card hover:border-line-strong px-6 py-4 text-sm font-semibold text-ink hover:text-ink"
-          >
-            See more questions
-          </button>
-        )}
+      <div className="mt-12 md:mt-16">
+        <CaseStudyClosingCta embedded />
       </div>
     </Section>
   );

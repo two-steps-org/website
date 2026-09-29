@@ -3,25 +3,21 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { services } from '../data/services';
-import { BOOK_CALL_URL } from '../data/navItems';
 import { caseStudies } from '../components/CaseStudies/data';
+import { useBookCall } from '../components/BookCall/useBookCall';
 import {
   CaseStudyClosingCta,
   CaseStudyMoreWorkSection,
   SectionHead,
   Split,
 } from '../components/CaseStudies/CaseStudyDetailSections';
-import { SERVICE_CARDS } from '../components/BentoGrid/BentoGrid';
+import { SERVICE_CARDS } from '../components/BentoGrid/serviceCards';
 import SplitText from '../components/common/SplitText';
 import Scrub from '../components/common/Scrub';
 import { enter, slideItem } from '../utils/motion';
 import { usePageScrollReset } from '../utils/scroll';
 
 const SECTION = 'ts-container pt-[clamp(80px,9vw,128px)]';
-
-const handleBookCall = () => {
-  window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-};
 
 const BulletList: React.FC<{ items: readonly string[] }> = ({ items }) => (
   <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -36,6 +32,7 @@ const BulletList: React.FC<{ items: readonly string[] }> = ({ items }) => (
 
 const ServiceDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { open } = useBookCall();
   const service = services.find((entry) => entry.id === slug);
 
   usePageScrollReset();
@@ -63,8 +60,8 @@ const ServiceDetail: React.FC = () => {
             {service.description}
           </m.p>
           <m.div {...enter(0.4)} className="flex flex-wrap gap-3 pt-2">
-            <button type="button" onClick={handleBookCall} className="ts-pill h-14 px-7 text-base">
-              Book a Call
+            <button type="button" onClick={open} className="ts-pill h-14 px-7 text-base">
+              Start a conversation
               <ArrowRight className="h-4 w-4" />
             </button>
             {work.length > 0 && (
@@ -143,7 +140,7 @@ const ServiceDetail: React.FC = () => {
         </ul>
       </section>
 
-      <CaseStudyClosingCta onBookCall={handleBookCall} />
+      <CaseStudyClosingCta />
     </main>
   );
 };

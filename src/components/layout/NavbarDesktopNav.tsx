@@ -93,7 +93,7 @@ export const NavbarDesktopNav = ({
         isOverLightBand && 'bg-[#0a0a0a] text-white',
       )}
     >
-      Book a Call
+      Start a conversation
       <ArrowRight className="w-4 h-4" />
     </m.button>
   </>

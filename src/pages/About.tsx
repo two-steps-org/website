@@ -4,13 +4,8 @@ import WhyUs from '../components/WhyUs';
 import Team from '../components/Team';
 import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
 import SplitText from '../components/common/SplitText';
-import { BOOK_CALL_URL } from '../data/navItems';
 import { enter } from '../utils/motion';
 import { usePageScrollReset } from '../utils/scroll';
-
-const handleBookCall = () => {
-  window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-};
 
 const About: React.FC = () => {
   usePageScrollReset();
@@ -39,7 +34,7 @@ const About: React.FC = () => {
       <WhyUs />
       <Team />
 
-      <CaseStudyClosingCta onBookCall={handleBookCall} />
+      <CaseStudyClosingCta />
     </main>
   );
 };

@@ -3,18 +3,13 @@ import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { services } from '../data/services';
-import { BOOK_CALL_URL } from '../data/navItems';
-import { SERVICE_CARDS } from '../components/BentoGrid/BentoGrid';
+import { SERVICE_CARDS } from '../components/BentoGrid/serviceCards';
 import { CaseStudyClosingCta } from '../components/CaseStudies/CaseStudyDetailSections';
 import Process from '../components/Process';
 import SplitText from '../components/common/SplitText';
 import Scrub from '../components/common/Scrub';
 import { enter } from '../utils/motion';
 import { usePageScrollReset } from '../utils/scroll';
-
-const handleBookCall = () => {
-  window.open(BOOK_CALL_URL, '_blank', 'noopener,noreferrer');
-};
 
 const Services: React.FC = () => {
   usePageScrollReset();
@@ -78,7 +73,7 @@ const Services: React.FC = () => {
 
       <Process />
 
-      <CaseStudyClosingCta onBookCall={handleBookCall} />
+      <CaseStudyClosingCta />
     </main>
   );
 };

@@ -29,4 +29,10 @@ export default [
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    files: ['vite.config.ts', 'server/**/*.ts', 'netlify/**/*.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ];

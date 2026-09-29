@@ -16,6 +16,7 @@ import {
   type SolutionItem,
 } from './footerData';
 import { hapticFeedback } from '../../../utils/mobile/hapticFeedback';
+import { useBookCall } from '../../BookCall/useBookCall';
 
 const IconBox = ({ icon: Icon, className }: { icon: LucideIcon; className?: string }) => (
   <div
@@ -29,11 +30,9 @@ const IconBox = ({ icon: Icon, className }: { icon: LucideIcon; className?: stri
   </div>
 );
 
-interface FooterBrandColumnProps {
-  onBookCall: () => void;
-}
+export function FooterBrandColumn() {
+  const { open } = useBookCall();
 
-export function FooterBrandColumn({ onBookCall }: FooterBrandColumnProps) {
   return (
     <div className="space-y-6 md:col-span-2 lg:col-span-1">
       <div className="w-auto">
@@ -69,13 +68,13 @@ export function FooterBrandColumn({ onBookCall }: FooterBrandColumnProps) {
       <button
         type="button"
         onClick={() => {
-          onBookCall();
+          open();
           hapticFeedback.success();
         }}
-        aria-label="Book a Call via Calendly"
+        aria-label="Start a conversation"
         className="ts-pill h-12 px-6 text-[15px]"
       >
-        Book a Call
+        Start a conversation
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>
