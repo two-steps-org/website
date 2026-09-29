@@ -1,8 +1,6 @@
 import {
-  MessageSquareText,
-  Mic,
   LayoutDashboard,
-  Code2,
+  Layers,
   Mail,
   MapPin,
   Phone,
@@ -36,16 +34,14 @@ export interface SocialItem {
 export const navigation: NavItem[] = [
   { label: 'Home', href: '/#home' },
   { label: 'Services', href: '/services' },
-  { label: 'Case Studies', href: '/case-studies' },
+  { label: 'Our Work', href: '/case-studies' },
   { label: 'About', href: '/about' },
   { label: 'Q&A', href: '/#faq' },
 ];
 
 export const solutions: SolutionItem[] = [
-  { label: 'AI Voice Agents', icon: Mic, href: '/services/ai-voice-agents' },
-  { label: 'AI Chat Agents', icon: MessageSquareText, href: '/services/ai-chat-agents' },
-  { label: 'CRM Development', icon: LayoutDashboard, href: '/services/crm-development' },
-  { label: 'Custom SaaS', icon: Code2, href: '/services/custom-saas-solutions' },
+  { label: 'Our Work', icon: LayoutDashboard, href: '/case-studies' },
+  { label: 'Services', icon: Layers, href: '/services' },
 ];
 
 export const contact: ContactItem[] = [

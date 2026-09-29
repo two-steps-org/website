@@ -131,7 +131,7 @@ export function FooterLinksGrid({
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="Solutions"
+        title="Work"
         sectionKey="solutions"
         isMobile={isMobile}
         isExpanded={expandedSections.solutions}

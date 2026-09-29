@@ -36,7 +36,7 @@ const getPageMetadata = (pathname: string) => {
     '/': {
       title: 'Two Steps AI',
       description:
-        'Two Steps AI - Transforming Business Through AI. We help businesses leverage artificial intelligence to automate processes, improve efficiency, and drive growth.',
+        'Two Steps is an AI studio building custom systems for companies with a standard to protect. Delivered for EY and Bulthaup.',
       type: 'WebPage',
     },
     '/services': {
@@ -52,9 +52,9 @@ const getPageMetadata = (pathname: string) => {
       type: 'AboutPage',
     },
     '/case-studies': {
-      title: 'Case Studies - Two Steps AI',
+      title: 'Our Work - Two Steps AI',
       description:
-        'Explore our AI case studies and see how we help businesses transform their operations with cutting-edge artificial intelligence solutions.',
+        'See our work: live AI systems running in production, and how they changed the businesses they were built for.',
       type: 'CollectionPage',
     },
   };
