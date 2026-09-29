@@ -6,7 +6,6 @@ import ErrorBoundary from '../components/common/ErrorBoundary';
 import Hero from '../components/Hero';
 import ProofStrip from '../components/ProofStrip';
 import WorkRail from '../components/WorkRail';
-import Testimonials from '../components/Testimonials';
 import CtaBand from '../components/CtaBand';
 import Services from '../components/Services';
 import AboutTeaser from '../components/AboutTeaser';
@@ -89,7 +88,6 @@ const Home = () => {
       <Services />
 
       <WorkRail />
-      <Testimonials />
       <CtaBand />
 
       <AboutTeaser />
