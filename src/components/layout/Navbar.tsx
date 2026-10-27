@@ -14,7 +14,6 @@ const navItems = [
   { name: 'Process', url: '/#process' },
   { name: 'Team', url: '/#team' },
   { name: 'Q&A', url: '/#faq' },
-  { name: 'Demo Sites', url: '/demo-sites' },
 ];
 const NAV_SCROLL_OFFSET_DESKTOP = 96;
 const NAV_SCROLL_OFFSET_MOBILE = 72;
@@ -265,9 +264,6 @@ const Navbar = () => {
       if (!url.includes('#')) {
         event?.preventDefault();
         navigate(url);
-        if (url === '/demo-sites') {
-          window.scrollTo({ top: 0, behavior: 'auto' });
-        }
         releaseManualNav(250);
         return;
       }

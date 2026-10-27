@@ -12,11 +12,6 @@ const Home = lazyWithFallback(
   'Failed to load home page'
 );
 
-const DemoSites = lazyWithFallback(
-  () => import('./pages/DemoSites'),
-  'Failed to load demo sites'
-);
-
 const LoadingFallback = () => (
   <div className="min-h-screen bg-black" aria-hidden="true" />
 );
@@ -33,7 +28,6 @@ const AppContent: React.FC = () => {
             <BaseLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/demo-sites" element={<DemoSites />} />
               </Routes>
             </BaseLayout>
           </Suspense>

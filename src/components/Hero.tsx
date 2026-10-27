@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { AINetworkVisualization } from './ui/AINetworkVisualization';
 import Section from './common/Section';
 import AnimatedGradientText from './common/AnimatedGradientText';
@@ -77,11 +76,6 @@ const Hero: React.FC = () => {
               </span>
             </button>
 
-            <Link to="/demo-sites" className="w-full sm:w-auto">
-              <button className="w-full px-8 min-h-[56px] rounded-xl font-bold border border-white/10 text-white hover:border-blue-500/50 hover:bg-blue-500/5 active:scale-95 transition-all duration-300 backdrop-blur-sm">
-                Demo Sites
-              </button>
-            </Link>
           </div>
         </div>
 
