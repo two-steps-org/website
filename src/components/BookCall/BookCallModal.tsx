@@ -129,11 +129,12 @@ const BookCallModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isO
         const res = await fetch('/api/book-call', { signal: controller.signal });
         if (ignore) return;
         if (!res.ok) {
-          const data = (await res.json()) as { error?: string };
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
           if (ignore) return;
           throw new Error(data.error || 'Could not load times.');
         }
-        const data = (await res.json()) as BookingAvailability;
+        const data = (await res.json().catch(() => null)) as BookingAvailability | null;
+        if (!data?.days) throw new Error('Could not load times.');
         if (ignore) return;
         setAvailability(data);
         const next = data.days[0]?.date ?? null;
@@ -228,6 +229,7 @@ const BookCallModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isO
                     <BookCallDone
                       key="done"
                       bookedStart={bookedStart}
+                      email={email}
                       timezone={timezone}
                       hour24={hour24}
                       onClose={onClose}

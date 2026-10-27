@@ -11,7 +11,7 @@
     "seo:verify": "node --import tsx scripts/verify-seo-html.ts",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test": "node --import tsx --test server/bookCall.test.ts src/components/BookCall/bookCall.test.ts && node --import tsx src/components/CaseStudies/tone.check.ts && node --import tsx src/lib/blog/blog.check.ts"
+    "test": "node --import tsx --test server/bookCall.test.ts src/components/BookCall/bookCall.test.ts && node --import tsx src/components/CaseStudies/tone.check.ts && node --import tsx src/content.check.ts && node --import tsx src/lib/blog/blog.check.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

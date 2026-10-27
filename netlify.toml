@@ -10,3 +10,30 @@
   from = "/api/book-call"
   to = "/.netlify/functions/book-call"
   status = 200
+
+# The five case studies removed in Phase 0 of the overhaul (invented clients).
+[[redirects]]
+  from = "/case-studies/task-automation-google-calendar"
+  to = "/case-studies"
+  status = 301
+
+[[redirects]]
+  from = "/case-studies/ai-chat-agent-barber"
+  to = "/case-studies"
+  status = 301
+
+[[redirects]]
+  from = "/case-studies/ai-sdr-call-agent"
+  to = "/case-studies"
+  status = 301
+
+[[redirects]]
+  from = "/case-studies/custom-saas-logistics"
+  to = "/case-studies"
+  status = 301
+
+[[redirects]]
+  from = "/case-studies/crm-accounting-firm"
+  to = "/case-studies"
+  status = 301
+

@@ -352,7 +352,7 @@ function tooFast(key: string) {
   return false;
 }
 
-async function createEvent(input: { name: string; email: string; start: string; ip?: string }) {
+async function createEvent(input: { name: string; email: string; start: string; source: string; ip?: string }) {
   const creds = credentials();
   if (!creds) return json(503, { error: 'Booking is not connected yet.' });
   const burstKey = `${input.ip ?? ''}|${input.email}`;
@@ -370,7 +370,7 @@ async function createEvent(input: { name: string; email: string; start: string; 
   const startIso = start.toISOString();
   const payload = {
     summary: 'Intro call',
-    description: `Booked from twosteps.ai\n${input.name}\n${input.email}`,
+    description: `Booked from twosteps.ai${input.source}\n${input.name}\n${input.email}`,
     iCalUID: slotEventId(creds.calendarId, startIso),
     start: { dateTime: startIso, timeZone: TZ },
     end: { dateTime: end.toISOString(), timeZone: TZ },
@@ -424,9 +424,11 @@ export async function handleBookCall(req: BookCallRequest): Promise<BookCallResp
     return json(400, { error: 'Use a real email.' });
   }
   if (!start) return json(400, { error: 'Pick a time.' });
+  // Which page the visitor booked from (plan 0.6d): lets /he and campaigns be measured.
+  const source = typeof body.source === 'string' ? body.source.replace(/[^\w/?=&.-]/g, '').slice(0, 80) : '';
 
   try {
-    return await createEvent({ name, email, start, ip: req.ip });
+    return await createEvent({ name, email, start, source, ip: req.ip });
   } catch (error) {
     console.error('Could not book that time', error instanceof Error ? error.message : 'unknown');
     return json(502, { error: 'Could not book that time. Try another.' });

@@ -132,9 +132,9 @@ export function FooterLinksGrid({
 
       <CollapsibleSection
         title="Work"
-        sectionKey="solutions"
+        sectionKey="work"
         isMobile={isMobile}
-        isExpanded={expandedSections.solutions}
+        isExpanded={expandedSections.work}
         reduceMotion={reduceMotion}
         onToggle={onToggleSection}
       >

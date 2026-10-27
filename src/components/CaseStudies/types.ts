@@ -48,19 +48,20 @@ export interface CaseStudy {
   /** The platform where the solution was deployed. */
   readonly deployedPlatform: string;
   /** Icon component representing the case study. */
-  readonly icon: LucideIcon;
+  readonly icon?: LucideIcon;
   /** Image tone used to grade this study's photographic surfaces. */
   readonly tone: Tone;
-  /** Key performance metrics for the case study. */
-  readonly metrics: Record<string, string>;
+  /** Measured outcomes only. `source` says who measured it and over what
+   *  period; it renders under the number. No source, no metric. */
+  readonly metrics?: ReadonlyArray<{ readonly label: string; readonly value: string; readonly source: string }>;
   /** A brief description of the case study. */
   readonly description: string;
   /** The solution provided in the case study. */
   readonly solution: string;
   /** A series of implementation steps for the case study. */
   readonly implementation: readonly Implementation[];
-  /** URL or path to an image representing the case study. */
-  readonly image: string;
+  /** A real screen of the system, when one may be shown. */
+  readonly image?: string;
 
   /* ── Optional: rendered only when supplied ─────────────────────────── */
 

@@ -2,7 +2,6 @@ import React, { Suspense, lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import BackgroundGradient from '../common/BackgroundGradient';
-import AgentLauncher from '../AgentLauncher';
 import { BookCallProvider } from '../BookCall/BookCallProvider';
 
 const Footer = lazy(() => import('./Footer/Footer'));
@@ -29,7 +28,6 @@ const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <Footer />
             </Suspense>
 
-            <AgentLauncher />
           </div>
         </BackgroundGradient>
       </div>

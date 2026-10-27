@@ -6,7 +6,8 @@ import Scrub from './common/Scrub';
 import { capabilities } from '../data/capabilities';
 
 const ServiceSection: React.FC = () => (
-  <section id="services" className="ts-section relative border-t border-line">
+  // The home page's light band: `data-band="light"` flips the floating nav to ink.
+  <section id="services" data-theme="light" data-band="light" className="ts-section relative z-[1] bg-[#fafafa] text-ink">
     <div className="ts-container relative">
       <Scrub y={32} className="mb-8 md:mb-14 lg:mb-16" contentClassName="flex flex-wrap items-end justify-between gap-6">
         <SplitText as="h2" delay={0.1} className="ts-h2 text-ink m-0 max-w-[16ch]" text="What we build" />

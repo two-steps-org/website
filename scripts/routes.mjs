@@ -3,13 +3,7 @@ import { getPublishedBlogSlugs } from './load-blog-posts.mjs';
 
 // Keep in sync with the `slug` field in src/components/CaseStudies/data.ts.
 // src/components/CaseStudies/tone.check.ts asserts the two lists match.
-export const CASE_STUDY_SLUGS = [
-  'task-automation-google-calendar',
-  'ai-chat-agent-barber',
-  'ai-sdr-call-agent',
-  'custom-saas-logistics',
-  'crm-accounting-firm',
-];
+export const CASE_STUDY_SLUGS = [];
 
 // Keep in sync with the `id` field in src/data/services.ts.
 export const SERVICE_SLUGS = [

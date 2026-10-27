@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Two Steps AI — brag</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="assets/audio-data.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-var.woff2") format("woff2");
+        font-weight: 300 700;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Inter Tight";
+        src: url("assets/fonts/InterTight-var.woff2") format("woff2");
+        font-weight: 300 600;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Instrument Serif";
+        src: url("assets/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+        font-weight: 400;
+        font-style: italic;
+      }
+      :root {
+        --bg: #0a0a0c;
+        --text: #f5f6f8;
+        --muted: #8a8f98;
+        --glass: rgba(20, 22, 27, 0.72);
+        --glass-border: rgba(255, 255, 255, 0.16);
+        --ok: #4ade80;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .dark {
+        background: var(--bg);
+        color: var(--text);
+      }
+      .light {
+        background: #fafafa;
+        color: #0a0a0a;
+      }
+      .tight {
+        font-family: "Inter Tight", sans-serif;
+        font-weight: 300;
+        letter-spacing: -0.021em;
+        line-height: 1.06;
+      }
+      .sig {
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        padding-right: 0.06em;
+      }
+      .w {
+        display: inline-block;
+        white-space: pre;
+      }
+      .line {
+        display: block;
+        white-space: nowrap;
+      }
+      .amb {
+        position: absolute;
+        width: 1500px;
+        height: 1500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(245, 246, 248, 0.17) 0%, rgba(245, 246, 248, 0.05) 38%, rgba(245, 246, 248, 0) 64%);
+      }
+      .eyebrow {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* Navbar (site chrome) */
+      .nav {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        top: 44px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav img {
+        height: 46px;
+        width: 226px;
+        display: block;
+      }
+      .nav ul {
+        display: flex;
+        gap: 44px;
+        list-style: none;
+        font-size: 21px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .light .nav ul {
+        color: #5b616b;
+      }
+      .nav .pill {
+        height: 56px;
+        padding: 0 28px;
+        font-size: 20px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border-radius: 999px;
+        background: var(--text);
+        color: #0a0a0c;
+        font-weight: 500;
+      }
+      .light .pill {
+        background: #0a0a0a;
+        color: #fafafa;
+      }
+      .pill-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: 2px solid rgba(255, 255, 255, 0.28);
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* Scene A — hero */
+      #hero-col {
+        position: absolute;
+        left: 120px;
+        top: 60px;
+        bottom: 0;
+        width: 880px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      #hero-h1 {
+        height: 170px;
+        font-size: 80px;
+        transform-origin: left center;
+      }
+      #hero-p {
+        margin-top: 40px;
+        height: 96px;
+        max-width: 760px;
+        font-size: 32px;
+        line-height: 48px;
+        color: var(--muted);
+      }
+      #hero-cta {
+        margin-top: 40px;
+        height: 76px;
+        display: flex;
+        gap: 16px;
+      }
+      #hero-cta > div {
+        height: 76px;
+        padding: 0 40px;
+        font-size: 25px;
+      }
+      #hero-chips {
+        margin-top: 32px;
+        height: 56px;
+        display: flex;
+        gap: 12px;
+        list-style: none;
+        white-space: nowrap;
+      }
+      #hero-chips li {
+        height: 56px;
+        padding: 0 22px;
+        display: flex;
+        align-items: center;
+        border-radius: 999px;
+        background: var(--glass);
+        border: 2px solid var(--glass-border);
+        font-size: 22px;
+        font-weight: 500;
+      }
+      #net {
+        position: absolute;
+        left: 1080px;
+        top: 152px;
+        width: 720px;
+        height: 835px;
+      }
+      #net > svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      #hub-glow {
+        left: 690px;
+        top: -181px;
+      }
+      .hub-pos {
+        position: absolute;
+        left: 276px;
+        top: 333px;
+        width: 168px;
+        height: 168px;
+      }
+      #hub {
+        position: relative;
+        width: 168px;
+        height: 168px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #hub .ring1,
+      #hub .ring2 {
+        position: absolute;
+        border-radius: 50%;
+      }
+      #hub .ring1 {
+        inset: 0;
+        border: 3px solid rgba(255, 255, 255, 0.22);
+      }
+      #hub .ring2 {
+        inset: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.14);
+      }
+      #hub .core {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(28, 31, 38, 0.95);
+        border: 2px solid var(--glass-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #hub .core svg {
+        position: static;
+        width: 74px;
+        height: 64px;
+        margin-top: -8px;
+      }
+      .node-pos {
+        position: absolute;
+        width: 252px;
+        height: 96px;
+        margin: -48px 0 0 -126px;
+      }
+      .node {
+        width: 252px;
+        height: 96px;
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-radius: 18px;
+        background: rgba(20, 22, 27, 0.94);
+        border: 2px solid var(--glass-border);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+      }
+      .node .ico {
+        flex: none;
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        background: rgba(245, 246, 248, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .node .ico svg {
+        position: static;
+        width: 28px;
+        height: 28px;
+        fill: none;
+        stroke: var(--text);
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .node b {
+        display: block;
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 1.15;
+        white-space: nowrap;
+      }
+      .node span {
+        display: block;
+        margin-top: 5px;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* Scene B — light band */
+      #svc-wrap {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        top: 210px;
+      }
+      #svc-wrap .eyebrow {
+        color: #5b616b;
+      }
+      #svc-h2 {
+        margin-top: 28px;
+        font-size: 124px;
+      }
+      #svc-grid {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 120px;
+        height: 250px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      #svc-grid .cell {
+        position: relative;
+        padding: 34px 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      #svc-grid .idx {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: #5b616b;
+      }
+      #svc-grid .name {
+        font-family: "Inter Tight", sans-serif;
+        font-size: 40px;
+        font-weight: 400;
+        letter-spacing: -0.014em;
+        line-height: 1.1;
+      }
+      .rule-h,
+      .rule-v {
+        position: absolute;
+        background: #cfcfcf;
+        display: block;
+      }
+      .rule-h {
+        left: 0;
+        width: 100%;
+        height: 2px;
+        transform-origin: left center;
+      }
+      .rule-v {
+        top: 0;
+        width: 2px;
+        height: 100%;
+        transform-origin: center top;
+      }
+      #svc-dots {
+        position: absolute;
+        right: -140px;
+        top: -140px;
+        width: 900px;
+        height: 900px;
+        border-radius: 50%;
+        background-image: radial-gradient(#0a0a0a 2px, transparent 2.5px);
+        background-size: 34px 34px;
+        opacity: 0.16;
+        -webkit-mask-image: radial-gradient(circle, #000 20%, transparent 68%);
+        mask-image: radial-gradient(circle, #000 20%, transparent 68%);
+      }
+
+      /* Scene C — results */
+      #res-head {
+        position: absolute;
+        left: 120px;
+        top: 190px;
+      }
+      #res-h2 {
+        margin-top: 22px;
+        font-size: 96px;
+      }
+      #res-cards {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 110px;
+        height: 460px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+      }
+      .stat {
+        position: relative;
+        height: 460px;
+        padding: 40px 44px;
+        border-radius: 28px;
+        background: var(--glass);
+        border: 2px solid var(--glass-border);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .stat .tone {
+        position: absolute;
+        right: -160px;
+        top: -200px;
+        width: 560px;
+        height: 560px;
+        border-radius: 50%;
+        opacity: 0.55;
+      }
+      .stat .meta {
+        position: relative;
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #a3a8b1;
+      }
+      .stat .num {
+        position: relative;
+        font-size: 176px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .stat .num i {
+        font-style: normal;
+        font-size: 96px;
+        color: var(--muted);
+      }
+      .stat .lbl {
+        position: relative;
+        font-size: 32px;
+        line-height: 1.3;
+      }
+
+      /* Scene D — outro */
+      #out-col {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #out-glow {
+        left: 210px;
+        top: -260px;
+      }
+      #out-logo {
+        width: 800px;
+        height: 163px;
+        display: block;
+      }
+      #out-tag {
+        margin-top: 54px;
+        font-size: 72px;
+      }
+      #out-pill-wrap {
+        position: relative;
+        margin-top: 60px;
+      }
+      #out-pill {
+        height: 92px;
+        padding: 0 52px;
+        font-size: 31px;
+      }
+      #out-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        border: 3px solid var(--text);
+        opacity: 0;
+      }
+      #out-url {
+        margin-top: 40px;
+        font-size: 30px;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+      #cursor {
+        position: absolute;
+        left: 1066px;
+        top: 700px;
+        width: 44px;
+        height: 44px;
+      }
+      #launcher {
+        position: absolute;
+        right: 72px;
+        bottom: 64px;
+        height: 88px;
+        padding: 0 32px 0 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-radius: 999px;
+        background: var(--glass);
+        border: 2px solid var(--glass-border);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        font-size: 25px;
+        font-weight: 500;
+      }
+      #launcher .mic {
+        position: relative;
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #launcher .mic svg {
+        width: 26px;
+        height: 26px;
+        fill: none;
+        stroke: #0a0a0c;
+        stroke-width: 2.25;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      #launcher .dot {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--ok);
+        border: 3px solid var(--bg);
+      }
+      #blackout {
+        position: absolute;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="21" data-width="1920" data-height="1080">
+      <!-- Scene A: hook + hero network (0 – 9.5) -->
+      <section id="sA" class="clip" data-start="0" data-duration="9.6" data-track-index="0" style="z-index: 1">
+        <div id="sA-in" class="scene dark">
+          <div id="hub-glow" class="amb"></div>
+          <div id="navA" class="nav">
+            <img src="assets/logo-light.svg" alt="Two Steps" />
+            <ul>
+              <li>Services</li>
+              <li>Why Us</li>
+              <li>Process</li>
+              <li>Team</li>
+              <li>Q&amp;A</li>
+              <li>Case Studies</li>
+            </ul>
+            <div class="pill">Book a Call</div>
+          </div>
+
+          <div id="hero-col">
+            <h1 id="hero-h1" class="tight">
+              <span class="line"><span class="w hw">Always </span><span class="w hw">Be </span><span class="w hw sig" id="hw-ahead">Ahead</span></span>
+              <span class="line"><span class="w hw2">AI </span><span class="w hw2">Built </span><span class="w hw2">Just </span><span class="w hw2">For </span><span class="w hw2">You</span></span>
+            </h1>
+            <p id="hero-p">You bring the vision, we bring it to life.</p>
+            <div id="hero-cta">
+              <div class="pill">Book a Call <span>→</span></div>
+              <div class="pill-ghost">Case Studies</div>
+            </div>
+            <ul id="hero-chips">
+              <li>AI Chat Agents</li>
+              <li>AI Voice Agents</li>
+              <li>CRM Development</li>
+              <li>Custom SaaS</li>
+            </ul>
+          </div>
+
+          <div id="net">
+            <svg viewBox="0 0 720 835" aria-hidden="true">
+              <g stroke="#f5f6f8" stroke-opacity="0.32" stroke-width="2.5" fill="none">
+                <path class="ln" d="M360 417 L360 100" />
+                <path class="ln" d="M360 417 L634 250" />
+                <path class="ln" d="M360 417 L634 585" />
+                <path class="ln" d="M360 417 L360 735" />
+                <path class="ln" d="M360 417 L86 585" />
+                <path class="ln" d="M360 417 L86 250" />
+              </g>
+              <g stroke="#f5f6f8" stroke-width="4" stroke-linecap="round" fill="none">
+                <path class="pu" d="M360 417 L360 100" />
+                <path class="pu" d="M360 417 L634 250" />
+                <path class="pu" d="M360 417 L634 585" />
+                <path class="pu" d="M360 417 L360 735" />
+                <path class="pu" d="M360 417 L86 585" />
+                <path class="pu" d="M360 417 L86 250" />
+              </g>
+            </svg>
+
+            <div class="hub-pos">
+              <div id="hub">
+                <div class="ring1"></div>
+                <div class="ring2"></div>
+                <div class="core">
+                  <svg viewBox="0 0 186.77 160.8" aria-hidden="true">
+                    <polygon
+                      fill="#f5f6f8"
+                      points="93.65 78.07 52.85 148.06 68.84 148.06 93.08 106.12 125.69 160.8 110.56 160.8 93.26 131.8 76.5 160.8 30.38 160.8 93.78 52.04 148.37 147.8 164.13 147.8 92.93 25.88 15.01 160.8 0 160.8 92.87 0 186.77 160.8 140.82 160.8 93.65 78.07"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="node-pos" style="left: 360px; top: 100px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" /></svg>
+                </div>
+                <div><b>LLM Engine</b><span>Reasoning</span></div>
+              </div>
+            </div>
+            <div class="node-pos" style="left: 634px; top: 250px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5" /><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" /></svg>
+                </div>
+                <div><b>Vector Store</b><span>Knowledge</span></div>
+              </div>
+            </div>
+            <div class="node-pos" style="left: 634px; top: 585px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>
+                </div>
+                <div><b>Realtime API</b><span>Automation</span></div>
+              </div>
+            </div>
+            <div class="node-pos" style="left: 360px; top: 735px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                </div>
+                <div><b>Security</b><span>Privacy</span></div>
+              </div>
+            </div>
+            <div class="node-pos" style="left: 86px; top: 585px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="M8 17v-5M13 17V7M18 17v-8" /></svg>
+                </div>
+                <div><b>Analytics</b><span>Insights</span></div>
+              </div>
+            </div>
+            <div class="node-pos" style="left: 86px; top: 250px">
+              <div class="node">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5" /><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5" /></svg>
+                </div>
+                <div><b>Connectors</b><span>Integrations</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene B: light band (8.6 – 13.6) -->
+      <section id="sB" class="clip" data-start="8.6" data-duration="5" data-track-index="1" style="z-index: 2">
+        <div id="sB-in" class="scene light">
+          <div id="svc-dots"></div>
+          <div class="nav">
+            <img src="assets/logo-dark.svg" alt="Two Steps" />
+            <ul>
+              <li>Services</li>
+              <li>Why Us</li>
+              <li>Process</li>
+              <li>Team</li>
+              <li>Q&amp;A</li>
+              <li>Case Studies</li>
+            </ul>
+            <div class="pill">Book a Call</div>
+          </div>
+          <div id="svc-wrap">
+            <p class="eyebrow" id="svc-eyebrow">Services</p>
+            <h2 id="svc-h2" class="tight">
+              <span class="line"><span class="w sw">Automate </span><span class="w sw sig">Roles,</span></span>
+              <span class="line"><span class="w sw">Not </span><span class="w sw">Just </span><span class="w sw">Tasks</span></span>
+            </h2>
+          </div>
+          <div id="svc-grid">
+            <span class="rule-h" id="rule-top" style="top: 0"></span>
+            <span class="rule-h" id="rule-bot" style="bottom: 0"></span>
+            <span class="rule-v rv" style="left: 0"></span>
+            <span class="rule-v rv" style="left: 25%"></span>
+            <span class="rule-v rv" style="left: 50%"></span>
+            <span class="rule-v rv" style="left: 75%"></span>
+            <span class="rule-v rv" style="right: 0"></span>
+            <div class="cell"><span class="idx">01</span><span class="name">AI Chat Agents</span></div>
+            <div class="cell"><span class="idx">02</span><span class="name">AI Voice Agents</span></div>
+            <div class="cell"><span class="idx">03</span><span class="name">CRM Development</span></div>
+            <div class="cell"><span class="idx">04</span><span class="name">Custom SaaS</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene C: results (12.8 – 17.8) -->
+      <section id="sC" class="clip" data-start="12.8" data-duration="5" data-track-index="0" style="z-index: 3">
+        <div id="sC-in" class="scene dark">
+          <div class="amb" style="left: 210px; top: 60px"></div>
+          <div class="nav">
+            <img src="assets/logo-light.svg" alt="Two Steps" />
+            <ul>
+              <li>Services</li>
+              <li>Why Us</li>
+              <li>Process</li>
+              <li>Team</li>
+              <li>Q&amp;A</li>
+              <li style="color: #f5f6f8">Case Studies</li>
+            </ul>
+            <div class="pill">Book a Call</div>
+          </div>
+          <div id="res-head">
+            <p class="eyebrow" id="res-eyebrow">Case Studies</p>
+            <h2 id="res-h2" class="tight"><span class="w rw">Proof, </span><span class="w rw">not </span><span class="w rw sig">promises.</span></h2>
+          </div>
+          <div id="res-cards">
+            <div class="stat">
+              <div class="tone" style="background: radial-gradient(circle, #3f6f86 0%, rgba(63, 111, 134, 0) 68%)"></div>
+              <p class="meta">AI Chat Agent · Independent Barber</p>
+              <p class="num tight"><span id="n1">0</span><i>%</i></p>
+              <p class="lbl">of appointment bookings automated</p>
+            </div>
+            <div class="stat">
+              <div class="tone" style="background: radial-gradient(circle, #a8834f 0%, rgba(168, 131, 79, 0) 68%)"></div>
+              <p class="meta">AI SDR Call Agent · Leads Manager</p>
+              <p class="num tight"><i>+</i><span id="n2">0</span><i>%</i></p>
+              <p class="lbl">higher conversion rates</p>
+            </div>
+            <div class="stat">
+              <div class="tone" style="background: radial-gradient(circle, #6f7f5a 0%, rgba(111, 127, 90, 0) 68%)"></div>
+              <p class="meta">Custom SaaS · Logistics Company</p>
+              <p class="num tight"><i>−</i><span id="n3">0</span><i>%</i></p>
+              <p class="lbl">shorter delivery times</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Scene D: outro (17.2 – 21) -->
+      <section id="sD" class="clip" data-start="17.2" data-duration="3.8" data-track-index="1" style="z-index: 4">
+        <div id="sD-in" class="scene dark">
+          <div id="out-glow" class="amb"></div>
+          <div id="out-col">
+            <img id="out-logo" src="assets/logo-light.svg" alt="Two Steps" />
+            <p id="out-tag" class="tight"><span class="w ow">Always </span><span class="w ow">Be </span><span class="w ow sig">Ahead</span></p>
+            <div id="out-pill-wrap">
+              <div id="out-ring"></div>
+              <div id="out-pill" class="pill">Book a Call <span>→</span></div>
+            </div>
+            <p id="out-url">twosteps.ai</p>
+          </div>
+          <div id="launcher">
+            <div class="mic">
+              <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v4" /></svg>
+              <span class="dot"></span>
+            </div>
+            Talk to our AI now
+          </div>
+          <svg id="cursor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 3l14 8-6.2 1.8L9.5 19z" fill="#0a0a0c" stroke="#f5f6f8" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+          <div id="blackout"></div>
+        </div>
+      </section>
+
+      <!-- Audio -->
+      <audio id="bg-music" data-start="0" data-duration="21" data-track-index="10" data-volume="0.45" src="assets/music/bed-vol-12-21s.mp3"></audio>
+      <audio id="sfx-node-first" data-start="4.36" data-duration="0.11" data-track-index="11" data-volume="0.5" src="assets/sfx/interface/drop_001.ogg"></audio>
+      <audio id="sfx-node-last" data-start="7.06" data-duration="0.19" data-track-index="12" data-volume="0.5" src="assets/sfx/interface/drop_002.ogg"></audio>
+      <audio id="sfx-flip" data-start="8.66" data-duration="0.18" data-track-index="13" data-volume="0.6" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+      <audio id="sfx-flip-back" data-start="12.98" data-duration="0.15" data-track-index="14" data-volume="0.55" src="assets/sfx/impact/impactSoft_medium_004.ogg"></audio>
+      <audio id="sfx-logo" data-start="17.44" data-duration="0.12" data-track-index="15" data-volume="0.55" src="assets/sfx/interface/bong_001.ogg"></audio>
+      <audio id="sfx-click" data-start="18.56" data-duration="0.01" data-track-index="16" data-volume="0.7" src="assets/sfx/interface/click_003.ogg"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const EASE = "power3.out"; // ≈ the site's cubic-bezier(0.22, 1, 0.36, 1)
+      const rise = (sel, at, stagger = 0.07, dur = 0.7) =>
+        tl.fromTo(sel, { yPercent: 70, opacity: 0 }, { yPercent: 0, opacity: 1, duration: dur, ease: EASE, stagger }, at);
+
+      // ───── Scene A · hook (0 – 3.0) ─────
+      // Headline starts big, left-anchored and vertically centred (170px = half the
+      // height of everything that later appears under it), then settles into the hero.
+      tl.fromTo("#hub-glow", { opacity: 0 }, { opacity: 0.6, duration: 1.4, ease: "power1.out" }, 0);
+      rise(".hw:not(#hw-ahead)", 0.25);
+      tl.fromTo("#hw-ahead", { yPercent: 70, opacity: 0, rotation: 5 }, { yPercent: 0, opacity: 1, rotation: 0, duration: 0.9, ease: "expo.out" }, 0.56); // beat-grid: 0.56s
+      rise(".hw2", 1.09); // beat-grid: 1.09s
+
+      // ───── Scene A · hero assembles (3.0 – 8.7) ─────
+      tl.fromTo("#hero-h1", { scale: 1.6, y: 170 }, { scale: 1, y: 0, duration: 0.9, ease: "power3.inOut" }, 2.95);
+      tl.fromTo("#navA", { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: EASE }, 3.4);
+      tl.fromTo("#hero-p", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: EASE }, 3.55);
+      tl.fromTo("#hero-cta > div", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55, ease: EASE, stagger: 0.08 }, 3.75);
+      tl.fromTo("#hero-chips li", { x: -28, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: EASE, stagger: 0.07 }, 3.95);
+
+      tl.fromTo("#hub", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7, ease: "back.out(1.8)" }, 3.72); // beat-grid: 3.82s
+      tl.fromTo("#hub .ring1", { scale: 1 }, { scale: 1.12, duration: 1.09, ease: "sine.inOut", yoyo: true, repeat: 3 }, 4.4);
+
+      // beat-grid: nodes at 4.39, 4.91, 5.45, 6.00, 6.56, 7.09 — short labels, then the set holds 1.6s
+      const NODE_AT = [4.39, 4.91, 5.45, 6.0, 6.56, 7.09];
+      const lines = gsap.utils.toArray(".ln");
+      const pulses = gsap.utils.toArray(".pu");
+      const nodes = gsap.utils.toArray(".node");
+      const FROM = [{ y: -36 }, { x: 40, y: -20 }, { x: 40, y: 20 }, { y: 36 }, { x: -40, y: 20 }, { x: -40, y: -20 }];
+      lines.forEach((ln, i) => {
+        const len = ln.getTotalLength();
+        const at = NODE_AT[i];
+        gsap.set(ln, { strokeDasharray: len, strokeDashoffset: len });
+        gsap.set(pulses[i], { strokeDasharray: `56 ${len + 60}`, strokeDashoffset: 58, opacity: 0 });
+        tl.to(ln, { strokeDashoffset: 0, duration: 0.42, ease: "power2.out" }, at - 0.34);
+        tl.fromTo(nodes[i], { ...FROM[i], scale: 0.82, opacity: 0 }, { x: 0, y: 0, scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.5)" }, at - 0.05);
+        // travelling light: hub → node, repeating until the flip
+        const first = at + 0.5;
+        const reps = Math.max(0, Math.floor((8.9 - first) / 1.09) - 1);
+        tl.set(pulses[i], { opacity: 1 }, first);
+        tl.fromTo(pulses[i], { strokeDashoffset: 58 }, { strokeDashoffset: -len, duration: 1.09, ease: "power1.inOut", repeat: reps }, first);
+      });
+
+      // hero dims as the light floods over it (it is fully covered by ~9.1s)
+      tl.to("#hero-col, #navA, #net", { opacity: 0, duration: 0.22, ease: "power1.in" }, 8.66);
+
+      // ───── Scene B · light band (8.6 – 13.6) ─────
+      // beat-locked: 8.74s — light opens from the hub (1440, 569)
+      tl.fromTo("#sB-in", { clipPath: "circle(0px at 1440px 569px)" }, { clipPath: "circle(1750px at 1440px 569px)", duration: 0.85, ease: "power2.out" }, 8.64);
+      tl.fromTo("#svc-eyebrow", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: EASE }, 8.85);
+      rise(".sw", 8.9, 0.08);
+      tl.fromTo("#svc-dots", { rotation: 0, scale: 0.9 }, { rotation: 14, scale: 1.05, duration: 4.6, ease: "none" }, 8.7);
+      tl.fromTo("#rule-top", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 8.95);
+      tl.fromTo("#rule-bot", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.inOut" }, 9.05);
+      tl.fromTo(".rv", { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: "power2.out", stagger: 0.09 }, 9.15);
+      // beat-grid: service 1 at 9.29s, 2 at 9.83s, 3 at 10.37s, 4 at 10.93s — set holds ~1.9s
+      tl.fromTo("#svc-grid .idx", { opacity: 0 }, { opacity: 1, duration: 0.3, stagger: 0.545 }, 9.24);
+      tl.fromTo("#svc-grid .name", { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: EASE, stagger: 0.545 }, 9.24);
+      tl.fromTo("#svc-wrap", { x: 0 }, { x: 24, duration: 4.4, ease: "none" }, 8.7);
+
+      // ───── Scene C · results (12.8 – 17.8) ─────
+      // beat-locked: 13.11s — dark shutter closes left → right
+      tl.fromTo("#sC-in", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "power3.inOut" }, 12.82);
+      tl.fromTo("#res-eyebrow", { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: EASE }, 13.2);
+      rise(".rw", 13.25, 0.09);
+      // beat-grid: stat 1 at 13.64s, stat 2 at 14.73s, stat 3 at 15.84s (every other beat — readable)
+      const STATS = [
+        { at: 13.64, id: "#n1", to: 80 },
+        { at: 14.73, id: "#n2", to: 20 },
+        { at: 15.84, id: "#n3", to: 30 },
+      ];
+      gsap.utils.toArray(".stat").forEach((card, i) => {
+        const s = STATS[i];
+        tl.fromTo(card, { y: 90, opacity: 0, rotationX: -14, transformPerspective: 1200 }, { y: 0, opacity: 1, rotationX: 0, duration: 0.7, ease: EASE }, s.at - 0.1);
+        tl.fromTo(s.id, { textContent: 0 }, { textContent: s.to, snap: { textContent: 1 }, duration: 0.85, ease: "power2.out" }, s.at);
+        tl.fromTo(card.querySelector(".tone"), { scale: 0.6 }, { scale: 1.15, duration: 17.4 - s.at, ease: "sine.out" }, s.at);
+      });
+
+      // ───── Scene D · outro (17.2 – 21) ─────
+      tl.fromTo("#sD-in", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power1.inOut" }, 17.22);
+      // beat-locked: 17.47s — wordmark lands
+      tl.fromTo("#out-logo", { scale: 1.18, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "expo.out" }, 17.4);
+      rise(".ow", 17.75, 0.08, 0.6);
+      tl.fromTo("#out-pill-wrap", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: EASE }, 18.0);
+      tl.fromTo("#out-url", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 18.15);
+      tl.fromTo("#launcher", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.4)" }, 18.1);
+      tl.fromTo("#cursor", { x: 520, y: 300, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: 0.75, ease: "power3.out" }, 17.85);
+      // beat-locked: 18.56s — the press (site's :active scale 0.97)
+      tl.to("#out-pill", { scale: 0.94, duration: 0.09, ease: "power2.in" }, 18.54);
+      tl.to("#cursor", { scale: 0.86, duration: 0.09, transformOrigin: "20% 15%" }, 18.54);
+      tl.to("#out-pill", { scale: 1, duration: 0.4, ease: "back.out(2.5)" }, 18.63);
+      tl.to("#cursor", { scale: 1, duration: 0.25 }, 18.63);
+      tl.fromTo("#out-ring", { scale: 1, opacity: 0.7 }, { scaleX: 1.22, scaleY: 1.7, opacity: 0, duration: 0.8, ease: "power2.out" }, 18.6);
+      tl.to("#cursor", { x: 90, y: 70, opacity: 0, duration: 0.7, ease: "power2.in" }, 19.3);
+      tl.fromTo("#out-col", { scale: 1 }, { scale: 1.035, duration: 3.5, ease: "none" }, 17.4);
+      tl.to("#blackout", { opacity: 1, duration: 0.3, ease: "power1.in" }, 20.7);
+
+      // ───── Audio-reactive: ambient glows breathe with the bed's RMS ─────
+      // Real tweens (not callbacks) so any seek lands on the right value.
+      const AMP = window.AUDIO_DATA.amp;
+      const STEP = 3; // 10 Hz
+      for (let f = 45; f < AMP.length; f += STEP) {
+        const a = AMP[f];
+        tl.to(".amb", { opacity: 0.5 + 0.5 * a, scale: 1 + 0.14 * a, duration: STEP / 30, ease: "none", overwrite: false }, (f - STEP) / 30);
+      }
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
