@@ -1,4 +1,4 @@
-import React, { useEffect, useEffectEvent, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { fade, modalPanel } from '../../../utils/motion';
@@ -56,14 +56,17 @@ const Modal: React.FC<ModalProps> = ({
     }
   }, [isOpen]);
 
-  const onEscapeClose = useEffectEvent(onClose);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   // Close modal on Escape key press
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onEscapeClose();
+        onCloseRef.current();
       }
     };
     window.addEventListener('keydown', handleKeyDown);

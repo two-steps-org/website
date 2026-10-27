@@ -3,7 +3,7 @@ import { CaseStudy } from './types';
 
 // Sample case studies data used throughout the application.
 // Data is frozen to prevent accidental mutations.
-export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
+export const caseStudies = Object.freeze<CaseStudy[]>([
   {
     slug: 'task-automation-google-calendar',
     service: 'ai-chat-agents',
@@ -20,7 +20,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
       'Task Completion Time': '-60%',
     } as Record<string, string>,
     description:
-      'Developed a Telegram bot integrated with Google Calendar API to streamline scheduling tasks and enable instant access to real-time calendar information with a single click.',
+      'Developed a Telegram bot on the Google Calendar API so the team can pull an event in one tap instead of searching the calendar by hand.',
     solution:
       'A custom Telegram bot offering real-time updates and task details tailored to enhance team productivity.',
     image: '/Case1.jpeg',
@@ -122,7 +122,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
         title: 'Testing and Deployment',
         details: [
           'Simulated customer interactions to ensure the chat agent could handle complex queries',
-          'Optimized the flow based on user feedback to ensure seamless booking',
+          'Adjusted the chat flow from those simulations so a customer could finish the booking there',
         ],
       },
       {
@@ -179,7 +179,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
       {
         title: 'Handoff Process',
         details: [
-          'Created a seamless transition mechanism for transferring high-quality leads',
+          'Built the handoff that sends a scored lead to the team with a real-time notification',
           'Included real-time notifications for immediate follow-up',
         ],
       },
@@ -287,7 +287,7 @@ export const caseStudies: ReadonlyArray<CaseStudy> = Object.freeze([
       Communication: '+40%',
     },
     description:
-      'Implemented a tailored CRM system to streamline client data management, automate routine tasks, and improve communication for an accounting firm.',
+      'Built a CRM on GoHighLevel for an accounting firm so client records, tasks, and messages live in one place.',
     solution:
       'A centralized CRM platform integrated with accounting tools, offering automation for task management, communication, and client engagement.',
     image: '/Case5.jpeg',

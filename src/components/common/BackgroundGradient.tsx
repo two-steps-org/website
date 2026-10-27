@@ -1,46 +1,54 @@
 import React, { memo } from 'react';
+import {
+  AMBIENT_FLOOR,
+  AMBIENT_VIGNETTE,
+  resolveAmbientPreset,
+} from '../../lib/wallpaper/ambient';
+
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+/** Matches blog cover SVG feGaussianBlur (~48) at viewport scale. */
+const MESH_BLUR_PX = 56;
 
 interface BackgroundGradientProps {
   children: React.ReactNode;
+  pathname: string;
 }
 
 /**
- * Fixed ambient tone fields. Static on purpose: anything that moves behind
- * the page forces every backdrop-filter surface above it to re-blur on every
- * frame, which kept the compositor at ~100% even while idle.
+ * Flowing ambient field — same recipe as blog cover art: soft tone blobs + blur + vignette.
+ * Palette shifts by route (blog slugs use their cover layout).
  */
-const BackgroundGradient: React.FC<BackgroundGradientProps> = ({ children }) => (
-  <div className="relative w-full">
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-bg"
-    >
-      <div
-        className="absolute inset-0 opacity-90"
-        style={{
-          background:
-            'radial-gradient(ellipse 45% 40% at 22% 18%, var(--tone-ember-deep), transparent 70%), radial-gradient(ellipse 40% 45% at 80% 12%, var(--tone-ocean-deep), transparent 70%)',
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-70"
-        style={{
-          background:
-            'radial-gradient(ellipse 40% 35% at 75% 55%, var(--tone-ember-deep), transparent 70%), radial-gradient(ellipse 45% 40% at 20% 85%, var(--tone-ocean-deep), transparent 70%)',
-        }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(217,178,124,0.08), transparent 70%)',
-        }}
-      />
-      <div className="absolute inset-0 bg-[rgba(10,10,12,0.28)]" />
-    </div>
+const BackgroundGradient: React.FC<BackgroundGradientProps> = ({ children, pathname }) => {
+  const preset = resolveAmbientPreset(pathname);
 
-    <div className="relative z-10">{children}</div>
-  </div>
-);
+  return (
+    <div className="relative w-full">
+      <div
+        aria-hidden="true"
+        data-ambient={preset.id}
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-bg"
+      >
+        <div
+          className="absolute -inset-[20%]"
+          style={{
+            background: preset.mesh,
+            filter: `blur(${MESH_BLUR_PX}px)`,
+            transform: 'translateZ(0)',
+          }}
+        />
+        <div className="absolute inset-0" style={{ background: AMBIENT_FLOOR }} />
+        <div className="absolute inset-0" style={{ background: AMBIENT_VIGNETTE }} />
+        <div
+          className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+          style={{ backgroundImage: GRAIN, backgroundSize: '160px 160px' }}
+        />
+      </div>
+
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+};
 
 export default memo(BackgroundGradient);

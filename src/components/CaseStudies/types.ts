@@ -66,6 +66,7 @@ export interface CaseStudy {
 
   /** The "before" state, set as the Problem section heading. */
   readonly before?: string;
+  readonly after?: string;
   /** Narrative of what was wrong before the build. */
   readonly problem?: string;
   /** Concrete shipped items, rendered as a checked list. */

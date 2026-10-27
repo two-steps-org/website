@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useInView } from 'framer-motion';
 import { useReducedMotionQuery } from '../../../utils/scroll';
 import CardContainer from '../shared/CardContainer';
-import { useInView } from '../../../utils/useInView';
 import { LiveMetricPanel, MetricCodePreviewPanel } from './EncryptionMetricPanels';
 import { useEncryptionMetricCycle } from './useEncryptionMetricCycle';
 
@@ -9,7 +9,8 @@ const EncryptionCard: React.FC<{ className?: string; title?: string }> = ({
   className,
   title = 'Encryption Telemetry',
 }) => {
-  const { ref, inView } = useInView();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: '80px' });
   const reduce = useReducedMotionQuery();
   const { label, value, isSyncing, activeField, delta, streamLabel } = useEncryptionMetricCycle(inView && !reduce);
 

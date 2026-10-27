@@ -26,6 +26,16 @@
         visibility: hidden;
       }
     </style>
+    <script>
+      (function () {
+        function reveal() {
+          var root = document.getElementById('root');
+          if (root) root.removeAttribute('data-prerender');
+        }
+        window.addEventListener('error', reveal);
+        window.setTimeout(reveal, 4000);
+      })();
+    </script>
     <title>Two Steps AI</title>
     <script type="application/ld+json">
       {
@@ -68,7 +78,7 @@
               "name": "AI Services",
               "itemListElement": [
                 { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Chat Agents", "description": "An agent that owns a conversation end to end — understands what's being asked, decides what to do, and does it. It reads your systems, takes the action, and hands off to a person when a person is genuinely needed.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Voice Agents", "description": "We build voice agents around a role rather than a script: inbound discovery, customer success, win-back, the operator who never misses a call. Each one knows what it's for, what it's allowed to do, and when to pass the call to a person.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Voice Agents", "description": "We build voice agents around a role rather than a script: inbound discovery, customer success, win-back, the operator who never misses a call. Each one knows what it's for, what it's allowed to do, and when to pass the call to a person. We run our own. Ask to hear it.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
                 { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CRM Development", "description": "Most companies bend their process to fit the software. We build the software around the process — the pipeline as you actually run it, the fields you actually use, the reports you actually read.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
                 { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom SaaS Solutions", "description": "Phyizit and Shift Manager started as blank files. We designed them, built them, shipped them and still run them.", "provider": { "@id": "https://twosteps.ai/#organization" } } }
               ]
@@ -96,12 +106,12 @@
             "@type": "FAQPage",
             "@id": "https://twosteps.ai/#faq",
             "mainEntity": [
-              { "@type": "Question", "name": "Is my business the right fit for AI solutions?", "acceptedAnswer": { "@type": "Answer", "text": "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI solutions tailored specifically to your business's needs." } },
-              { "@type": "Question", "name": "How do I know which AI solution is right for my business?", "acceptedAnswer": { "@type": "Answer", "text": "You don't need to know—we'll guide you. Our free consultation is designed to uncover your needs and recommend the ideal solution for your business." } },
-              { "@type": "Question", "name": "What industries do you work with?", "acceptedAnswer": { "@type": "Answer", "text": "From retail to healthcare, real estate, and beyond, we deliver AI solutions tailored to diverse industries. If your business has processes, we can automate and optimize them." } },
-              { "@type": "Question", "name": "What makes your team different from other AI agencies?", "acceptedAnswer": { "@type": "Answer", "text": "We don't just build AI—we build relationships. Our team works closely with you to design solutions that align perfectly with your goals." } },
-              { "@type": "Question", "name": "How do you ensure the AI solution will deliver results?", "acceptedAnswer": { "@type": "Answer", "text": "Our solutions are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient." } },
-              { "@type": "Question", "name": "Can AI solutions work with the tools/software I already use?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Our custom AI solutions integrate seamlessly with your existing platforms, whether it's a CRM, email system, or other internal tools." } }
+              { "@type": "Question", "name": "Is my business the right fit for AI systems?", "acceptedAnswer": { "@type": "Answer", "text": "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI systems built specifically to your business's needs." } },
+              { "@type": "Question", "name": "How do I know which AI system is right for my business?", "acceptedAnswer": { "@type": "Answer", "text": "You don't need to know—we'll guide you. We'll uncover your needs and recommend the ideal system for your business." } },
+              { "@type": "Question", "name": "What industries do you work with?", "acceptedAnswer": { "@type": "Answer", "text": "From retail to healthcare, real estate, and beyond, we deliver AI systems built for diverse industries. If your business has processes, we can automate and optimize them." } },
+              { "@type": "Question", "name": "What makes your team different from other AI agencies?", "acceptedAnswer": { "@type": "Answer", "text": "We don't just build AI—we build relationships. Our team works closely with you to design systems that align perfectly with your goals." } },
+              { "@type": "Question", "name": "How do you ensure the AI solution will deliver results?", "acceptedAnswer": { "@type": "Answer", "text": "Our systems are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient." } },
+              { "@type": "Question", "name": "Can AI systems work with the tools/software I already use?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Our custom AI systems integrate with your existing platforms, whether it's a CRM, email system, or other internal tools." } }
             ]
           }
         ]

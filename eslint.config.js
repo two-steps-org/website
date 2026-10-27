@@ -25,7 +25,8 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
@@ -33,6 +34,30 @@ export default [
     files: ['vite.config.ts', 'server/**/*.ts', 'netlify/**/*.ts'],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ['scripts/generate-blog-covers.mjs', 'scripts/load-blog-posts.mjs'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['src/**/*.check.ts'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: globals.serviceworker,
+    },
+  },
+  {
+    files: ['brag-output/**/*.js'],
+    languageOptions: {
+      globals: globals.browser,
     },
   },
 ];

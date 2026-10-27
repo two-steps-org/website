@@ -1,4 +1,4 @@
-import React, { type MouseEvent } from 'react';
+import { type MouseEvent } from 'react';
 import { ArrowRight, LucideIcon } from 'lucide-react';
 import clsx from 'clsx';
 import Logo from '../../Logo';

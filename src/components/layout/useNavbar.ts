@@ -45,7 +45,7 @@ export function useNavbar() {
       const attempt = () => {
         const el = document.getElementById(sectionId);
         if (el) {
-          const offset = el.dataset.pin !== undefined ? 0 : getNavScrollOffset();
+          const offset = getNavScrollOffset();
           const top = el.getBoundingClientRect().top + window.scrollY - offset;
           window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
           unlockManualNav(800);

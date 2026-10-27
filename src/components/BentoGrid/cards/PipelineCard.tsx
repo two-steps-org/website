@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { m } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { m, useInView } from 'framer-motion';
 import {
   Cpu,
   Zap,
@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import CardContainer from '../shared/CardContainer';
 import { useReducedMotionQuery } from '../../../utils/scroll';
-import { useInView } from '../../../utils/useInView';
 
 type Token = { text: string; color: string };
 type CodeLine = { lineNo: number; tokens: Token[]; stepIdx?: number };
@@ -90,8 +89,7 @@ const steps = [
     color: 'text-ink',
     bg: 'bg-ink/15',
     border: 'border-line-strong',
-    glow: '0 0 16px rgba(168,85,247,0.25)',
-    dot: 'bg-ink shadow-[0_0_10px_rgba(168,85,247,0.55)]',
+    dot: 'bg-ink',
   },
   {
     id: 2,
@@ -101,8 +99,7 @@ const steps = [
     color: 'text-ink',
     bg: 'bg-ink/15',
     border: 'border-line-strong',
-    glow: '0 0 16px rgba(59,130,246,0.25)',
-    dot: 'bg-ink shadow-[0_0_10px_rgba(59,130,246,0.55)]',
+    dot: 'bg-ink',
   },
   {
     id: 3,
@@ -112,8 +109,7 @@ const steps = [
     color: 'text-status-warning',
     bg: 'bg-[var(--status-warning-bg)]',
     border: 'border-line',
-    glow: '0 0 16px rgba(251,191,36,0.2)',
-    dot: 'bg-status-warning shadow-[0_0_10px_rgba(251,191,36,0.5)]',
+    dot: 'bg-status-warning',
   },
 ];
 
@@ -125,7 +121,8 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
   title = 'Agent Workflow',
 }) => {
   const [active, setActive] = useState(0);
-  const { ref, inView } = useInView();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: '80px' });
   const reduce = useReducedMotionQuery();
 
   useEffect(() => {
@@ -172,7 +169,7 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                 <span className="hidden md:inline font-mono text-[9px] text-muted">pipeline.ts</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className={`h-1.5 w-1.5 rounded-full transition-colors duration-500 ${!done ? 'animate-pulse bg-ink' : 'bg-status-success'}`} />
+                <div className={`h-1.5 w-1.5 rounded-full ${!done ? 'bg-ink' : 'bg-status-success'}`} />
                 <span className="hidden md:inline font-mono text-[8px] uppercase tracking-widest text-muted">{!done ? 'Running' : 'Done'}</span>
               </div>
             </div>
@@ -202,7 +199,7 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                             ))
                         }
                         {isActive && (
-                          <span className="ml-0.5 inline-block h-3.5 w-[3px] animate-pulse align-middle bg-ink" />
+                          <span className="ml-0.5 inline-block h-3.5 w-[3px] align-middle bg-ink" />
                         )}
                       </span>
                     </div>
@@ -229,8 +226,8 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                   <div key={s.id} className="relative flex flex-1 min-h-0 items-center gap-2.5">
                     {/* Timeline dot */}
                     <div className={`
-                      relative z-10 flex h-[13px] w-[13px] flex-shrink-0 items-center justify-center rounded-full transition-all duration-500
-                      ${isActive ? s.dot : isPast ? 'bg-status-success shadow-[0_0_8px_rgba(34,197,94,0.45)]' : 'border border-line-strong bg-surface-2'}
+                      relative z-10 flex h-[13px] w-[13px] flex-shrink-0 items-center justify-center rounded-full transition-[background-color,border-color] duration-500
+                      ${isActive ? s.dot : isPast ? 'bg-status-success' : 'border border-line-strong bg-surface-2'}
                     `}>
                       {isPast && <CheckCircle2 className="h-2 w-2 text-white" />}
                     </div>
@@ -238,7 +235,7 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                     {/* Step card */}
                     <div
                       className={`
-                        flex flex-1 h-full items-center gap-2.5 rounded-xl border px-2.5 transition-all duration-500
+                        flex flex-1 h-full items-center gap-2.5 rounded-xl border px-2.5 transition-[background-color,border-color] duration-500
                         ${isActive
                           ? `${s.bg} ${s.border}`
                           : isPast
@@ -246,11 +243,10 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                             : 'border-white/[0.03] bg-white/[0.01]'
                         }
                       `}
-                      style={isActive ? { boxShadow: s.glow } : undefined}
                     >
                       {/* Icon */}
                       <div className={`
-                        flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all duration-500
+                        flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-[background-color,border-color] duration-500
                         ${isActive ? `${s.bg} ${s.border}` : isPast ? 'border-line bg-[var(--status-success-bg)]' : 'border-line bg-surface/80'}
                       `}>
                         {isPast && !isActive
@@ -279,8 +275,8 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
               {/* Pipeline Complete row */}
               <div className="relative flex flex-1 min-h-0 items-center gap-2.5">
                 <div className={`
-                  relative z-10 flex h-[13px] w-[13px] flex-shrink-0 items-center justify-center rounded-full transition-all duration-500
-                  ${done ? 'bg-status-success shadow-[0_0_12px_rgba(34,197,94,0.65)]' : 'border border-line-strong bg-surface-2'}
+                  relative z-10 flex h-[13px] w-[13px] flex-shrink-0 items-center justify-center rounded-full transition-[background-color,border-color] duration-500
+                  ${done ? 'bg-status-success' : 'border border-line-strong bg-surface-2'}
                 `}>
                   {done && <CheckCircle2 className="h-2 w-2 text-white" />}
                 </div>
@@ -292,7 +288,6 @@ const PipelineCard: React.FC<{ className?: string; title?: string }> = ({
                     flex flex-1 h-full items-center justify-center gap-1.5 rounded-xl border transition-colors duration-500
                     ${done ? 'border-[var(--status-success)] bg-[var(--status-success-bg)]' : 'border-white/[0.03] bg-white/[0.01]'}
                   `}
-                  style={done ? { boxShadow: '0 0 20px rgba(34,197,94,0.15)' } : undefined}
                 >
                   {done && (
                     <m.span

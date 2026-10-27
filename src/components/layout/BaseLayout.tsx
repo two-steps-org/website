@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import BackgroundGradient from '../common/BackgroundGradient';
 import AgentLauncher from '../AgentLauncher';
@@ -7,10 +8,12 @@ import { BookCallProvider } from '../BookCall/BookCallProvider';
 const Footer = lazy(() => import('./Footer/Footer'));
 
 const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { pathname } = useLocation();
+
   return (
     <BookCallProvider>
       <div className="min-h-screen flex flex-col relative w-full">
-        <BackgroundGradient>
+        <BackgroundGradient pathname={pathname}>
           <div className="relative flex-1 flex flex-col z-10 w-full">
             <Navbar />
 

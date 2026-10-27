@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';

@@ -5,7 +5,7 @@ import { prefersReducedMotion as prefersReduced } from './motionPreference';
  *
  * Three jobs, one language:
  *   load      — Hero (and page headers) on first paint. `enter` / SplitText.
- *   explain   — Services pin, Process timeline. Scroll-linked, not decoration.
+ *   explain   — Process timeline and case-study scenes. Scroll-linked, not decoration.
  *   interact  — accordion, deck, drawer, modal, press. Spatial + feedback.
  *
  * Home sections use Scrub for reversible scroll scenes; these presets also
@@ -17,7 +17,6 @@ export const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 export const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 export const STAGGER = 0.06;
 export const DURATION = 0.36;
-export const press = { scale: 0.97 } as const;
 
 const uiIn = { duration: 0.22, ease: EASE_OUT };
 const uiOut = { duration: 0.2, ease: EASE_OUT };
@@ -144,7 +143,7 @@ export const drawY = (delay = 0) =>
   style: { transformOrigin: 'center top' },
 });
 
-/** Lands from above at 140%, like a stamp. Big numerals and step counters. */
+/** Lands from above at 112%, like a stamp. Big numerals and step counters. */
 export const stamp = (delay = 0) => 
   prefersReduced() ? AT_REST : ({
   initial: { opacity: 0, scale: 1.12, y: -6 },
@@ -153,7 +152,7 @@ export const stamp = (delay = 0) =>
   transition: { type: 'spring' as const, stiffness: 300, damping: 29, delay },
 });
 
-/** Springs in from 80%. Small things: icons, chips, avatars, dots. */
+/** Springs in from 92%. Small things: icons, chips, avatars, dots. */
 export const pop = (index = 0, offset = 0) => 
   prefersReduced() ? AT_REST : ({
   initial: { opacity: 0, scale: 0.92 },
@@ -173,14 +172,6 @@ export const enter = (delay = 0) =>
   transition: base(delay),
 });
 export const enterItem = (index: number, offset = 0) => enter(offset + index * STAGGER);
-
-export const enterPop = (index = 0, offset = 0) => 
-  prefersReduced() ? AT_REST : ({
-  ...mainThread,
-  initial: { opacity: 0, transform: 'scale(0.92)' },
-  animate: { opacity: 1, transform: 'scale(1)' },
-  transition: { type: 'spring' as const, stiffness: 420, damping: 33, delay: offset + index * 0.05 },
-});
 
 export const enterScale = (delay = 0) => 
   prefersReduced() ? AT_REST : ({

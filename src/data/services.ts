@@ -42,8 +42,10 @@ export const services: readonly Service[] = [
     details: {
       features: ['Multilingual voice assistants', 'Natural language processing', 'Integration with phones and apps', 'Real-time task execution'],
       benefits: ['Enhance customer experience', 'Reduce manual call handling', 'Ensure 24/7 availability', 'Support multiple languages'],
-      // TODO: add "Ours is live on this site. Talk to it before you talk to us." only after the voice demo URL is confirmed. It is not in this repo.
-      useCase: 'For industries needing real-time, voice-based support—deploy a single agent or a coordinated team to suit your needs.',
+      // TODO: link "Ask to hear it" once the voice demo URL is confirmed. The demo is not in this repo.
+      useCase:
+        "Companies losing work to calls nobody picks up, and companies who won't put a robot in front of a customer unless it's good enough.",
+      extendedDescription: 'We run our own. Ask to hear it.',
     },
   },
   {
@@ -53,7 +55,7 @@ export const services: readonly Service[] = [
     description:
       'Most companies bend their process to fit the software. We build the software around the process — the pipeline as you actually run it, the fields you actually use, the reports you actually read.',
     details: {
-      features: ['Fully customizable CRM platforms', 'Built-in automation', 'Seamless integration', 'Scalable solutions'],
+      features: ['Fully customizable CRM platforms', 'Built-in automation', 'Connects to the systems you already run', 'Grows as the business does'],
       benefits: ['Streamline workflows', 'Improve team collaboration', 'Save on costs', 'Scale effortlessly'],
       useCase: "Teams who've outgrown the off-the-shelf tool and are tired of the workarounds holding it together.",
       extendedDescription: 'It connects to what you already have. Nobody has to change how they work to use it.',
@@ -66,8 +68,8 @@ export const services: readonly Service[] = [
     description:
       'Phyizit and Shift Manager started as blank files. We designed them, built them, shipped them and still run them.',
     details: {
-      features: ['Custom software solutions', 'Robust architecture', 'API integration', 'Unique requirements'],
-      benefits: ['Build unique products', 'Gain competitive edge', 'Ensure seamless UX/UI', 'Adapt as needed'],
+      features: ['Software built for one company', 'Architecture that holds under load', 'API integration', 'Unique requirements'],
+      benefits: ['Build unique products', 'Gain competitive edge', 'An interface people want to use', 'Adapt as needed'],
       useCase:
         "Founders and companies building something that doesn't exist yet, who want it done properly the first time.",
       extendedDescription:

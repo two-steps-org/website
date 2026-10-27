@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../../utils/motionPreference';
 
 interface CountUpProps {
@@ -11,46 +11,43 @@ interface CountUpProps {
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
-/**
- * Counts from zero to `value` on mount.
- *
- * The design drives these from an IntersectionObserver, but every place we use
- * one is inside a modal that mounts already in view, so mount is the same
- * moment and needs no observer. Reduced motion renders the final value with no
- * animation, per the brief's acceptance criteria.
- */
+/** Counts from zero once the outcome figure scrolls into view. */
 const CountUp: React.FC<CountUpProps> = ({ value, prefix = '', suffix = '', duration = 1400 }) => {
-  const [display, setDisplay] = useState(() => (prefersReducedMotion() ? value : 0));
-  const frameRef = useRef<number | null>(null);
+  const node = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const el = node.current;
+    if (!el) return;
+    const write = (next: number) => {
+      el.textContent = `${prefix}${Math.round(next).toLocaleString('en-GB')}${suffix}`;
+    };
     if (prefersReducedMotion()) {
-      setDisplay(value);
+      write(value);
       return;
     }
-
-    const start = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / duration);
-      setDisplay(value * easeOutCubic(progress));
-      if (progress < 1) {
-        frameRef.current = requestAnimationFrame(tick);
-      }
-    };
-
-    frameRef.current = requestAnimationFrame(tick);
+    write(0);
+    let frame = 0;
+    let started = false;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting || started) return;
+      started = true;
+      observer.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min(1, (now - start) / duration);
+        write(value * easeOutCubic(progress));
+        if (progress < 1) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    observer.observe(el);
     return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
     };
-  }, [value, duration]);
+  }, [value, prefix, suffix, duration]);
 
-  return (
-    <>
-      {prefix}
-      {Math.round(display).toLocaleString('en-GB')}
-      {suffix}
-    </>
-  );
+  return <span ref={node} />;
 };
 
 export default CountUp;

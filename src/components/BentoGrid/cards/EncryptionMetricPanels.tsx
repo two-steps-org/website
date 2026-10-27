@@ -1,4 +1,3 @@
-import React from 'react';
 import { m } from 'framer-motion';
 import { Activity, Lock } from 'lucide-react';
 
@@ -29,7 +28,7 @@ export function MetricCodePreviewPanel({
           <span className="font-mono text-[9px] text-muted">MetricCard.tsx</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`h-1.5 w-1.5 rounded-full ${isSyncing ? 'animate-pulse bg-ink' : 'bg-line-strong'}`} />
+          <div className={`h-1.5 w-1.5 rounded-full ${isSyncing ? 'bg-ink' : 'bg-line-strong'}`} />
           <span className="font-mono text-[8px] uppercase tracking-widest text-muted">
             {isSyncing ? 'Syncing' : 'Saved'}
           </span>
@@ -144,11 +143,11 @@ export function LiveMetricPanel({
         </div>
         <p className="text-[10px] tracking-[0.13em] text-muted">
           {label}
-          {activeField === 'label' && <span className="ml-1 inline-block h-2 w-1 animate-pulse bg-ink align-middle" />}
+          {activeField === 'label' && <span className="ml-1 inline-block h-2 w-1 bg-ink align-middle" />}
         </p>
         <h4 className="mt-1 text-3xl font-black tracking-tight text-white/95">
           {value}
-          {activeField === 'value' && <span className="ml-1 inline-block h-5 w-1 animate-pulse bg-ink align-middle" />}
+          {activeField === 'value' && <span className="ml-1 inline-block h-5 w-1 bg-ink align-middle" />}
         </h4>
       </div>
 

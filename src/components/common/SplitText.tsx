@@ -16,7 +16,7 @@ interface SplitTextProps {
   className?: string;
   stagger?: number;
   delay?: number;
-  mode?: 'enter' | 'reveal' | 'static';
+  mode?: 'enter' | 'reveal';
   /** Hold an entrance until its layout is ready, such as after fonts load. */
   ready?: boolean;
 }
@@ -75,21 +75,6 @@ const SplitText: React.FC<SplitTextProps> = ({ text, segments, as = 'h2', classN
       breakBefore: index === 0 && run.breakBefore,
     }));
   });
-  if (mode === 'static') {
-    const Tag = as;
-    return (
-      <Tag className={className} aria-label={label}>
-        {words.map((word) => (
-          <React.Fragment key={word.id}>
-            {word.breakBefore && <br />}
-            <span className={maskClass} aria-hidden="true">
-              <span className={`inline-block ${word.className ?? ''}`}>{word.text}</span>
-            </span>
-          </React.Fragment>
-        ))}
-      </Tag>
-    );
-  }
   if (!reduce && mode === 'reveal') return <ScrollHeading as={as} className={className} words={words} label={label} />;
 
   const Tag = m[as];

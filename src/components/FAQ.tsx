@@ -11,42 +11,42 @@ import { EASE_OUT, mainThread } from '../utils/motion';
 
 const faqs = [
   {
-    question: 'Is my business the right fit for AI solutions?',
+    question: 'Is my business the right fit for AI systems?',
     answer:
-      "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI solutions tailored specifically to your business's needs. Start a conversation, and let's explore how we can help you succeed.",
+      "If you want to cut manual work or give customers faster answers, then yes. At Two Steps, we craft AI systems built specifically to your business's needs. Start a conversation, and let's explore how we can help you succeed.",
   },
   {
-    question: 'How do I know which AI solution is right for my business?',
+    question: 'How do I know which AI system is right for my business?',
     answer:
-      "You don't need to know—we'll guide you. Our free consultation is designed to uncover your needs and recommend the ideal solution for your business. Let's take that first step together.",
+      "You don't need to know—we'll guide you. We'll uncover your needs and recommend the ideal system for your business. Let's take that first step together.",
   },
   {
     question: 'What industries do you work with?',
     answer:
-      'From retail to healthcare, real estate, and beyond, we deliver AI solutions tailored to diverse industries. If your business has processes, we can automate and optimize them—no matter your niche or focus.',
+      'We have built systems for retail, healthcare, and real estate. If your business has a process to automate, we can take that on too.',
   },
   {
     question: 'What makes your team different from other AI agencies?',
     answer:
-      "We don't just build AI—we build relationships. Our team works closely with you to design solutions that align perfectly with your goals. Your success is our success, and we're with you every step of the way.",
+      "We don't just build AI—we build relationships. Our team works closely with you to design systems that align perfectly with your goals. Your success is our success, and we're with you every step of the way.",
   },
   {
     question: 'How do you ensure the AI solution will deliver results?',
     answer:
-      "Our solutions are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient.",
+      "Our systems are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient.",
   },
   {
-    question: 'Can AI solutions work with the tools/software I already use?',
+    question: 'Can AI systems work with the tools/software I already use?',
     answer:
-      "Absolutely. Our custom AI solutions integrate seamlessly with your existing platforms, whether it's a CRM, email system, or other internal tools. We'll make sure everything works together effortlessly.",
+      "Absolutely. Our custom AI systems connect to the CRM, email, or other internal tools you already use, and we test that the handoff between them works.",
   },
 ];
 
 const panelMotion = (reduce: boolean) => ({
   ...mainThread,
-  initial: { height: 0, opacity: 0 },
-  animate: { height: 'auto' as const, opacity: 1 },
-  exit: { height: 0, opacity: 0 },
+  initial: { gridTemplateRows: '0fr', opacity: 0 },
+  animate: { gridTemplateRows: '1fr', opacity: 1 },
+  exit: { gridTemplateRows: '0fr', opacity: 0 },
   transition: { duration: reduce ? 0 : 0.22, ease: EASE_OUT },
 });
 
@@ -94,14 +94,16 @@ const FAQ = () => {
               <AnimatePresence initial={false}>
                 {isOpen && (
                   <m.div
-                    key={panelId}
+                    key={faq.question}
                     id={panelId}
                     {...panelMotion(reduceMotion)}
-                    className="overflow-hidden"
+                    className="grid overflow-hidden"
                   >
-                    <p className="max-w-[62ch] pb-5 pr-10 text-[17px] leading-relaxed text-muted">
-                      {faq.answer}
-                    </p>
+                    <div className="min-h-0 overflow-hidden">
+                      <p className="max-w-[62ch] pb-5 pr-10 text-[17px] leading-relaxed text-muted">
+                        {faq.answer}
+                      </p>
+                    </div>
                   </m.div>
                 )}
               </AnimatePresence>

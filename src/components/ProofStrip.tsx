@@ -62,7 +62,7 @@ const ProofStrip: React.FC = () => {
               className="flex h-[88px] items-center justify-center border-r border-b border-[#e6e6e6] px-4"
             >
               <Scrub effect="rise" delay={i * 0.06}
-                className="font-tight text-[15px] font-medium uppercase tracking-[0.14em] text-[#8a8a8a] transition-colors duration-300 hover:text-[#0a0a0a] text-center"
+                className="font-tight text-[15px] font-medium uppercase tracking-[0.14em] text-muted transition-colors duration-300 hover:text-[#0a0a0a] text-center"
               >
                 {name}
               </Scrub>

@@ -44,7 +44,7 @@ const Navbar = () => {
           href="/#home"
           onClick={(event) => handleNavigation('/#home', 'Home', event)}
           aria-label="Go to Home"
-          className="pointer-events-auto flex items-center focus:outline-none"
+          className="pointer-events-auto flex items-center"
         >
           <Logo />
         </a>

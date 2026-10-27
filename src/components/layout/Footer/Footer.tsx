@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, type MouseEvent } from 'react';
-import { useReducedMotionQuery } from '../../../utils/scroll';
+import { useMediaQuery, useReducedMotionQuery } from '../../../utils/scroll';
 import { useLocation, useNavigate } from 'react-router-dom';
 import LegalModal from './LegalModal';
 import Scrub from '../../common/Scrub';
-import { useDeviceType } from '../../../utils/responsive/hooks/useDeviceType';
 import { hapticFeedback } from '../../../utils/mobile/hapticFeedback';
 import {
   FooterBottomBar,
@@ -25,8 +24,7 @@ const Footer: React.FC = () => {
   const reduceMotion = useReducedMotionQuery();
   const navigate = useNavigate();
   const location = useLocation();
-  const deviceType = useDeviceType();
-  const isMobile = deviceType === 'mobile';
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const [selectedLegal, setSelectedLegal] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     navigation: false,

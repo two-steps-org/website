@@ -11,6 +11,8 @@ import assert from 'node:assert/strict';
 import { parseMetric, toneCss, TONE_CSS } from './tone';
 import { caseStudies } from './data';
 import { CASE_STUDY_META } from './seoMeta';
+// routes.mjs is plain JavaScript shared with the prerender script.
+// @ts-expect-error no declaration file for the routes module
 import { CASE_STUDY_SLUGS } from '../../../scripts/routes.mjs';
 
 // Sign is kept as a prefix so the count-up animates 0 → 70, not 0 → "+70".

@@ -7,7 +7,7 @@ import Section from './common/Section';
 import Parallax from './common/Parallax';
 import ErrorBoundary from './common/ErrorBoundary';
 import SplitText from './common/SplitText';
-import { useDeviceType } from '../utils/responsive/hooks/useDeviceType';
+import { useMediaQuery } from '../utils/scroll';
 import { useBookCall } from './BookCall/useBookCall';
 import { useReducedMotionQuery } from '../utils/scroll';
 import { EASE_OUT, enterScale, mainThread } from '../utils/motion';
@@ -25,7 +25,7 @@ const Hero: React.FC = () => {
     // Capped so a blocked font CDN cannot leave the hero invisible.
     const faces = ['300 1em "Inter Tight"', '1em Inter', 'italic 1em "Instrument Serif"'];
     Promise.race([
-      Promise.all(faces.map(face => document.fonts.load(face))).then(() => document.fonts.ready),
+      Promise.all(faces.map(face => document.fonts.load(face))).then(() => document.fonts.ready).catch(() => undefined),
       new Promise(resolve => setTimeout(resolve, 1200)),
     ]).then(() => {
       if (active) setFontsReady(true);
@@ -40,8 +40,7 @@ const Hero: React.FC = () => {
     animate: ready ? { opacity: 1, transform: horizontal ? 'translateX(0px)' : 'translateY(0px)' } : undefined,
     transition: { type: 'tween' as const, duration: reduce ? 0 : 0.4, ease: EASE_OUT, delay: reduce ? 0 : delay },
   });
-  const deviceType = useDeviceType();
-  const isMobile = deviceType === 'mobile';
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const { open } = useBookCall();
 
   return (

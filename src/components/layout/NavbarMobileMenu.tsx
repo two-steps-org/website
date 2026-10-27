@@ -43,7 +43,7 @@ export const NavbarMobileMenu = ({
               href="/#home"
               onClick={(event) => handleNavigation('/#home', 'Home', event)}
               aria-label="Go to Home"
-              className="flex items-center focus:outline-none"
+              className="flex items-center"
             >
               <Logo />
             </a>
@@ -81,7 +81,7 @@ export const NavbarMobileMenu = ({
                     </span>
                     <ArrowRight
                       className={clsx(
-                        'w-4 h-4 ml-2 text-ink transform transition-all duration-300',
+                        'w-4 h-4 ml-2 text-ink transform transition-[opacity,transform] duration-300',
                         activeTab === item.name
                           ? 'opacity-100 translate-x-0'
                           : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0',

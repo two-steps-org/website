@@ -18,6 +18,13 @@ if (typeof window !== 'undefined') {
     history.scrollRestoration = 'manual';
   }
   window.scrollTo(0, 0);
+  if ('serviceWorker' in navigator) {
+    // Only update a worker that is already installed. A fresh register of the
+    // cleanup script would install, unregister, and reload on every visit.
+    navigator.serviceWorker.getRegistration().then((registration) => {
+      if (registration) navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }).catch(() => {});
+  }
 }
 
 // Disable StrictMode in production for better performance.

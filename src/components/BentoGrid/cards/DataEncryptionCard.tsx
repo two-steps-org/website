@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import clsx from 'clsx';
-import { m } from 'framer-motion';
+import { m, useInView } from 'framer-motion';
 import { FileCode, Cloud, Lock } from 'lucide-react';
 import CardContainer from '../shared/CardContainer';
 import { useReducedMotionQuery } from '../../../utils/scroll';
-import { useInView } from '../../../utils/useInView';
 import ScrollAccent from '../../common/ScrollAccent';
 
 const fileTypes = [
@@ -41,7 +40,8 @@ const DataEncryptionCard: React.FC<{ className?: string; title?: string }> = ({
   className,
   title = 'Data Encryption',
 }) => {
-  const { ref, inView } = useInView();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: '80px' });
   const reduce = useReducedMotionQuery();
   const running = inView && !reduce;
 
@@ -82,7 +82,7 @@ const DataEncryptionCard: React.FC<{ className?: string; title?: string }> = ({
                 {running && (
                   <m.div
                     data-encryption-glow
-                    className="pointer-events-none absolute inset-0 rounded-full border border-blue-400/40 bg-blue-500/20 shadow-[0_0_25px_rgba(59,130,246,0.4)]"
+                    className="pointer-events-none absolute inset-0 rounded-full border border-blue-400/40 bg-blue-500/20"
                     animate={{ opacity: [0.3, 0.7, 0.3] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />

@@ -2,7 +2,13 @@ import React, { useRef } from 'react';
 import { m, useInView, useTransform } from 'framer-motion';
 import { useReducedMotionQuery, useSectionProgress, ScrollProgressContext } from '../../utils/scroll';
 
-export type ScrollEffect = 'rise' | 'assemble' | 'shutter' | 'focus' | 'timeline' | 'portrait' | 'unfold' | 'curtain' | 'signature';
+const narrowQuery = typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)') : null;
+let narrow = narrowQuery?.matches ?? false;
+narrowQuery?.addEventListener('change', (event) => {
+  narrow = event.matches;
+});
+
+export type ScrollEffect = 'rise' | 'assemble' | 'shutter' | 'focus' | 'timeline' | 'portrait' | 'curtain' | 'signature';
 
 interface ScrubProps {
   as?: 'div' | 'section' | 'article' | 'li' | 'figure';
@@ -28,7 +34,6 @@ const START = {
   focus: { y: 24, scale: 0.9, opacity: 0.2, rotate: 0 },
   timeline: { y: 0, scale: 1, opacity: 0.2, rotate: 0 },
   portrait: { y: 48, scale: 0.96, opacity: 0.3, rotate: 0 },
-  unfold: { y: 20, scale: 1, opacity: 0.2, rotate: 0 },
   curtain: { y: 0, scale: 1, opacity: 0.4, rotate: 0 },
   signature: { y: 32, scale: 1, opacity: 0.35, rotate: 0 },
 } as const;
@@ -51,8 +56,7 @@ const AnimatedScrub: React.FC<ScrubProps> = ({
   const transform = useTransform(progress, value => {
     const remaining = 1 - value;
     if (remaining < 0.00001) return 'none';
-    const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const travel = mobile ? 0.55 : 1;
+    const travel = narrow ? 0.55 : 1;
     const tx = x * remaining * travel;
     const ty = (y ?? preset.y) * remaining * travel;
     const sc = 1 - (1 - (scale ?? preset.scale)) * remaining;
@@ -68,7 +72,6 @@ const AnimatedScrub: React.FC<ScrubProps> = ({
     const remaining = 1 - value;
     if (effect === 'shutter') return `inset(${12 * remaining}% ${8 * remaining}% round ${24 * remaining}px)`;
     if (effect === 'curtain') return `inset(0 ${48 * remaining}% 0 ${48 * remaining}%)`;
-    if (effect === 'unfold') return `inset(0 0 ${90 * remaining}% 0)`;
     if (effect === 'timeline') return x < 0
       ? `inset(0 0 0 ${60 * remaining}%)`
       : `inset(0 ${60 * remaining}% 0 0)`;

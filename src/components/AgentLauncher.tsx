@@ -95,7 +95,7 @@ const AgentLauncher: React.FC = () => {
           </button>
         </div>
 
-        <p className="m-0 px-3.5 py-3 ts-surface text-sm leading-[1.5] text-ink">
+        <p className="m-0 px-3.5 py-3 ts-surface text-base leading-[1.5] text-ink">
           {WELCOME}
         </p>
 

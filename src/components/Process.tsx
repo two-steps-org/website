@@ -39,7 +39,7 @@ const DesktopStep: React.FC<{ step: (typeof steps)[number]; index: number }> = (
             </div>
             <h3 className="ts-h3 text-ink">{step.title}</h3>
           </div>
-          <p className="text-sm leading-relaxed text-muted">{step.fullDescription}</p>
+          <p className="text-base leading-relaxed text-muted">{step.fullDescription}</p>
         </div>
       </Scrub>
 

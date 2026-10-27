@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import clsx from 'clsx';
-import { useInView } from '../../utils/useInView';
+import { useInView } from 'framer-motion';
 import { useReducedMotionQuery } from '../../utils/scroll';
 import {
   Database,
@@ -51,7 +51,8 @@ const CustomIcon = ({ className }: { className?: string }) => (
 );
 
 export function AINetworkVisualization({ className, simplified = false }: AINetworkVisualizationProps) {
-  const { ref, inView } = useInView('0px');
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: '0px' });
   const reduce = useReducedMotionQuery();
   const running = inView && !reduce;
 

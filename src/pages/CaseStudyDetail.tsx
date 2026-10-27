@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useLayoutEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { caseStudies } from '../components/CaseStudies/data';

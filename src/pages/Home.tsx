@@ -69,6 +69,7 @@ const Home = () => {
       return () => {
         window.clearTimeout(alignTimer);
         window.clearTimeout(restoreTimer);
+        root.style.scrollBehavior = previousScrollBehavior;
       };
     }
 

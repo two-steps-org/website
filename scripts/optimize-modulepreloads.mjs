@@ -15,7 +15,6 @@ const NON_CRITICAL_PRELOAD_PATTERNS = [
   /\/assets\/Process-.*\.js/,
   /\/assets\/Section-.*\.js/,
   /\/assets\/hapticFeedback-.*\.js/,
-  /\/assets\/useDeviceType-.*\.js/,
   /\/assets\/icons-vendor-.*\.js/,
 ];
 

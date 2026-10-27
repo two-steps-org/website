@@ -200,7 +200,7 @@ export function CaseStudyBuildSection({ study }: CaseStudyBuildSectionProps) {
             <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-4 md:gap-[clamp(24px,4vw,96px)] items-end">
               <m.span
                 {...stamp()}
-                className="font-tight text-[clamp(48px,6vw,96px)] font-light tracking-[-0.05em] leading-[0.9] text-line-strong origin-bottom-left"
+                className="font-tight text-[clamp(48px,6vw,96px)] font-light tracking-[-0.03em] leading-[0.9] text-line-strong origin-bottom-left"
               >
                 {String(index + 1).padStart(2, '0')}
               </m.span>
@@ -375,7 +375,7 @@ export function CaseStudyMoreWorkSection({ others, heading = 'More work' }: Case
                   alt=""
                   aria-hidden="true"
                   loading="lazy"
-                  className="absolute inset-0 -z-10 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 -z-10 w-full h-full object-cover"
                 />
                 <div
                   className="absolute inset-0 -z-10 opacity-70 mix-blend-multiply"

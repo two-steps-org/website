@@ -4,45 +4,7 @@ import Section from './common/Section';
 import ResponsiveImage from './common/ResponsiveImage';
 import SplitText from './common/SplitText';
 import Scrub from './common/Scrub';
-
-export const team = [
-  {
-    name: 'Jonathan Insell',
-    role: 'CEO & Founder',
-    image: '/Yoni.jpg',
-    social: {
-      linkedin: 'https://www.linkedin.com/in/jonathan-charles-insell/',
-      instagram: 'https://www.instagram.com/twostepsai/',
-    },
-  },
-  {
-    name: 'Shay Bushary',
-    role: 'Head Developer',
-    image: '/Shay.jpeg',
-    social: {
-      linkedin: 'https://www.linkedin.com/in/shaybushary/',
-      instagram: 'https://www.instagram.com/twostepsai/',
-    },
-  },
-  {
-    name: 'Ziv Edri',
-    role: 'CFO',
-    image: '/Ziv.jpeg',
-    social: {
-      linkedin: 'https://www.linkedin.com/in/ziv-edri/',
-      instagram: 'https://www.instagram.com/twostepsai/',
-    },
-  },
-  {
-    name: 'Tal Sumroy',
-    role: 'Head of Marketing',
-    image: '/Tal.jpeg',
-    social: {
-      linkedin: 'https://www.linkedin.com/in/tal-sumroy/',
-      instagram: 'https://www.instagram.com/twostepsai/',
-    },
-  },
-];
+import { team } from '../data/team';
 
 const MemberSocialLinks: React.FC<{
   member: (typeof team)[number];
@@ -77,7 +39,7 @@ const PortraitCard: React.FC<{ member: (typeof team)[number] }> = ({ member }) =
         <ResponsiveImage
           src={member.image}
           alt={member.name}
-          className="h-full w-full object-cover brightness-90 transition-[transform,filter] duration-700 group-hover:scale-110 group-hover:brightness-100 group-hover:contrast-125"
+          className="h-full w-full object-cover brightness-90 transition-[filter] duration-700 group-hover:brightness-100 group-hover:contrast-125"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/30 to-transparent" />
       </div>

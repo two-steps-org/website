@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import clsx from 'clsx';
+import { useInView } from 'framer-motion';
 import { useReducedMotionQuery } from '../../../utils/scroll';
 import CardContainer from '../shared/CardContainer';
-import { useInView } from '../../../utils/useInView';
 
 const logosRow1 = [
   { title: "OpenAI", path: "M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07z" },
@@ -32,7 +32,8 @@ const IntegrationCard: React.FC<{ className?: string; title?: string }> = ({
   className,
   title = 'We connect to everything',
 }) => {
-  const { ref, inView } = useInView();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: '80px' });
   const reduce = useReducedMotionQuery();
   const enableMarquee = inView && !reduce;
 

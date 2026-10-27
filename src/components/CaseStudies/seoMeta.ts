@@ -10,7 +10,7 @@ export const CASE_STUDY_META: Record<string, { title: string; description: strin
   'task-automation-google-calendar': {
     title: 'Task Automation via Google Calendar API',
     description:
-      'Developed a Telegram bot integrated with Google Calendar API to streamline scheduling tasks and enable instant access to real-time calendar information with a single click.',
+      'Developed a Telegram bot on the Google Calendar API so the team can pull an event in one tap instead of searching the calendar by hand.',
   },
   'ai-chat-agent-barber': {
     title: 'AI Chat Agent for a Home-Based Barber',
@@ -30,6 +30,6 @@ export const CASE_STUDY_META: Record<string, { title: string; description: strin
   'crm-accounting-firm': {
     title: 'CRM Build for an Accounting Firm',
     description:
-      'Implemented a tailored CRM system to streamline client data management, automate routine tasks, and improve communication for an accounting firm.',
+      'Built a CRM on GoHighLevel for an accounting firm so client records, tasks, and messages live in one place.',
   },
 };
