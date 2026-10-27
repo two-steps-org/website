@@ -34,9 +34,9 @@ const getPageMetadata = (pathname: string) => {
 
   const pages: Record<string, { title: string; description: string; type: string }> = {
     '/': {
-      title: 'AI agents and software that run your operation · Two Steps',
+      title: 'Two Steps AI',
       description:
-        'Two Steps is a Tel Aviv studio building AI agents, voice agents and custom software that run in production. Scoped and shipped by the same people. Delivered for EY and Bulthaup.',
+        'Two Steps is an AI studio building custom systems for companies with a standard to protect. Delivered for EY and Bulthaup.',
       type: 'WebPage',
     },
     '/services': {
@@ -52,9 +52,9 @@ const getPageMetadata = (pathname: string) => {
       type: 'AboutPage',
     },
     '/case-studies': {
-      title: 'Work · Two Steps',
+      title: 'Our Work - Two Steps AI',
       description:
-        'Client work delivered with EY and for Bulthaup, and the products we build and run ourselves. A few engagements are not shown; some clients prefer it that way.',
+        'See our work: live AI systems running in production, and how they changed the businesses they were built for.',
       type: 'CollectionPage',
     },
     '/blog': {

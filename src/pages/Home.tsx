@@ -4,6 +4,8 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import Hero from '../components/Hero';
+import ProofStrip from '../components/ProofStrip';
+import WorkRail from '../components/WorkRail';
 import CtaBand from '../components/CtaBand';
 import Services from '../components/Services';
 import AboutTeaser from '../components/AboutTeaser';
@@ -82,8 +84,11 @@ const Home = () => {
         <Hero />
       </section>
 
+      <ProofStrip />
+
       <Services />
 
+      <WorkRail />
       <CtaBand />
 
       <AboutTeaser />

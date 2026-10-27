@@ -39,11 +39,13 @@ export function CaseStudyDetailHero({ study, ground }: CaseStudyDetailHeroProps)
     >
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         {/* The ground lags the page as you scroll out of the hero. */}
-        {study.image && (
-          <Parallax distance={140} className="absolute inset-0">
-            <img src={study.image} alt="" className="w-full h-full object-cover scale-110 blur-[6px]" />
-          </Parallax>
-        )}
+        <Parallax distance={140} className="absolute inset-0">
+          <img
+            src={study.image}
+            alt=""
+            className="w-full h-full object-cover scale-110 blur-[6px]"
+          />
+        </Parallax>
         <div className="absolute inset-0 opacity-70 mix-blend-multiply" style={{ background: ground }} />
         <div
           className="absolute inset-0"
@@ -279,20 +281,18 @@ interface CaseStudyOutcomesSectionProps {
 }
 
 export function CaseStudyOutcomesSection({ study }: CaseStudyOutcomesSectionProps) {
-  const outcomes = (study.metrics ?? []).map(({ label, value, source }) => ({
+  const outcomes = Object.entries(study.metrics).map(([label, raw]) => ({
     label,
-    raw: value,
-    source,
-    parsed: parseMetric(value),
+    raw,
+    parsed: parseMetric(raw),
   }));
-  if (!outcomes.length) return null;
 
   return (
     <Scrub as="section" className={`${SECTION} pt-[clamp(80px,9vw,128px)]`}>
       <div className="flex flex-col gap-10">
         <SectionHead label="Outcomes" heading="What changed." />
         <dl className="m-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-px bg-line border border-line rounded-card overflow-hidden">
-          {outcomes.map(({ label, raw, source, parsed }, i) => (
+          {outcomes.map(({ label, raw, parsed }, i) => (
             <m.div
               key={label}
               {...scaleItem(i, 0.15)}
@@ -306,7 +306,6 @@ export function CaseStudyOutcomesSection({ study }: CaseStudyOutcomesSectionProp
                 )}
               </dd>
               <dt className="text-[15px] text-muted border-t border-line pt-3.5">{label}</dt>
-              <p className="m-0 font-mono text-[12px] text-muted">{source}</p>
             </m.div>
           ))}
         </dl>
@@ -371,15 +370,13 @@ export function CaseStudyMoreWorkSection({ others, heading = 'More work' }: Case
                 to={`/case-studies/${other.slug}`}
                 className="group relative isolate flex flex-col justify-between gap-8 aspect-[16/9] rounded-card overflow-hidden p-7 sm:p-8 transition-transform duration-500 hover:-translate-y-1"
               >
-                {other.image && (
-                  <img
-                    src={other.image}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                    className="absolute inset-0 -z-10 w-full h-full object-cover"
-                  />
-                )}
+                <img
+                  src={other.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  className="absolute inset-0 -z-10 w-full h-full object-cover"
+                />
                 <div
                   className="absolute inset-0 -z-10 opacity-70 mix-blend-multiply"
                   style={{ background: toneCss(other.tone) }}

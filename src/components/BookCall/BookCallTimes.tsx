@@ -1,4 +1,3 @@
-import { useState, type FormEvent } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BookingDay, BookingSlot } from '../../data/booking';
@@ -25,64 +24,6 @@ function weekdayShort(ymd: string, timeZone: string) {
     new Date(Date.UTC(year, month - 1, day, 12, 0, 0)),
   );
   return WEEKDAY_SHORT.includes(label as (typeof WEEKDAY_SHORT)[number]) ? label : label.slice(0, 3);
-}
-
-/**
- * The calendar is down. Never a dead end: a way to retry, a way to write, and
- * a one-field form that lands in Netlify Forms (the hidden `lead` form in
- * index.html) so the visit still becomes a conversation.
- */
-function BookCallOffline({ error, onRetry }: { error: string; onRetry: () => void }) {
-  const [email, setEmail] = useState('');
-  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (state === 'sending') return;
-    setState('sending');
-    const body = new URLSearchParams({
-      'form-name': 'lead',
-      email: email.trim(),
-      message: 'Booking was offline; please find a time.',
-      source: typeof window === 'undefined' ? '' : window.location.pathname,
-    });
-    try {
-      const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
-      setState(res.ok ? 'sent' : 'failed');
-    } catch {
-      setState('failed');
-    }
-  };
-  return (
-    <div className="flex h-full max-w-[380px] flex-col items-start justify-center gap-5">
-      <p className="m-0 text-[14px] text-[color:var(--status-error-text)]">{error}</p>
-      <p className="m-0 text-[15px] leading-[1.5] text-ink">
-        Booking is offline right now. Leave your email and we will find a time, or write to{' '}
-        <a className="underline underline-offset-4" href="mailto:yoni.insell@twosteps.ai">yoni.insell@twosteps.ai</a> or call{' '}
-        <a className="underline underline-offset-4" href="tel:+972544831148">+972 54 483 1148</a>.
-      </p>
-      {state === 'sent' ? (
-        <p className="m-0 text-[14px] text-muted">Got it. We will email you to find a time.</p>
-      ) : (
-        <form onSubmit={submit} className="flex w-full flex-col gap-3">
-          <label className="block">
-            <span className="ts-eyebrow">Email</span>
-            <input className="ts-field mt-2" type="email" name="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
-          {state === 'failed' ? (
-            <p className="m-0 text-[13px] text-[color:var(--status-error-text)]">That did not send. Email us instead.</p>
-          ) : null}
-          <div className="flex flex-wrap gap-2">
-            <button type="submit" disabled={state === 'sending'} className="ts-pill h-11 px-5 text-[14px] disabled:opacity-40">
-              {state === 'sending' ? 'Sending…' : 'Find me a time'}
-            </button>
-            <button type="button" onClick={onRetry} className="ts-pill-ghost h-11 px-5 text-[14px]">
-              Try again
-            </button>
-          </div>
-        </form>
-      )}
-    </div>
-  );
 }
 
 function groupSlots(slots: BookingSlot[], timeZone: string) {
@@ -348,7 +289,12 @@ export function BookCallTimes({
   return (
     <m.div {...fade} className="flex h-full min-h-0 flex-col">
       {loadError ? (
-        <BookCallOffline error={loadError} onRetry={onRetry} />
+        <div className="flex h-full flex-col items-start justify-center gap-4">
+          <p className="m-0 text-[14px] text-[color:var(--status-error-text)]">{loadError}</p>
+          <button type="button" onClick={onRetry} className="ts-pill-ghost h-11 px-5 text-[14px]">
+            Try again
+          </button>
+        </div>
       ) : (
         <>
       {notice ? (

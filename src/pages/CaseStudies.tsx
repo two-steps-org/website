@@ -22,7 +22,9 @@ const EntryFacts: React.FC<{ study: CaseStudy }> = ({ study }) => {
           { label: 'Before', value: study.before, strong: false },
           { label: 'After', value: study.after, strong: true },
         ]
-      : (study.metrics ?? []).slice(0, 2).map(({ label, value }) => ({ label, value, strong: true }));
+      : Object.entries(study.metrics)
+          .slice(0, 2)
+          .map(([label, value]) => ({ label, value, strong: true }));
 
   if (!pairs.length) return null;
 
@@ -61,11 +63,11 @@ const CaseStudies: React.FC = () => {
               mode="enter"
               delay={0.1}
               stagger={0.08}
-              className="ts-display text-ink max-w-[16ch] m-0"
-              text="Client work, and the products we run ourselves."
+              className="ts-display text-ink max-w-[13ch] m-0"
+              text="Proof, not promises."
             />
             <m.p {...enter(0.3)} className="text-[clamp(17px,1.4vw,19px)] text-muted max-w-[48ch] m-0">
-              A few engagements are not shown. Some clients prefer it that way.
+              Real systems, live right now. Every project below is running in production.
             </m.p>
           </div>
         </section>
@@ -90,15 +92,13 @@ const CaseStudies: React.FC = () => {
                       imageFirst ? 'lg:order-1' : 'lg:order-2'
                     }`}
                   >
-                    {study.image && (
-                      <img
-                        src={study.image}
-                        alt=""
-                        aria-hidden="true"
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    )}
+                    <img
+                      src={study.image}
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
 
                     <span
                       className="relative inline-flex items-center h-6 px-2.5 rounded-full bg-[#F5F6F8] text-[#0A0A0C] text-[11px] font-semibold tracking-[0.08em]"

@@ -2,14 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-tight-latin.woff2" crossorigin>
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Inter+Tight:wght@300..600&family=Instrument+Serif:ital@1&display=swap"
+    />
     <link rel="icon" type="image/png" href="/Icon - Two Steps.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0A0A0C" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Cache-Control" content="max-age=31536000">
     <style>
       html,
       body {
@@ -31,7 +36,7 @@
         window.setTimeout(reveal, 4000);
       })();
     </script>
-    <title>AI agents and software that run your operation · Two Steps</title>
+    <title>Two Steps AI</title>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -48,7 +53,7 @@
               "width": 512,
               "height": 512
             },
-            "description": "Two Steps is a Tel Aviv studio building AI agents, voice agents and custom software that run in production. Scoped and shipped by the same people. Delivered for EY and Bulthaup.",
+            "description": "Two Steps is an AI studio building custom systems for companies with a standard to protect. Delivered for EY and Bulthaup.",
             "slogan": "Two Steps — AI systems, built to a standard.",
             "address": {
               "@type": "PostalAddress",
@@ -72,10 +77,10 @@
               "@type": "OfferCatalog",
               "name": "AI Services",
               "itemListElement": [
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI chat agents", "url": "https://twosteps.ai/services/ai-chat-agents", "description": "An agent that owns a conversation end to end — understands what's being asked, decides what to do, and does it. It reads your systems, takes the action, and hands off to a person when a person is genuinely needed.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI voice agents", "url": "https://twosteps.ai/services/ai-voice-agents", "description": "We build voice agents around a role rather than a script: inbound discovery, customer success, win-back, the operator who never misses a call. Each one knows what it's for, what it's allowed to do, and when to pass the call to a person.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom CRM", "url": "https://twosteps.ai/services/crm-development", "description": "Most companies bend their process to fit the software. We build the software around the process — the pipeline as you actually run it, the fields you actually use, the reports you actually read.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
-                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom software", "url": "https://twosteps.ai/services/custom-saas-solutions", "description": "Phyizit and Shift Manager started as blank files. We designed them, built them, shipped them and still run them.", "provider": { "@id": "https://twosteps.ai/#organization" } } }
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Chat Agents", "description": "An agent that owns a conversation end to end — understands what's being asked, decides what to do, and does it. It reads your systems, takes the action, and hands off to a person when a person is genuinely needed.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "AI Voice Agents", "description": "We build voice agents around a role rather than a script: inbound discovery, customer success, win-back, the operator who never misses a call. Each one knows what it's for, what it's allowed to do, and when to pass the call to a person. We run our own. Ask to hear it.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CRM Development", "description": "Most companies bend their process to fit the software. We build the software around the process — the pipeline as you actually run it, the fields you actually use, the reports you actually read.", "provider": { "@id": "https://twosteps.ai/#organization" } } },
+                { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Custom SaaS Solutions", "description": "Phyizit and Shift Manager started as blank files. We designed them, built them, shipped them and still run them.", "provider": { "@id": "https://twosteps.ai/#organization" } } }
               ]
             }
           },
@@ -91,11 +96,23 @@
             "@type": "WebPage",
             "@id": "https://twosteps.ai/#webpage",
             "url": "https://twosteps.ai/",
-            "name": "AI agents and software that run your operation · Two Steps",
+            "name": "Two Steps AI — AI Chat Agents, AI Voice Agents, CRM Development, Custom SaaS",
             "description": "Two Steps is an AI studio building custom systems for companies with a standard to protect. Delivered for EY and Bulthaup.",
             "inLanguage": "en-US",
             "isPartOf": { "@id": "https://twosteps.ai/#website" },
             "about": { "@id": "https://twosteps.ai/#organization" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://twosteps.ai/#faq",
+            "mainEntity": [
+              { "@type": "Question", "name": "Is my business the right fit for AI systems?", "acceptedAnswer": { "@type": "Answer", "text": "If you want to streamline operations, enhance customer experiences, or stay ahead of the competition, then yes! At Two Steps, we craft AI systems built specifically to your business's needs." } },
+              { "@type": "Question", "name": "How do I know which AI system is right for my business?", "acceptedAnswer": { "@type": "Answer", "text": "You don't need to know—we'll guide you. We'll uncover your needs and recommend the ideal system for your business." } },
+              { "@type": "Question", "name": "What industries do you work with?", "acceptedAnswer": { "@type": "Answer", "text": "From retail to healthcare, real estate, and beyond, we deliver AI systems built for diverse industries. If your business has processes, we can automate and optimize them." } },
+              { "@type": "Question", "name": "What makes your team different from other AI agencies?", "acceptedAnswer": { "@type": "Answer", "text": "We don't just build AI—we build relationships. Our team works closely with you to design systems that align perfectly with your goals." } },
+              { "@type": "Question", "name": "How do you ensure the AI solution will deliver results?", "acceptedAnswer": { "@type": "Answer", "text": "Our systems are custom-made for your business, rigorously tested, and optimized for real-world results. You'll quickly see how they save time, reduce costs, and make your operations more efficient." } },
+              { "@type": "Question", "name": "Can AI systems work with the tools/software I already use?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Our custom AI systems integrate with your existing platforms, whether it's a CRM, email system, or other internal tools." } }
+            ]
           }
         ]
       }
@@ -108,24 +125,19 @@
       <main style="color:#F5F6F8;max-width:960px;margin:0 auto;padding:48px 20px;font-family:system-ui,sans-serif;line-height:1.5;">
         <h1 style="margin:0 0 12px;font-size:2rem;">Two Steps AI</h1>
         <p style="margin:0 0 24px;color:#8A8F98;">
-          AI agents and software that run your operation. Scoped, built and run by the same people. Delivered for EY and Bulthaup.
+          Transforming business through custom AI solutions, automation, and intelligent workflows.
         </p>
         <p style="margin:0 0 10px;">Key pages:</p>
         <ul style="margin:0;padding-left:20px;">
-          <li><a href="/case-studies" style="color:#F5F6F8;">Work</a></li>
-          <li><a href="/services" style="color:#F5F6F8;">What we build</a></li>
-          <li><a href="/about" style="color:#F5F6F8;">Studio</a></li>
-          <li><a href="/blog" style="color:#F5F6F8;">Writing</a></li>
+          <li><a href="/#services" style="color:#F5F6F8;">Services</a></li>
+          <li><a href="/#why-us" style="color:#F5F6F8;">Why Us</a></li>
+          <li><a href="/#process" style="color:#F5F6F8;">Process</a></li>
+          <li><a href="/#team" style="color:#F5F6F8;">Team</a></li>
+          <li><a href="/#faq" style="color:#F5F6F8;">Q&amp;A</a></li>
+          <li><a href="/case-studies" style="color:#F5F6F8;">Our Work</a></li>
         </ul>
       </main>
     </noscript>
-    <!-- Netlify Forms target for the booking fallback (BookCallTimes). Never shown. -->
-    <form name="lead" method="POST" data-netlify="true" netlify-honeypot="company" hidden>
-      <input type="email" name="email" />
-      <input type="text" name="message" />
-      <input type="text" name="source" />
-      <input type="text" name="company" />
-    </form>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -38,7 +38,6 @@ async function requestBooking(input: {
         email: input.email,
         start: input.start,
         ts_hp: input.trap,
-        source: typeof window === 'undefined' ? '' : window.location.pathname,
       }),
       signal: input.signal,
     });

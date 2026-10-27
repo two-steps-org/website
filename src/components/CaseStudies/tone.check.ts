@@ -60,9 +60,6 @@ assert.deepEqual(
 assert.equal(new Set(dataSlugs).size, dataSlugs.length, 'case-study slugs must be unique');
 
 for (const study of caseStudies) {
-  for (const metric of study.metrics ?? []) {
-    assert.ok(metric.source.trim().length > 8, `"${study.slug}" metric "${metric.label}" has no source; unsourced numbers do not ship`);
-  }
   const meta = CASE_STUDY_META[study.slug];
   assert.ok(meta, `seoMeta.ts is missing an entry for "${study.slug}"`);
   assert.equal(meta.title, study.title, `seoMeta.ts title drifted for "${study.slug}"`);

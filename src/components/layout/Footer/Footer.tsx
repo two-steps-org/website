@@ -28,7 +28,7 @@ const Footer: React.FC = () => {
   const [selectedLegal, setSelectedLegal] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     navigation: false,
-    work: false,
+    solutions: false,
     contact: false,
     legal: false,
   });
