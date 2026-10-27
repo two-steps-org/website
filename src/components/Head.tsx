@@ -57,6 +57,12 @@ const getPageMetadata = (pathname: string) => {
         'See our work: live AI systems running in production, and how they changed the businesses they were built for.',
       type: 'CollectionPage',
     },
+    '/blog': {
+      title: 'Blog - Two Steps AI',
+      description:
+        'Notes from the Two Steps studio on custom AI, delivery, and systems built to a standard.',
+      type: 'CollectionPage',
+    },
   };
 
   const serviceMatch = /^\/services\/(.+)$/.exec(path);

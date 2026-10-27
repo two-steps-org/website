@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-hidden="true">
+  <defs>
+    <filter id="blur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="48"/>
+    </filter>
+    <radialGradient id="vig" cx="50%" cy="50%" r="70%">
+      <stop offset="0.35" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.65"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="#0a0a0c"/>
+  <ellipse cx="25%" cy="70%" rx="50%" ry="36%" fill="#c86a3a" opacity="0.85" filter="url(#blur)"/>
+  <ellipse cx="60%" cy="30%" rx="45%" ry="32.4%" fill="#5c2a14" opacity="0.85" filter="url(#blur)"/>
+  <ellipse cx="85%" cy="55%" rx="38%" ry="27.36%" fill="#12303f" opacity="0.85" filter="url(#blur)"/>
+  <rect width="1200" height="675" fill="url(#vig)"/>
+</svg>

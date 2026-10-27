@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useLayoutEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { LazyMotion, MotionConfig, domMax } from 'framer-motion';
+import { LazyMotion, MotionConfig } from 'framer-motion';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import BaseLayout from './components/layout/BaseLayout';
 import Head from './components/Head';
@@ -13,6 +13,10 @@ const CaseStudyDetail = lazy(() => import('./pages/CaseStudyDetail'));
 const Services = lazy(() => import('./pages/Services'));
 const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
 const About = lazy(() => import('./pages/About'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+
+const loadFeatures = () => import('framer-motion').then((mod) => mod.domMax);
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-black" aria-hidden="true" />
@@ -25,7 +29,7 @@ const AppContent: React.FC = () => {
     <>
       <Head location={location} />
       <ErrorBoundary>
-        <LazyMotion features={domMax} strict>
+        <LazyMotion features={loadFeatures} strict>
           <MotionConfig reducedMotion={PREVIEW_FULL_MOTION ? 'never' : 'user'}>
             <Suspense fallback={<LoadingFallback />}>
               <BaseLayout>
@@ -36,6 +40,8 @@ const AppContent: React.FC = () => {
                   <Route path="/services" element={<Services />} />
                   <Route path="/services/:slug" element={<ServiceDetail />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
                 </Routes>
               </BaseLayout>
             </Suspense>

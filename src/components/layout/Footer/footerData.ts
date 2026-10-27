@@ -36,6 +36,7 @@ export const navigation: NavItem[] = [
   { label: 'Services', href: '/services' },
   { label: 'Our Work', href: '/case-studies' },
   { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Q&A', href: '/#faq' },
 ];
 

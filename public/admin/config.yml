@@ -1,0 +1,41 @@
+# Decap CMS — edits content/blog/*.md in this repo via GitHub.
+# Open at https://cms.twosteps.ai/admin/ (or /admin/ on any deploy host).
+# Phase 2: requires GitHub OAuth / Netlify Identity + repo write access.
+
+backend:
+  name: github
+  repo: two-steps-org/website
+  branch: main
+
+# Uncomment for local editing: npx decap-server
+# local_backend: true
+
+media_folder: public/blog/covers
+public_folder: /blog/covers
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  - name: blog
+    label: Blog posts
+    label_singular: Post
+    folder: content/blog
+    create: true
+    slug: '{{slug}}'
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string, hint: 'Must match filename, e.g. my-post.md → slug my-post' }
+      - { label: Published date, name: publishedAt, widget: datetime, format: YYYY-MM-DD, date_format: YYYY-MM-DD, time_format: false }
+      - { label: Excerpt, name: excerpt, widget: text }
+      - { label: Draft, name: draft, widget: boolean, default: true }
+      - { label: SEO title, name: seoTitle, widget: string, required: false }
+      - { label: SEO description, name: seoDescription, widget: text, required: false }
+      - { label: Cover image, name: coverImage, widget: image, required: false }
+      - { label: Author, name: author, widget: string, default: 'Two Steps' }
+      - { label: Tags, name: tags, widget: list, default: [] }
+      - { label: Body, name: body, widget: markdown }

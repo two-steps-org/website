@@ -3,5 +3,6 @@ export const navItems: ReadonlyArray<{ name: string; url: string }> = [
   { name: 'Services', url: '/services' },
   { name: 'Our Work', url: '/case-studies' },
   { name: 'About', url: '/about' },
+  { name: 'Blog', url: '/blog' },
   { name: 'Q&A', url: '/#faq' },
 ];
