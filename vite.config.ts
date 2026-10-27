@@ -1,9 +1,23 @@
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import process from 'node:process';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { compression } from 'vite-plugin-compression2';
 import { visualizer } from 'rollup-plugin-visualizer';
+
+function readableVisualizerReport(): Plugin {
+  return {
+    name: 'readable-visualizer-report',
+    closeBundle() {
+      const file = 'stats.html';
+      if (!existsSync(file)) return;
+      const html = readFileSync(file, 'utf8');
+      const next = html.replaceAll('/*-->*/', '/* report */');
+      if (next !== html) writeFileSync(file, next);
+    },
+  };
+}
 
 function bookCallDevApi(): Plugin {
   return {
@@ -25,17 +39,33 @@ function bookCallDevApi(): Plugin {
             const url = new URL(req.url || '/', 'http://localhost');
             const chunks: Buffer[] = [];
             if (req.method === 'POST') {
-              await new Promise<void>((resolve, reject) => {
-                req.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
-                req.on('end', resolve);
+              const tooLarge = await new Promise<boolean>((resolve, reject) => {
+                let size = 0;
+                req.on('data', (chunk: Buffer) => {
+                  size += chunk.length;
+                  if (size > 64 * 1024) {
+                    resolve(true);
+                    req.destroy();
+                    return;
+                  }
+                  chunks.push(Buffer.from(chunk));
+                });
+                req.on('end', () => resolve(false));
                 req.on('error', reject);
               });
+              if (tooLarge) {
+                res.statusCode = 413;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Request is too large.' }));
+                return;
+              }
             }
             const mod = await server.ssrLoadModule('/server/bookCall.ts');
             const result = await mod.handleBookCall({
               method: req.method || 'GET',
               query: Object.fromEntries(url.searchParams),
               body: chunks.length ? Buffer.concat(chunks).toString('utf8') : null,
+              ip: req.socket.remoteAddress,
             });
             res.statusCode = result.status;
             res.setHeader('Content-Type', 'application/json');
@@ -62,7 +92,10 @@ export default defineConfig({
       algorithms: ['brotliCompress', 'gzip'],
     }),
     ...(process.env.ANALYZE
-      ? [visualizer({ filename: 'stats.html' }) as import('vite').PluginOption]
+      ? [
+          visualizer({ filename: 'stats.html' }) as import('vite').PluginOption,
+          readableVisualizerReport(),
+        ]
       : []),
   ],
   build: {

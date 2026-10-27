@@ -1,3 +1,13 @@
+export const CAL_VIEWS = ['month', 'week', 'day'] as const;
+export type CalView = (typeof CAL_VIEWS)[number];
+
+const monthTitleFormat = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' });
+const dayTitleFormat = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+});
+
 export const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 export const WEEKDAY_ONE = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 export const WEEKDAY_FULL = [
@@ -46,9 +56,7 @@ export function shiftMonth(key: string, delta: number) {
 
 export function monthTitle(key: string) {
   const [year, month] = key.split('-').map(Number);
-  return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(
-    new Date(year, month - 1, 1),
-  );
+  return monthTitleFormat.format(new Date(year, month - 1, 1));
 }
 
 export function monthCells(key: string) {
@@ -73,15 +81,67 @@ export function todayYmd(timeZone: string) {
 
 export function dayTitle(ymd: string) {
   const [year, month, day] = ymd.split('-').map(Number);
-  return new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date(year, month - 1, day));
+  return dayTitleFormat.format(new Date(year, month - 1, day));
+}
+
+export function calendarHeading(view: CalView, selectedDate: string | null, month: string) {
+  if (view === 'day' && selectedDate) return dayTitle(selectedDate);
+  if (view === 'week' && selectedDate) return monthTitle(monthKey(selectedDate));
+  return monthTitle(month);
+}
+
+export function canShiftCalendar(
+  delta: number,
+  view: CalView,
+  month: string,
+  selectedDate: string | null,
+  minDate: string | null,
+  maxDate: string | null,
+) {
+  const bound = delta < 0 ? minDate : maxDate;
+  if (!bound) return false;
+  if (view === 'month') return delta < 0 ? month > monthKey(bound) : month < monthKey(bound);
+  const cursor = view === 'week' ? startOfWeek(selectedDate ?? bound) : (selectedDate ?? bound);
+  const edge = view === 'week' ? startOfWeek(bound) : bound;
+  return delta < 0 ? cursor > edge : cursor < edge;
+}
+
+export function clampYmd(date: string, minDate: string | null, maxDate: string | null) {
+  if (minDate && date < minDate) return minDate;
+  if (maxDate && date > maxDate) return maxDate;
+  return date;
+}
+
+export function nearestOpenDay(date: string, openDates: { has(date: string): boolean }) {
+  if (openDates.has(date)) return date;
+  return weekDays(date).find((day) => openDates.has(day)) ?? date;
+}
+
+export function steppedDate(
+  view: 'week' | 'day',
+  selectedDate: string,
+  delta: number,
+  minDate: string | null,
+  maxDate: string | null,
+  openDates: { has(date: string): boolean },
+) {
+  const shifted = addYmd(selectedDate, view === 'week' ? delta * 7 : delta);
+  const clamped = clampYmd(shifted, minDate, maxDate);
+  return view === 'week' ? nearestOpenDay(clamped, openDates) : clamped;
+}
+
+const formatCache = new Map<string, Intl.DateTimeFormat>();
+
+function cachedFormat(key: string, options: Intl.DateTimeFormatOptions) {
+  const existing = formatCache.get(key);
+  if (existing) return existing;
+  const format = new Intl.DateTimeFormat('en-US', options);
+  formatCache.set(key, format);
+  return format;
 }
 
 export function hourInZone(start: string, timeZone: string) {
-  const hour = new Intl.DateTimeFormat('en-US', {
+  const hour = cachedFormat(`hour|${timeZone}`, {
     timeZone,
     hour: 'numeric',
     hourCycle: 'h23',
@@ -97,7 +157,7 @@ export function formatHour(hour: number, hour24: boolean) {
 }
 
 export function formatTime(start: string, timeZone: string, hour24: boolean) {
-  return new Intl.DateTimeFormat('en-US', {
+  return cachedFormat(`time|${timeZone}|${hour24}`, {
     timeZone,
     hour: 'numeric',
     minute: '2-digit',
@@ -107,7 +167,7 @@ export function formatTime(start: string, timeZone: string, hour24: boolean) {
 }
 
 export function formatSlot(start: string, timeZone: string, hour24: boolean) {
-  return new Intl.DateTimeFormat('en-US', {
+  return cachedFormat(`slot|${timeZone}|${hour24}`, {
     timeZone,
     weekday: 'long',
     month: 'short',

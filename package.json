@@ -10,43 +10,43 @@
     "build:seo:staging": "export SEO_ENV=staging VITE_SEO_ENV=staging; tsc --noEmit && vite build && node --import tsx scripts/prerender.ts && node --import tsx scripts/generate-sitemap.ts && node --import tsx scripts/verify-seo-html.ts",
     "seo:verify": "node --import tsx scripts/verify-seo-html.ts",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --import tsx --test server/bookCall.test.ts src/components/BookCall/bookCall.test.ts && node --import tsx src/components/CaseStudies/tone.check.ts && node --import tsx src/lib/blog/blog.check.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "framer-motion": "^12.43.0",
-    "lucide-react": "^1.47.0",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^1.52.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-helmet-async": "^2.0.5",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.4",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.3",
+    "@eslint/js": "^9.39.5",
     "@tailwindcss/vite": "^4.3.3",
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^24.10.13",
+    "@types/node": "^24.19.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
-    "@vitejs/plugin-react": "^6.1.1",
-    "eslint": "^9.39.3",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
+    "@typescript-eslint/parser": "^8.71.1",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^15.15.0",
     "jsdom": "^27.4.0",
-    "playwright": "^1.58.2",
+    "playwright": "^1.63.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "tailwindcss": "^4.3.3",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vite": "^8.3.0",
+    "vite": "^8.3.3",
     "vite-plugin-compression2": "^2.5.3"
   },
-  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc",
-  "pnpm": {
-    "minimumReleaseAge": 0
-  }
+  "packageManager": "pnpm@10.29.3+sha512.498e1fb4cca5aa06c1dcf2611e6fafc50972ffe7189998c409e90de74566444298ffe43e6cd2acdc775ba1aa7cc5e092a8b7054c811ba8c5770f84693d33d2dc"
 }
